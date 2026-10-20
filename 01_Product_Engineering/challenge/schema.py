@@ -26,7 +26,34 @@ TrustWarning = Literal[
     "small_sample",
     "methods_not_described",
     "no_controls",
+    # Added in TC2. The R&D team said these are the problems a reader misses
+    # most easily, because the study otherwise looks sound.
+    "lab_scale_only",
+    "in_vitro_or_animal_only",
+    "industry_funded",
+    "single_origin_or_batch",
+    "no_statistics",
+    "abstract_only",
 ]
+
+# Who produced the study. An independent university result and a supplier's own
+# trial can report the same number and deserve different trust.
+Affiliation = Literal[
+    "university_or_public_institute",
+    "company",
+    "mixed",
+    "unknown",
+]
+
+TRUST_RULES = (
+    "high: peer-reviewed, controlled, adequate sample, statistics reported, and "
+    "conditions close to industrial practice or to humans; at most one minor warning. "
+    "medium: sound but limited, with one or two warnings, for example lab_scale_only "
+    "or single_origin_or_batch. "
+    "low: three or more warnings, or any of not_peer_reviewed together with "
+    "industry_funded, or in_vitro_or_animal_only when the claim is about people, "
+    "or small_sample in a pilot study that makes a health claim."
+)
 
 
 class Request(BaseModel):
@@ -96,12 +123,21 @@ class Response(BaseModel):
     )
 
     # Kept apart from needs_human: a weak study still gets a card, with a caveat.
+    affiliation: Affiliation | None = Field(
+        default=None,
+        description="Who produced the study, as far as the text shows; unknown "
+        "when it does not say",
+    )
     trust_level: TrustLevel | None = Field(
-        default=None, description="How far the study can be relied on"
+        default=None,
+        description="How far the study can be relied on. " + TRUST_RULES,
     )
     trust_warnings: list[TrustWarning] = Field(
         default_factory=list,
-        description="The warning signs found that explain the trust level",
+        description="The warning signs found that explain the trust level. "
+        "industry_funded applies when funding or authorship comes from a company "
+        "with a commercial interest in the result; abstract_only when only the "
+        "abstract is available, so methods cannot be checked",
     )
 
 

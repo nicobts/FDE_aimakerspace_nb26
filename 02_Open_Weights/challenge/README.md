@@ -559,3 +559,15 @@ challenge, which carries the full detail.
 
 Everything after this week assumes you have data you can show people, and a
 document that says what it is.
+
+---
+
+## Bring it to work
+
+**The project.** The research digest for the customer's R&D team: today it cannot be tested on the documents researchers actually read, because their reading notes and literature reviews are internal, and the SMEs of the other verticals, who own that information, have not yet been involved to release and validate it.
+
+**Data.** Seed from the public papers and supplier notes R&D receives from its usual sources, and generate from a written description reviewed by the SMEs of each vertical, never from R&D's internal notes or reviews, which stay as real ground truth for Week 4.
+
+**Model or endpoint.** The customer's AI gateway, reached from the GCP VM behind Identity-Aware Proxy where the app runs: public papers can go to a hosted model through it, but as soon as internal notes or focus questions are in the prompt the data must not leave that boundary, so the gateway must route them to a model the customer approves for internal data.
+
+**Access or approval.** The data owners (the SMEs of each vertical, through R&D) to approve the documents used as seeds and to confirm the labels; the customer's IT to approve the gateway route and the model for internal data; final go-ahead agreed between my CTO and the customer, as for the deployment.

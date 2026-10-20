@@ -86,6 +86,16 @@ with model calls going through a gateway and general egress still unknown. The
 useful comparison is this same probe run from that VM once it is up; I will add
 that as a second dated table here.
 
+**Week 2 — a local model (2026-10-21).** Ollama with `qwen2.5:7b` downloaded
+without trouble on my laptop (RTX 4060, 8 GB), and the Week 1 app ran on it
+with two `.env` lines and no code change. But on the five goldens it declined
+all five, including the four that should get a card, against 5 of 5 correct
+decisions from the hosted model on the same inputs. A local model is a
+plausible path at the customer only if three things are true: a GPU VM in
+their GCP project next to the app, a larger open model than 7B that passes the
+goldens, and their IT accepting that the gateway routes internal documents to
+it instead of to a hosted API.
+
 ---
 
 ## Week 9 — the full checklist

@@ -118,10 +118,16 @@ file. A high score on these synthetic rows must not be reported as accuracy.
 Ticked by me after reading 50 of the 111 rows, not by the script. The automated
 regex leak check reported: 1 hit, "BACKGROUND AND AIMS", a structured-abstract heading shared with a golden, not a name or identifier.
 
-- [x] No real record was used as a seed.
-- [x] No real entity names, IDs, or identifiers appear.
-- [x] No distinctive internal formats that would identify the firm.
-- [x] Rare categories were generated, not copied.
+- [x] No real record was used as a seed. The seeds were the schema, the axes
+  and three goldens, which are published journal abstracts, not customer
+  records.
+- [x] No real entity names, IDs, or identifiers appear. Checked on the 50-row
+  sample; row 49 was removed for naming a roaster and a batch code. Journal
+  names and coffee regions are public and identify no one.
+- [x] No distinctive internal formats that would identify the firm. Rows 49
+  (batch code) and 32 ("internal technical bulletin") were removed.
+- [x] Rare categories were generated, not copied. No internal document went
+  into the generator; the packaging cases come from the axes description.
 
 **Rows removed after reading, and why.** I read 50 rows, 10 per outcome, and
 removed 7 (row numbers in the raw run):

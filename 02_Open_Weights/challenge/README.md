@@ -562,6 +562,37 @@ document that says what it is.
 
 ---
 
+## Step 5 — the Week 1 app on a local model
+
+**The diff.** Two lines in `.env`, no code change:
+
+```diff
+- LLM_MODEL=openrouter/anthropic/claude-sonnet-5
++ LLM_MODEL=ollama_chat/qwen2.5:7b
++ LLM_API_BASE=http://localhost:11434
+```
+
+**Result on the five goldens** (`summarize_research_paper`, 2026-10-21, all
+numbers *measured*; laptop with RTX 4060, 8 GB):
+
+| Golden | Expected | Hosted `claude-sonnet-5` | Local `qwen2.5:7b` |
+| --- | --- | --- | --- |
+| G1 | card, medium | card, medium, 11.0 s | declined, 18.9 s |
+| G2 | card, high | card, high, 14.1 s | declined, 6.7 s |
+| G3 | card, medium | card, medium, 8.3 s | declined, 3.5 s |
+| G4 | card, low | card, medium, 14.1 s | declined, 6.0 s |
+| G5 | decline | declined, 3.1 s | declined, 7.2 s |
+
+The hosted model gets the decision right on 5 of 5 and the trust level on 4 of
+5. The local model declines everything, giving reasons such as "the text is a
+summary", and still fills in `trust_level` while declining, which breaks the
+contract: the app does not yet reject a decline that carries card fields.
+Generation showed the same gap (2 of 6 valid rows, and only with `num_ctx`
+16384). The provider switch is clean; the 7B model is not good enough for this
+task. The finding is in `use_case/ecosystem.md`.
+
+---
+
 ## Bring it to work
 
 **The project.** The research digest for the customer's R&D team: today it cannot be tested on the documents researchers actually read, because their reading notes and literature reviews are internal, and the SMEs of the other verticals, who own that information, have not yet been involved to release and validate it.

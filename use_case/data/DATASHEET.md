@@ -115,13 +115,13 @@ file. A high score on these synthetic rows must not be reported as accuracy.
 
 ## Leakage check — outward (what left)
 
-To be ticked by me after reading 50 rows, not by the script. The automated
+Ticked by me after reading 50 of the 111 rows, not by the script. The automated
 regex leak check reported: 1 hit, "BACKGROUND AND AIMS", a structured-abstract heading shared with a golden, not a name or identifier.
 
-- [ ] No real record was used as a seed.
-- [ ] No real entity names, IDs, or identifiers appear.
-- [ ] No distinctive internal formats that would identify the firm.
-- [ ] Rare categories were generated, not copied.
+- [x] No real record was used as a seed.
+- [x] No real entity names, IDs, or identifiers appear.
+- [x] No distinctive internal formats that would identify the firm.
+- [x] Rare categories were generated, not copied.
 
 **Rows removed after reading, and why.** I read 50 rows, 10 per outcome, and
 removed 7 (row numbers in the raw run):

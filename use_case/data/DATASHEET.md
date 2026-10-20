@@ -14,7 +14,8 @@ used.
 **Kind:** prototyping data. The inputs look like the documents the service will
 receive; the outputs are labels written by the generating model, and no
 researcher has verified them. It is not backtesting data.
-**Rows:** 118 schema-valid rows (71 cards, 47 declines)
+**Rows:** 111 (65 cards, 46 declines): 118 schema-valid, minus 7 removed after
+reading
 
 ### Run settings and counts
 
@@ -27,15 +28,16 @@ researcher has verified them. It is not backtesting data.
 | Generated | 120 (0 unparseable lines) |
 | After dedupe | 120 (dedupe dropped none) |
 | Schema-valid | 118 |
+| Removed after reading | 7, leaving 111 (see the leakage check) |
 | Dead combinations | 1 of 60: journal abstract × packaging and shelf life × weak in a way that is easy to miss. Both rows failed validation, so the hidden-weakness case has no abstract-format example on packaging. |
 | Cost | 60 calls, 548,496 tokens (304,973 in / 243,523 out), 2,490 s (41.5 s per call), about $3.05 at OpenRouter list price |
 | Reproduce | `uv run python 02_Open_Weights/challenge/generate.py` |
 
-**What the labels show.** Trust levels are 24 high, 44 low and only 3 medium
-among the 71 cards: the generator labelled almost every "weak but easy to miss"
-study low, not medium. Affiliation is unknown on 28 cards, company on 25,
-university or public institute on 14, and mixed on 4. One of the 48 decline
-rows came back as a card.
+**What the labels show** (the 111 kept rows). Trust levels are 20 high, 42 low
+and only 3 medium among the 65 cards: the generator labelled almost every
+"weak but easy to miss" study low, not medium. Affiliation is unknown on 25
+cards, company on 23, university or public institute on 13, and mixed on 4.
+In the raw run, one of the 48 decline rows came back as a card.
 
 "Schema-valid" means the input parses as a `Request`, the output parses as a
 `Response`, and a decline has a reason and no category or trust level (the
@@ -74,7 +76,7 @@ informally confirmed by one R&D researcher.
   study. The weaknesses are planted, so they are always findable in the text;
   in a real paper the missing control or the funding line may be absent from
   the abstract, or buried in a footnote.
-- **The medium trust level.** Only 3 of 71 cards are medium. The data cannot
+- **The medium trust level.** Only 3 of 65 cards are medium. The data cannot
   show whether the service separates medium from low, and that is the line
   researchers care about most: a sound study with one limitation.
 - **The real mix of documents.** Every combination is generated equally, so
@@ -121,8 +123,31 @@ regex leak check reported: 1 hit, "BACKGROUND AND AIMS", a structured-abstract h
 - [ ] No distinctive internal formats that would identify the firm.
 - [ ] Rare categories were generated, not copied.
 
-**Rows removed after reading, and why:** TODO, one line per removed row, or
-what I looked for if none were removed.
+**Rows removed after reading, and why.** I read 50 rows, 10 per outcome, and
+removed 7 (row numbers in the raw run):
+
+- Row 49: names an Italian roaster and a batch code in an internal-looking
+  format, too close to the customer's own world to publish.
+- Row 32: the source is an "internal technical bulletin", a format that looks
+  like the customer's own documents; the text type asked for a peer-reviewed
+  excerpt.
+- Row 59: high trust on a preprint that is not peer reviewed, against
+  `TRUST_RULES`.
+- Row 80: high trust on a preprint that is not peer reviewed, with a "zero aroma
+  loss" headline, against `TRUST_RULES`.
+- Row 99: high trust on a supplier's own industry-funded internal trial,
+  against `TRUST_RULES`.
+- Row 94: wrong category; a green coffee extract sold for antioxidant
+  protection is health, not roasting.
+- Row 66: would never happen; the title is about coffee roasting and the text is
+  about melatonin in students.
+
+What reading showed beyond the removals: three of the seven are high trust
+against the rules, so the generator does not always follow `TRUST_RULES` and
+the service's output will need the same check. High trust with one
+single-batch warning (rows 2, 21, 50) was kept but is borderline, a question
+for the SMEs. All 20 decline rows read were correct. Supplier and company names
+are invented; row 49 was the only one that read like a real company.
 
 ## Leakage check — inward (what the eval shares with the training data)
 

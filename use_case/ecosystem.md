@@ -96,6 +96,16 @@ their GCP project next to the app, a larger open model than 7B that passes the
 goldens, and their IT accepting that the gateway routes internal documents to
 it instead of to a hosted API.
 
+Both paths stay configured: the hosted model through OpenRouter is the default,
+and two local models are commented options in `.env`, `qwen2.5:7b` and Liquid
+AI's `LFM2.5-8B-A1B` (Q4_K_M, about 5 GB, pulled from Hugging Face through
+Ollama). Liquid AI's models are built for on-device use, which matches the
+"model inside the customer's boundary" case. Its licence must be read before
+anything is deployed at the customer. Tested on the same five goldens, it did
+worse than Qwen: 4 of 5 answers broke the JSON contract, and its one card had
+the wrong category and trust level. Neither small local model is usable for
+this task yet.
+
 ---
 
 ## Week 9 — the full checklist

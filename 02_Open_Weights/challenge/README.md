@@ -564,32 +564,116 @@ document that says what it is.
 
 ## Step 5 — the Week 1 app on a local model
 
-**The diff.** Two lines in `.env`, no code change:
+**The diff.** Two lines in `.env`, no code change. The hosted model stays in the
+file, commented out, so I can switch back and forth:
 
 ```diff
 - LLM_MODEL=openrouter/anthropic/claude-sonnet-5
++ # LLM_MODEL=openrouter/anthropic/claude-sonnet-5
 + LLM_MODEL=ollama_chat/qwen2.5:7b
 + LLM_API_BASE=http://localhost:11434
 ```
 
-**Result on the five goldens** (`summarize_research_paper`, 2026-10-21, all
-numbers *measured*; laptop with RTX 4060, 8 GB):
+Two local models are set up, each a commented pair in `.env`:
 
-| Golden | Expected | Hosted `claude-sonnet-5` | Local `qwen2.5:7b` |
+| Model | Ollama name | Size | Why |
 | --- | --- | --- | --- |
-| G1 | card, medium | card, medium, 11.0 s | declined, 18.9 s |
-| G2 | card, high | card, high, 14.1 s | declined, 6.7 s |
-| G3 | card, medium | card, medium, 8.3 s | declined, 3.5 s |
-| G4 | card, low | card, medium, 14.1 s | declined, 6.0 s |
-| G5 | decline | declined, 3.1 s | declined, 7.2 s |
+| Qwen 2.5 7B | `ollama_chat/qwen2.5:7b` | 4.7 GB | Recommended small model for tool calling; fits the 8 GB GPU |
+| Liquid AI LFM2.5 8B-A1B | `ollama_chat/hf.co/LiquidAI/LFM2.5-8B-A1B-GGUF:Q4_K_M` | about 5 GB | Mixture of experts with about 1B parameters active, built for on-device use; to test whether it beats Qwen on the goldens |
 
-The hosted model gets the decision right on 5 of 5 and the trust level on 4 of
-5. The local model declines everything, giving reasons such as "the text is a
-summary", and still fills in `trust_level` while declining, which breaks the
-contract: the app does not yet reject a decline that carries card fields.
-Generation showed the same gap (2 of 6 valid rows, and only with `num_ctx`
-16384). The provider switch is clean; the 7B model is not good enough for this
-task. The finding is in `use_case/ecosystem.md`.
+The `lfm2` tag in the Ollama library is the 24B model (14 GB at Q4), too big
+for this laptop's GPU, so the 8B-A1B build is pulled from Hugging Face instead.
+
+### The tests I ran
+
+All on 2026-10-20/21, all numbers *measured*. Hardware: laptop with Intel Core
+Ultra 9 185H, 32 GB RAM, RTX 4060 with 8 GB VRAM; Ollama 0.40.6.
+
+**Test A: synthetic data generation, 3 axis combinations, 6 rows asked**
+(`generate.py --limit 3`, same prompt, temperature 0.9, top-p 0.95).
+
+| Run | Model | Generated → distinct → valid | Time per call | Tokens |
+| --- | --- | --- | --- | --- |
+| A1 | hosted `claude-sonnet-5`, before the fix | 6 → 6 → **0** | — | — |
+| A2 | hosted `claude-sonnet-5`, schema in the prompt | 6 → 6 → **6** | 39.8 s | 27,621 |
+| A3 | local `qwen2.5:7b`, default context | 4 (+2 unparseable) → 3 → **0** | 45.9 s | 11,939 |
+| A4 | local `qwen2.5:7b`, `num_ctx` 16384 | 6 → 5 → **2** | 31.0 s | 12,374 |
+| A5 | local `LFM2.5-8B-A1B`, `num_ctx` 16384 | 1 (+4 unparseable) → 1 → **0** | 34.2 s | 20,457 |
+
+**Test B: full generation run, 60 combinations, 120 rows asked**, hosted only:
+120 generated → 120 after dedupe → 118 schema-valid, 1 dead combination,
+41.5 s per call, 548,496 tokens, about $3.05. The first attempt was killed at
+combination 50 of 60 when the laptop ran out of memory with the Qwen model
+still loaded, and nothing was saved.
+
+**Test C: the Week 1 app on the five goldens** (`summarize_research_paper`,
+only `.env` changed between runs).
+
+| Golden | Expected | Hosted `claude-sonnet-5` | Local `qwen2.5:7b` | Local `LFM2.5-8B-A1B` |
+| --- | --- | --- | --- | --- |
+| G1 | card, medium | card, medium, 11.0 s | declined, 18.9 s | card, but high and wrong category, 79.6 s (includes loading) |
+| G2 | card, high | card, high, 14.1 s | declined, 6.7 s | answer broke the contract, 12.5 s |
+| G3 | card, medium | card, medium, 8.3 s | declined, 3.5 s | answer broke the contract, 10.5 s |
+| G4 | card, low | card, medium, 14.1 s | declined, 6.0 s | answer broke the contract, 14.7 s |
+| G5 | decline | declined, 3.1 s | declined, 7.2 s | answer broke the contract (counted as decline), 12.1 s |
+| **Correct decision** | | **5 of 5** | **1 of 5** | **0 of 5** really (G5 declined only because the answer was unreadable) |
+
+### What I noticed
+
+- **The switch itself is free.** Moving the app from OpenRouter to Ollama was
+  two lines in `.env` and no code change, so the provider indirection from
+  Week 1 did its job.
+- **But one setting is not portable.** The generation prompt (about 10,000
+  tokens with the schema and three examples) did not fit Ollama's default
+  context window: replies were cut off mid-JSON (A3). Setting `num_ctx` fixed
+  it (A4), but `num_ctx` is an Ollama-only parameter. The app has no way to
+  pass it, so a long document would hit the same wall there. A hosted API
+  never showed this because its context is large by default.
+- **Local failures are silent.** The local model never raised an error. It
+  produced truncated JSON, or a clean answer that declined every paper. Only
+  the schema validation and the goldens made the failure visible.
+- **The small model fails safe, but uselessly.** Qwen declined all five
+  goldens, with reasons such as "the text is a summary". Declining is the safe
+  error, but a service that declines everything has no value. It also filled
+  in `trust_level` while declining, which breaks the contract, and the app does
+  not yet reject that; `generate.py`'s `validate()` already does.
+- **Speed is not the problem; quality is.** Local calls were as fast as hosted
+  ones or faster (3.5 to 19 s against 3 to 14 s on the goldens, 31 s against
+  40 s per generation call). The difference is entirely in the answers.
+- **The schema was stricter than real papers.** The first hosted trial (A1)
+  failed on every row because the model wrote `sample_size` as a design
+  ("6 origins × 3 roast degrees") instead of one number. That is a finding
+  about the schema, now in the datasheet, not only about the model.
+- **Hardware decides the shortlist.** 8 GB of VRAM rules out the default `lfm2`
+  tag (24B, 14 GB). A mixture-of-experts model such as LFM2.5-8B-A1B is the way
+  to get a larger model into a small GPU, because only about 1B parameters run
+  per token.
+- **Local models cost memory, not money.** The hosted run cost about $3 for
+  120 rows. The local model was free per token but held 5.5 GB, and together
+  with everything else it starved the laptop and killed a 40-minute run.
+- **Liquid AI was less stable than Qwen, not better.** On the goldens, 4 of 5 answers did not match the contract, and the app turned them into automatic declines; its one card had the wrong category and trust level. Re-running G2 gave valid JSON the second time, but without `trust_level`, the Italian text or the notes: the output changes from run to run and drops fields the schema allows to be empty. In generation it wrote almost twice as many tokens as Qwen (10,601 out against 2,450) and 4 of 5 lines were unparseable. A model built for on-device speed is not automatically good at long structured output.
+
+### What I take away
+
+1. **Test the model on the goldens before trusting it.** The provider switch
+   is cheap; finding out whether the new model can do the task is the real
+   work, and five goldens were enough to show that neither local model can:
+   Qwen 7B declines everything, Liquid AI's 8B-A1B breaks the contract.
+2. **Validate every output against the contract.** A local model that fails
+   still returns well-formed text. Without the schema check and the
+   decline rule, the failures would have looked like results.
+3. **Check the context window first.** It is a server default, not a model
+   property, and it is the first thing that breaks when moving from a hosted
+   API to a local one.
+4. **Write results as you go.** `generate()` only writes at the end, so a run
+   killed at 50 of 60 lost everything. Long runs should save each combination.
+5. **Hosted for prototyping, local only when data must stay inside.** For
+   synthetic data from public abstracts, hosted is cheaper in my time and
+   better in quality. A local model becomes necessary only when internal
+   documents enter the prompt, and then it has to be larger than 7B and run on
+   a GPU in the customer's cloud. That is the Week 9 question.
+
+The finding is also in `use_case/ecosystem.md`.
 
 ---
 

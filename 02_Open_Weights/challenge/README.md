@@ -562,6 +562,26 @@ document that says what it is.
 
 ---
 
+## My submission
+
+Where each deliverable lives.
+
+| Deliverable | Answer | Where |
+| --- | --- | --- |
+| Axes with reasons (Step 1) | 3 axes, 60 combinations: text type (4), research area (3), outcome (5, two of them declines). "Weak in a way that is easy to miss" is the domain-specific value. | [`axes.py`](axes.py), datasheet "Variation axes", [`use_case/axis_assumptions.md`](../../use_case/axis_assumptions.md) |
+| Counts and settings (Step 2) | 120 generated → 120 after dedupe → 118 schema-valid, 1 dead combination; temperature 0.9, top-p 0.95, dedupe 0.7, hosted `claude-sonnet-5` | [`use_case/data/DATASHEET.md`](../../use_case/data/DATASHEET.md), [`generate.py`](generate.py) |
+| Dedupe threshold row (Step 2) | 0.7, with what would change it | [`use_case/decisions.md`](../../use_case/decisions.md) |
+| Leak check and 50 rows read (Step 3) | 1 regex hit (a section heading); 7 rows removed after reading, 111 remain, each removal with its reason | Datasheet, "Leakage check — outward" |
+| Datasheet (Step 4) | Prototyping data; 8 things it cannot validate; goldens overlap with the data | Datasheet |
+| Model/endpoint row (Step 4) | Hosted over local, numbers tagged measured / looked up, reasons tagged constraint / preference | [`use_case/decisions.md`](../../use_case/decisions.md) |
+| Local model (Step 5, optional) | Two local models tested against the hosted one | Below, and [`use_case/ecosystem.md`](../../use_case/ecosystem.md) |
+| Review by someone who knows the data (Step 6) | R&D agreed; a second iteration with SMEs from each vertical is requested | [`step6_answers.md`](step6_answers.md), [`use_case/stakeholders.md`](../../use_case/stakeholders.md), Step 6 row in `decisions.md` |
+| Bring it to work (Step 7) | The project and three swap lines | Below |
+
+The synthetic data itself is not in the repo, by design.
+
+---
+
 ## Step 5 — the Week 1 app on a local model
 
 **The diff.** Two lines in `.env`, no code change. The hosted model stays in the

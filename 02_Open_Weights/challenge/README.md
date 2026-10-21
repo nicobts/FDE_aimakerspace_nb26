@@ -90,17 +90,17 @@ is going to ask you for.
 This is the graded part. Every item comes from a numbered step in the technical
 challenge, which carries the full detail.
 
-- [ ] Axes in your repo: at least two specific to your domain, one that covers inputs the system should **decline**
-- [ ] `use_case/data/synthetic_v1.jsonl` written (gitignored — the datasheet says how many rows)
-- [ ] Generated / after-dedupe / schema-valid counts reported, plus dead axis combinations
-- [ ] Leak check run **and** fifty rows read by you, with what you removed
-- [ ] `use_case/data/DATASHEET.md` filled in, including what the data cannot validate **and whether the goldens are disjoint from anything the system was tuned on**
-- [ ] **The model/endpoint row in `use_case/decisions.md`** — every number tagged *measured* or *looked up*, and constraints marked apart from preferences
+- [x] Axes in your repo: at least two specific to your domain, one that covers inputs the system should **decline**
+- [x] `use_case/data/synthetic_v1.jsonl` written (gitignored — the datasheet says how many rows)
+- [x] Generated / after-dedupe / schema-valid counts reported, plus dead axis combinations
+- [x] Leak check run **and** fifty rows read by you, with what you removed
+- [x] `use_case/data/DATASHEET.md` filled in, including what the data cannot validate **and whether the goldens are disjoint from anything the system was tuned on**
+- [x] **The model/endpoint row in `use_case/decisions.md`** — every number tagged *measured* or *looked up*, and constraints marked apart from preferences
 
 ### 📤 Share
 
-- [ ] **A demo to a real user, with their feedback recorded in your own words** — graded, and the one people skip
-- [ ] **What you would swap to run this at work** — data, model or endpoint, and the approval you would need — three lines in your README
+- [x] **A demo to a real user, with their feedback recorded in your own words** — graded, and the one people skip
+- [x] **What you would swap to run this at work** — data, model or endpoint, and the approval you would need — three lines in your README
 - [ ] Your repo link posted in [our community on Maven](https://bit.ly/fde1-maven-community)
 - [ ] Comments on at least two other students' submissions, after the deadline
 <!-- deliverables:end -->
@@ -529,17 +529,17 @@ is going to ask you for.
 This is the graded part. Every item comes from a numbered step in the technical
 challenge, which carries the full detail.
 
-- [ ] Axes in your repo: at least two specific to your domain, one that covers inputs the system should **decline**
-- [ ] `use_case/data/synthetic_v1.jsonl` written (gitignored — the datasheet says how many rows)
-- [ ] Generated / after-dedupe / schema-valid counts reported, plus dead axis combinations
-- [ ] Leak check run **and** fifty rows read by you, with what you removed
-- [ ] `use_case/data/DATASHEET.md` filled in, including what the data cannot validate **and whether the goldens are disjoint from anything the system was tuned on**
-- [ ] **The model/endpoint row in `use_case/decisions.md`** — every number tagged *measured* or *looked up*, and constraints marked apart from preferences
+- [x] Axes in your repo: at least two specific to your domain, one that covers inputs the system should **decline**
+- [x] `use_case/data/synthetic_v1.jsonl` written (gitignored — the datasheet says how many rows)
+- [x] Generated / after-dedupe / schema-valid counts reported, plus dead axis combinations
+- [x] Leak check run **and** fifty rows read by you, with what you removed
+- [x] `use_case/data/DATASHEET.md` filled in, including what the data cannot validate **and whether the goldens are disjoint from anything the system was tuned on**
+- [x] **The model/endpoint row in `use_case/decisions.md`** — every number tagged *measured* or *looked up*, and constraints marked apart from preferences
 
 ### 📤 Share
 
-- [ ] **A demo to a real user, with their feedback recorded in your own words** — graded, and the one people skip
-- [ ] **What you would swap to run this at work** — data, model or endpoint, and the approval you would need — three lines in your README
+- [x] **A demo to a real user, with their feedback recorded in your own words** — graded, and the one people skip
+- [x] **What you would swap to run this at work** — data, model or endpoint, and the approval you would need — three lines in your README
 - [ ] Your repo link posted in [our community on Maven](https://bit.ly/fde1-maven-community)
 - [ ] Comments on at least two other students' submissions, after the deadline
 <!-- deliverables:end -->

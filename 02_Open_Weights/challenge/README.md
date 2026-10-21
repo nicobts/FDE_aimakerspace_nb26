@@ -618,6 +618,47 @@ only `.env` changed between runs).
 | G5 | decline | declined, 3.1 s | declined, 7.2 s | answer broke the contract (counted as decline), 12.1 s |
 | **Correct decision** | | **5 of 5** | **1 of 5** | **0 of 5** really (G5 declined only because the answer was unreadable) |
 
+**Test D: the same five goldens again, measuring tokens, time and cost**
+(same prompt as the app, one non-streamed call per golden, so the provider
+reports the token counts).
+
+| Model | Correct decision | Broke the contract | Total time (5 papers) | Tokens in / out | Cost |
+| --- | --- | --- | --- | --- | --- |
+| Hosted `claude-sonnet-5` | **5 of 5** | 0 | 58.3 s | 11,752 / 5,428 | **$0.078** |
+| Local `qwen2.5:7b` | 1 of 5 (declined all) | 0 | 41.1 s | 8,038 / 811 | $0 per token |
+| Local `LFM2.5-8B-A1B` | 2 of 5 | 3 | 116.4 s | 8,093 / 12,381 | $0 per token |
+
+Input token counts differ because each model has its own tokenizer. Liquid AI
+scored 0 of 5 in Test C and 2 of 5 in Test D on the same inputs: its answers
+are not repeatable.
+
+### Comparison of the models across all tests
+
+Times and token counts *measured*; hosted prices *looked up* on OpenRouter
+($2.00 per million input tokens, $10.00 per million output tokens); figures
+marked *estimated* are derived from them.
+
+| | Hosted `claude-sonnet-5` (OpenRouter) | Local `qwen2.5:7b` (Ollama) | Local `LFM2.5-8B-A1B` (Ollama) |
+| --- | --- | --- | --- |
+| Where it runs | Anthropic, through OpenRouter: data leaves the network | Laptop GPU, data stays local | Laptop GPU, data stays local |
+| Download / memory | None | 4.7 GB download, 5.5 GB loaded | 5.2 GB download, 5.4 GB loaded |
+| Setup effort | API key | 2 `.env` lines + `num_ctx` for long prompts | Same, model pulled from Hugging Face |
+| **Generation trial, valid rows of 6** | **6** | 2 | 0 |
+| Generation, time per call | 39.8 s | 31.0 s | 34.2 s |
+| Generation trial cost (3 calls) | about $0.15 (*estimated*) | $0 | $0 |
+| **Goldens, correct decisions of 5** | **5** | 1 | 0 to 2, varies |
+| Goldens, time for 5 papers | 58.3 s | 41.1 s | 116.4 s |
+| Goldens cost (5 papers) | $0.078 | $0 | $0 |
+| Cost per paper in the app | about $0.016 | $0 | $0 |
+| Full dataset (60 combinations) | 41.5 min, 118 valid rows, $3.05 | about 31 min for about 40 valid rows (*estimated* from A4) | not worth running |
+| Main failure | Schema stricter than real papers (fixed in the prompt) | Declines everything; context window too small by default | Breaks the JSON contract, drops fields, not repeatable |
+
+**Bottom line.** The hosted model is the only one that does the task, and it is
+cheap at this scale: about 1.6 cents per paper, or $3 for the whole synthetic
+dataset. The local models are free per token and keep data on the laptop (Qwen
+is even a little faster, Liquid AI twice as slow because it writes so much),
+but today they pay for that with the quality of the answers.
+
 ### What I noticed
 
 - **The switch itself is free.** Moving the app from OpenRouter to Ollama was

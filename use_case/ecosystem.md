@@ -106,6 +106,23 @@ worse than Qwen: 4 of 5 answers broke the JSON contract, and its one card had
 the wrong category and trust level. Neither small local model is usable for
 this task yet.
 
+Tests I ran, side by side (all *measured* on 2026-10-21, hosted price
+*looked up*; full table and learnings in the Week 2 challenge README, Step 5):
+
+| | Hosted Sonnet (OpenRouter) | Qwen 2.5 7B (local) | LFM2.5 8B-A1B (local) |
+| --- | --- | --- | --- |
+| Goldens, correct decisions | 5 of 5 | 1 of 5 | 0 to 2 of 5, not repeatable |
+| Time for 5 papers | 58 s | 41 s | 116 s |
+| Cost per paper | about $0.016 | $0 | $0 |
+| Generation trial, valid rows | 6 of 6 | 2 of 6 | 0 of 6 |
+| Data leaves the network | Yes | No | No |
+
+What this means for deployment: switching provider costs nothing in code, so
+the decision is purely about quality and where the data may go. For public
+papers the hosted model through the customer's gateway is the right path. For
+internal documents a local model is needed, and it has to be tested on the
+goldens first; a 7–8B model on a laptop GPU does not pass.
+
 ---
 
 ## Week 9 — the full checklist

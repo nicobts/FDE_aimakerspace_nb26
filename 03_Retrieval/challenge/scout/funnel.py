@@ -31,6 +31,9 @@ def _text(work: dict) -> str:
 
 
 def similarity_to_focus(embedder, works: list[dict], *, focus: str) -> dict[str, float]:
+    if not works:
+        # An embedder may raise or return a 1-D empty array for no texts; nothing to rank anyway.
+        return {}
     # Separate calls keep the focus out of the per-work embedding cache and out of the works' batch.
     focus_vec = np.asarray(embedder.embed([focus]))[0]
     vecs = np.asarray(embedder.embed([_text(w) for w in works]))
@@ -57,15 +60,20 @@ def triage_work(
         return None
     try:
         data = json.loads(reply[start : end + 1])
-        if not isinstance(data, dict) or "relevance" not in data:
-            return None
-        return {
-            "relevance": int(data["relevance"]),
-            "reason": str(data.get("reason", "")),
-            "is_study": bool(data.get("is_study", False)),
-        }
-    except (ValueError, TypeError):
+    except ValueError:
         return None
+    if not isinstance(data, dict):
+        return None
+    relevance, is_study = data.get("relevance"), data.get("is_study")
+    # Strict on purpose: bool("false") is True and a stray 5 would outrank every real 3, so a loose reply is dropped, not guessed at.
+    if isinstance(relevance, bool) or not isinstance(relevance, (int, float)):
+        return None
+    # Range first: float() of a huge int would raise OverflowError.
+    if not 1 <= relevance <= 3 or not float(relevance).is_integer():
+        return None
+    if not isinstance(is_study, bool):
+        return None
+    return {"relevance": int(relevance), "reason": str(data.get("reason", "")), "is_study": is_study}
 
 
 def select_for_cards(works: list[dict], *, n: int = 10) -> list[dict]:

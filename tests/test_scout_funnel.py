@@ -33,3 +33,27 @@ def test_select_for_cards_orders_and_excludes():
     ]
     assert [w["id"] for w in funnel.select_for_cards(rows, n=10)] == ["W1", "W2"]
     assert [w["id"] for w in funnel.select_for_cards(rows, n=1)] == ["W1"]
+
+
+def _triage(reply):
+    return funnel.triage_work(None, {"id": "W1", "title": "t", "abstract": "a"}, focus="f", chat=lambda c, p, **k: reply)
+
+
+def test_triage_requires_a_real_bool_for_is_study():
+    assert _triage('{"relevance": 3, "reason": "r", "is_study": "false"}') is None
+    assert _triage('{"relevance": 3, "reason": "r", "is_study": "no"}') is None
+    assert _triage('{"relevance": 3, "reason": "r"}') is None
+
+
+def test_triage_requires_an_integer_relevance_in_range():
+    for bad in ("5", "0", "-1", "2.7", "true", '"high"', "Infinity", "NaN", "1" + "0" * 400):
+        assert _triage('{"relevance": %s, "reason": "r", "is_study": true}' % bad) is None
+    assert _triage('{"relevance": 3.0, "reason": "r", "is_study": true}')["relevance"] == 3
+
+
+def test_similarity_of_no_works_is_empty_without_embedding():
+    class Boom:
+        def embed(self, texts):
+            raise AssertionError("embed must not be called")
+
+    assert funnel.similarity_to_focus(Boom(), [], focus="focus") == {}

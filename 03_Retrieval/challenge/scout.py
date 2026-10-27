@@ -44,7 +44,8 @@ def _fetch(command, args):
     store = _store(cfg)
     kwargs = dict(areas=_areas(args.areas), per_area=args.per_area, today=datetime.date.today().isoformat(),
                   # Only send a contact address when the team set one; never guess it.
-                  mailto=os.getenv("OPENALEX_MAILTO") or None)
+                  mailto=os.getenv("OPENALEX_MAILTO") or None,
+                  api_key=os.getenv("OPENALEX_API_KEY") or None)
     if command == "seed":
         counts = pipeline.seed(store, from_date=args.from_date, **kwargs)
     else:

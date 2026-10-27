@@ -23,22 +23,39 @@ def test_normalise_work_without_abstract():
     raw = json.loads((FIX / "work_without_abstract.json").read_text(encoding="utf-8"))
     assert openalex.normalise_work(raw)["abstract"] is None
 
-def test_search_works_follows_cursor_and_stops_at_max():
-    pages = {"*": {"meta": {"next_cursor": "c2"}, "results": [{"id": f"https://openalex.org/W{i}"} for i in range(200)]},
-             "c2": {"meta": {"next_cursor": None}, "results": [{"id": f"https://openalex.org/W{i}"} for i in range(200, 400)]}}
+def test_search_works_follows_pages_and_stops_at_max():
+    pages = {"1": {"meta": {"count": 400}, "results": [{"id": f"https://openalex.org/W{i}"} for i in range(200)]},
+             "2": {"meta": {"count": 400}, "results": [{"id": f"https://openalex.org/W{i}"} for i in range(200, 400)]}}
     seen = []
     def fetch(url, **_):
-        cursor = url.split("cursor=")[1].split("&")[0]
         seen.append(url)
-        return pages[cursor]
+        return pages[url.split("&page=")[1].split("&")[0]]
     works = openalex.search_works(query="coffee", from_date="2024-01-01", max_works=250, fetch=fetch)
-    assert len(works) == 250 and works[0]["id"] == "W0"
+    assert len(works) == 250 and works[0]["id"] == "W0" and len(seen) == 2
+    assert "per-page=200" in seen[0]
     assert "mailto" not in seen[0] and "from_publication_date:2024-01-01" in seen[0] and "type:article" in seen[0]
+
+def test_search_works_stops_at_last_page_by_count():
+    seen = []
+    def fetch(url, **_):
+        seen.append(url)
+        return {"meta": {"count": 200}, "results": [{"id": f"https://openalex.org/W{i}"} for i in range(200)]}
+    assert len(openalex.search_works(query="coffee", from_date="2024-01-01", max_works=300, fetch=fetch)) == 200
+    assert len(seen) == 1
+
+def test_search_works_sends_api_key_only_when_given():
+    seen = []
+    def fetch(url, **_):
+        seen.append(url)
+        return {"meta": {"count": 0}, "results": []}
+    openalex.search_works(query="coffee", from_date="2024-01-01", fetch=fetch)
+    openalex.search_works(query="coffee", from_date="2024-01-01", api_key="k1", fetch=fetch)
+    assert "api_key" not in seen[0] and "api_key=k1" in seen[1]
 
 def test_search_works_sends_mailto_only_when_given():
     def fetch(url, **_):
         assert "mailto=team%40example.org" in url
-        return {"meta": {"next_cursor": None}, "results": []}
+        return {"meta": {"count": 0}, "results": []}
     assert openalex.search_works(query="coffee", from_date="2024-01-01", mailto="team@example.org", fetch=fetch) == []
 
 

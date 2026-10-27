@@ -17,13 +17,15 @@ TIERS = ("metadata", "abstract", "pdf")
 _CONTRACT = Path(__file__).resolve().parents[3] / "01_Product_Engineering" / "challenge" / "pyproject.toml"
 
 
-def _fetch_into(store, *, areas, from_date, per_area, today, search, mailto, queries):
+def _fetch_into(store, *, areas, from_date, per_area, today, search, mailto, api_key, queries):
     """Fetch every area, store what is new and tier what has no tier yet; return the run's counts."""
     queries = queries or {}
     fetched, new, ids_by_area, stats_by_area = 0, 0, {}, {}
     for area in areas:
         query = queries.get(area) or AREAS[area]["query"]
-        works = search(query=query, from_date=from_date, max_works=per_area, mailto=mailto)
+        # Forwarded only when set, so an injected search need not accept it.
+        extra = {"api_key": api_key} if api_key else {}
+        works = search(query=query, from_date=from_date, max_works=per_area, mailto=mailto, **extra)
         added = store.upsert_works(works, area=area, first_seen=today)
         fetched, new = fetched + len(works), new + added
         ids_by_area[area] = {w["id"] for w in works}
@@ -41,15 +43,15 @@ def _fetch_into(store, *, areas, from_date, per_area, today, search, mailto, que
     return {"fetched": fetched, "new": new, **{t: tiers.count(t) for t in TIERS}, "by_area": by_area}
 
 
-def seed(store, *, areas, from_date, per_area, today, search=search_works, mailto=None, queries=None) -> dict:
+def seed(store, *, areas, from_date, per_area, today, search=search_works, mailto=None, api_key=None, queries=None) -> dict:
     counts = _fetch_into(store, areas=areas, from_date=from_date, per_area=per_area, today=today,
-                         search=search, mailto=mailto, queries=queries)
+                         search=search, mailto=mailto, api_key=api_key, queries=queries)
     store.add_run(kind="seed", params={"areas": list(areas), "from_date": from_date, "per_area": per_area},
                   counts=counts, tokens=0, cost_usd=0.0, ran_at=today)
     return counts
 
 
-def update(store, *, areas, per_area, today, overlap_days=90, search=search_works, mailto=None, queries=None) -> dict:
+def update(store, *, areas, per_area, today, overlap_days=90, search=search_works, mailto=None, api_key=None, queries=None) -> dict:
     seed_run = store.last_run(kind="seed")
     if seed_run is None:
         raise ValueError("no seed run yet; run seed first")
@@ -57,7 +59,7 @@ def update(store, *, areas, per_area, today, overlap_days=90, search=search_work
     # Works are indexed by OpenAlex some weeks after publication; the overlap re-reads that lag.
     from_date = (datetime.date.fromisoformat(last) - datetime.timedelta(days=overlap_days)).isoformat()
     counts = _fetch_into(store, areas=areas, from_date=from_date, per_area=per_area, today=today,
-                         search=search, mailto=mailto, queries=queries)
+                         search=search, mailto=mailto, api_key=api_key, queries=queries)
     store.add_run(kind="update", params={"areas": list(areas), "from_date": from_date, "per_area": per_area,
                                          "overlap_days": overlap_days},
                   counts=counts, tokens=0, cost_usd=0.0, ran_at=today)

@@ -70,22 +70,29 @@ def fetch_json(url, *, timeout=30.0, retries=3, sleep=time.sleep):
 
 
 def search_works(*, query, from_date, to_date=None, work_type="article",
-                 max_works=300, mailto=None, fetch=fetch_json):
-    # Colons and commas stay literal in the filter: OpenAlex accepts them and the
-    # cursor must stay a separate parameter.
+                 max_works=300, mailto=None, api_key=None, fetch=fetch_json):
+    # Offset paging, not cursors: OpenAlex wants an API key for cursor paging past
+    # the first page, and the offset limit (10,000 results) is far above max_works.
+    # Colons and commas stay literal in the filter: OpenAlex accepts them.
     filters = [f"from_publication_date:{from_date}"]
     if to_date:
         filters.append(f"to_publication_date:{to_date}")
     filters.append(f"type:{work_type}")
-    base = f"{API}?search={quote(query, safe='')}&filter={','.join(filters)}&per-page={PAGE_SIZE}"
+    per_page = min(PAGE_SIZE, max_works)
+    base = f"{API}?search={quote(query, safe='')}&filter={','.join(filters)}&per-page={per_page}"
+    if mailto:
+        base += f"&mailto={quote(mailto, safe='')}"
+    if api_key:
+        base += f"&api_key={quote(api_key, safe='')}"
 
     works = []
-    cursor = "*"
-    while cursor and len(works) < max_works:
-        url = f"{base}&cursor={quote(cursor, safe='*')}"
-        if mailto:
-            url += f"&mailto={quote(mailto, safe='')}"
-        page = fetch(url)
-        works.extend(normalise_work(raw) for raw in page["results"])
-        cursor = page["meta"]["next_cursor"]
+    page_no = 0
+    while len(works) < max_works:
+        page_no += 1
+        page = fetch(f"{base}&page={page_no}")
+        results = page["results"]
+        works.extend(normalise_work(raw) for raw in results)
+        count = (page.get("meta") or {}).get("count")
+        if len(results) < per_page or (count is not None and page_no * per_page >= count):
+            break
     return works[:max_works]

@@ -1,0 +1,1031 @@
+{
+ "id": "https://openalex.org/W1973369616",
+ "doi": "https://doi.org/10.1121/1.4874355",
+ "title": "Coffee roasting acoustics",
+ "display_name": "Coffee roasting acoustics",
+ "relevance_score": 212.04706,
+ "publication_year": 2014,
+ "publication_date": "2014-05-13",
+ "ids": {
+  "openalex": "https://openalex.org/W1973369616",
+  "doi": "https://doi.org/10.1121/1.4874355",
+  "mag": "1973369616",
+  "pmid": "https://pubmed.ncbi.nlm.nih.gov/24907832"
+ },
+ "language": "en",
+ "primary_location": {
+  "id": "doi:10.1121/1.4874355",
+  "doi": "https://doi.org/10.1121/1.4874355",
+  "is_oa": true,
+  "landing_page_url": "https://doi.org/10.1121/1.4874355",
+  "pdf_url": "https://pubs.aip.org/asa/jasa/article-pdf/135/6/EL265/13862923/el265_1_online.pdf",
+  "source": {
+   "id": "https://openalex.org/S11296630",
+   "display_name": "The Journal of the Acoustical Society of America",
+   "issn_l": "0001-4966",
+   "issn": [
+    "0001-4966",
+    "1520-8524",
+    "1520-9024"
+   ],
+   "is_oa": false,
+   "is_in_doaj": false,
+   "is_core": true,
+   "listed_in": [
+    "anvur-class-a",
+    "anvur-scientific",
+    "ccf-b",
+    "cwts-core",
+    "dongbi-b",
+    "erih-plus",
+    "jufo-3",
+    "ki-jl-1",
+    "medline",
+    "norway-2",
+    "poland-100",
+    "russia-white-list-2",
+    "vabb-shw"
+   ],
+   "host_organization": "https://openalex.org/P4310320226",
+   "host_organization_name": "Acoustical Society of America",
+   "host_organization_lineage": [
+    "https://openalex.org/P4310320226"
+   ],
+   "host_organization_lineage_names": [
+    "Acoustical Society of America"
+   ],
+   "type": "journal"
+  },
+  "license": null,
+  "license_id": null,
+  "version": "publishedVersion",
+  "is_accepted": true,
+  "is_published": true,
+  "raw_source_name": "The Journal of the Acoustical Society of America",
+  "raw_type": "journal-article"
+ },
+ "volume": null,
+ "type": "article",
+ "indexed_in": [
+  "crossref",
+  "pubmed"
+ ],
+ "open_access": {
+  "is_oa": true,
+  "oa_status": "bronze",
+  "oa_url": "https://pubs.aip.org/asa/jasa/article-pdf/135/6/EL265/13862923/el265_1_online.pdf",
+  "any_repository_has_fulltext": false
+ },
+ "authorships": [
+  {
+   "author_position": "first",
+   "author": {
+    "id": "https://openalex.org/A5049447418",
+    "display_name": "Preston S. Wilson",
+    "orcid": "https://orcid.org/0000-0002-4420-7180",
+    "observed_orcids": [
+     "https://orcid.org/0000-0002-4420-7180"
+    ]
+   },
+   "institutions": [
+    {
+     "id": "https://openalex.org/I86519309",
+     "display_name": "The University of Texas at Austin",
+     "ror": "https://ror.org/00hj54h04",
+     "country_code": "US",
+     "type": "education",
+     "lineage": [
+      "https://openalex.org/I86519309"
+     ]
+    }
+   ],
+   "countries": [
+    "US"
+   ],
+   "is_corresponding": true,
+   "raw_author_name": "Preston S. Wilson",
+   "raw_affiliation_strings": [
+    "The University of Texas at Austin Department of Mechanical Engineering, , 1 University Station C2200, Austin, Texas 78712 pswilson@mail.utexas.edu"
+   ],
+   "raw_orcid": null,
+   "affiliations": [
+    {
+     "raw_affiliation_string": "The University of Texas at Austin Department of Mechanical Engineering, , 1 University Station C2200, Austin, Texas 78712 pswilson@mail.utexas.edu",
+     "institution_ids": [
+      "https://openalex.org/I86519309"
+     ]
+    }
+   ]
+  }
+ ],
+ "institutions": [],
+ "countries_distinct_count": 1,
+ "institutions_distinct_count": 1,
+ "corresponding_author_ids": [
+  "https://openalex.org/A5049447418"
+ ],
+ "corresponding_institution_ids": [
+  "https://openalex.org/I86519309"
+ ],
+ "apc_list": null,
+ "apc_paid": null,
+ "fwci": 1.0839,
+ "has_fulltext": true,
+ "cited_by_count": 28,
+ "citation_normalized_percentile": {
+  "value": 0.74099678,
+  "is_in_top_1_percent": false,
+  "is_in_top_10_percent": false
+ },
+ "cited_by_percentile_year": {
+  "min": 88,
+  "max": 98
+ },
+ "biblio": {
+  "volume": "135",
+  "issue": "6",
+  "first_page": "EL265",
+  "last_page": "EL269"
+ },
+ "is_retracted": false,
+ "is_paratext": false,
+ "is_xpac": false,
+ "primary_topic": {
+  "id": "https://openalex.org/T11264",
+  "display_name": "Coffee research and impacts",
+  "score": 0.7910000085830688,
+  "subfield": {
+   "id": "https://openalex.org/subfields/2736",
+   "display_name": "Pharmacology"
+  },
+  "field": {
+   "id": "https://openalex.org/fields/27",
+   "display_name": "Medicine"
+  },
+  "domain": {
+   "id": "https://openalex.org/domains/4",
+   "display_name": "Health Sciences"
+  }
+ },
+ "topics": [
+  {
+   "id": "https://openalex.org/T11264",
+   "display_name": "Coffee research and impacts",
+   "score": 0.7910000085830688,
+   "subfield": {
+    "id": "https://openalex.org/subfields/2736",
+    "display_name": "Pharmacology"
+   },
+   "field": {
+    "id": "https://openalex.org/fields/27",
+    "display_name": "Medicine"
+   },
+   "domain": {
+    "id": "https://openalex.org/domains/4",
+    "display_name": "Health Sciences"
+   }
+  },
+  {
+   "id": "https://openalex.org/T11309",
+   "display_name": "Music and Audio Processing",
+   "score": 0.07930000126361847,
+   "subfield": {
+    "id": "https://openalex.org/subfields/1711",
+    "display_name": "Signal Processing"
+   },
+   "field": {
+    "id": "https://openalex.org/fields/17",
+    "display_name": "Computer Science"
+   },
+   "domain": {
+    "id": "https://openalex.org/domains/3",
+    "display_name": "Physical Sciences"
+   }
+  },
+  {
+   "id": "https://openalex.org/T10640",
+   "display_name": "Spectroscopy and Chemometric Analyses",
+   "score": 0.01979999989271164,
+   "subfield": {
+    "id": "https://openalex.org/subfields/1602",
+    "display_name": "Analytical Chemistry"
+   },
+   "field": {
+    "id": "https://openalex.org/fields/16",
+    "display_name": "Chemistry"
+   },
+   "domain": {
+    "id": "https://openalex.org/domains/3",
+    "display_name": "Physical Sciences"
+   }
+  }
+ ],
+ "keywords": [
+  {
+   "id": "https://openalex.org/keywords/coffee-roasting",
+   "display_name": "coffee roasting",
+   "score": 0.9660000205039978
+  },
+  {
+   "id": "https://openalex.org/keywords/first-crack",
+   "display_name": "first crack",
+   "score": 0.8479999899864197
+  },
+  {
+   "id": "https://openalex.org/keywords/acoustic-monitoring",
+   "display_name": "acoustic monitoring",
+   "score": 0.6880000233650208
+  },
+  {
+   "id": "https://openalex.org/keywords/low-frequency-energy",
+   "display_name": "low-frequency energy",
+   "score": 0.7059999704360962
+  },
+  {
+   "id": "https://openalex.org/keywords/crack-rate",
+   "display_name": "crack rate",
+   "score": 0.6510000228881836
+  },
+  {
+   "id": "https://openalex.org/keywords/acoustic-amplitude",
+   "display_name": "acoustic amplitude",
+   "score": 0.42899999022483826
+  }
+ ],
+ "concepts": [
+  {
+   "id": "https://openalex.org/C140327455",
+   "wikidata": "https://www.wikidata.org/wiki/Q1228460",
+   "display_name": "Roasting",
+   "level": 2,
+   "score": 0.9244407415390015
+  },
+  {
+   "id": "https://openalex.org/C58396970",
+   "wikidata": "https://www.wikidata.org/wiki/Q212749",
+   "display_name": "Cracking",
+   "level": 2,
+   "score": 0.662322461605072
+  },
+  {
+   "id": "https://openalex.org/C2780832652",
+   "wikidata": "https://www.wikidata.org/wiki/Q5105266",
+   "display_name": "Chorus",
+   "level": 2,
+   "score": 0.5590283870697021
+  },
+  {
+   "id": "https://openalex.org/C24890656",
+   "wikidata": "https://www.wikidata.org/wiki/Q82811",
+   "display_name": "Acoustics",
+   "level": 1,
+   "score": 0.5567498207092285
+  },
+  {
+   "id": "https://openalex.org/C192562407",
+   "wikidata": "https://www.wikidata.org/wiki/Q228736",
+   "display_name": "Materials science",
+   "level": 0,
+   "score": 0.5426439046859741
+  },
+  {
+   "id": "https://openalex.org/C180205008",
+   "wikidata": "https://www.wikidata.org/wiki/Q159190",
+   "display_name": "Amplitude",
+   "level": 2,
+   "score": 0.5359009504318237
+  },
+  {
+   "id": "https://openalex.org/C159985019",
+   "wikidata": "https://www.wikidata.org/wiki/Q181790",
+   "display_name": "Composite material",
+   "level": 1,
+   "score": 0.2215246558189392
+  },
+  {
+   "id": "https://openalex.org/C191897082",
+   "wikidata": "https://www.wikidata.org/wiki/Q11467",
+   "display_name": "Metallurgy",
+   "level": 1,
+   "score": 0.1440366506576538
+  },
+  {
+   "id": "https://openalex.org/C121332964",
+   "wikidata": "https://www.wikidata.org/wiki/Q413",
+   "display_name": "Physics",
+   "level": 0,
+   "score": 0.14103296399116516
+  },
+  {
+   "id": "https://openalex.org/C120665830",
+   "wikidata": "https://www.wikidata.org/wiki/Q14620",
+   "display_name": "Optics",
+   "level": 1,
+   "score": 0.08055946230888367
+  },
+  {
+   "id": "https://openalex.org/C124952713",
+   "wikidata": "https://www.wikidata.org/wiki/Q8242",
+   "display_name": "Literature",
+   "level": 1,
+   "score": 0.0
+  },
+  {
+   "id": "https://openalex.org/C142362112",
+   "wikidata": "https://www.wikidata.org/wiki/Q735",
+   "display_name": "Art",
+   "level": 0,
+   "score": 0.0
+  }
+ ],
+ "mesh": [
+  {
+   "descriptor_ui": "D000162",
+   "descriptor_name": "Acoustics",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": true
+  },
+  {
+   "descriptor_ui": "D000162",
+   "descriptor_name": "Acoustics",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": true
+  },
+  {
+   "descriptor_ui": "D000162",
+   "descriptor_name": "Acoustics",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": true
+  },
+  {
+   "descriptor_ui": "D003069",
+   "descriptor_name": "Coffee",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": true
+  },
+  {
+   "descriptor_ui": "D003069",
+   "descriptor_name": "Coffee",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": true
+  },
+  {
+   "descriptor_ui": "D003069",
+   "descriptor_name": "Coffee",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": true
+  },
+  {
+   "descriptor_ui": "D005511",
+   "descriptor_name": "Food Handling",
+   "qualifier_ui": "Q000379",
+   "qualifier_name": "methods",
+   "is_major_topic": false
+  },
+  {
+   "descriptor_ui": "D005511",
+   "descriptor_name": "Food Handling",
+   "qualifier_ui": "Q000379",
+   "qualifier_name": "methods",
+   "is_major_topic": false
+  },
+  {
+   "descriptor_ui": "D005511",
+   "descriptor_name": "Food Handling",
+   "qualifier_ui": "Q000379",
+   "qualifier_name": "methods",
+   "is_major_topic": false
+  },
+  {
+   "descriptor_ui": "D006358",
+   "descriptor_name": "Hot Temperature",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": true
+  },
+  {
+   "descriptor_ui": "D006358",
+   "descriptor_name": "Hot Temperature",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": true
+  },
+  {
+   "descriptor_ui": "D006358",
+   "descriptor_name": "Hot Temperature",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": true
+  },
+  {
+   "descriptor_ui": "D009038",
+   "descriptor_name": "Motion",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": false
+  },
+  {
+   "descriptor_ui": "D009038",
+   "descriptor_name": "Motion",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": false
+  },
+  {
+   "descriptor_ui": "D009038",
+   "descriptor_name": "Motion",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": false
+  },
+  {
+   "descriptor_ui": "D011312",
+   "descriptor_name": "Pressure",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": false
+  },
+  {
+   "descriptor_ui": "D011312",
+   "descriptor_name": "Pressure",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": false
+  },
+  {
+   "descriptor_ui": "D011312",
+   "descriptor_name": "Pressure",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": false
+  },
+  {
+   "descriptor_ui": "D012639",
+   "descriptor_name": "Seeds",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": true
+  },
+  {
+   "descriptor_ui": "D012639",
+   "descriptor_name": "Seeds",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": true
+  },
+  {
+   "descriptor_ui": "D012639",
+   "descriptor_name": "Seeds",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": true
+  },
+  {
+   "descriptor_ui": "D012815",
+   "descriptor_name": "Signal Processing, Computer-Assisted",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": false
+  },
+  {
+   "descriptor_ui": "D012815",
+   "descriptor_name": "Signal Processing, Computer-Assisted",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": false
+  },
+  {
+   "descriptor_ui": "D012815",
+   "descriptor_name": "Signal Processing, Computer-Assisted",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": false
+  },
+  {
+   "descriptor_ui": "D013016",
+   "descriptor_name": "Sound",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": true
+  },
+  {
+   "descriptor_ui": "D013016",
+   "descriptor_name": "Sound",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": true
+  },
+  {
+   "descriptor_ui": "D013016",
+   "descriptor_name": "Sound",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": true
+  },
+  {
+   "descriptor_ui": "D013018",
+   "descriptor_name": "Sound Spectrography",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": false
+  },
+  {
+   "descriptor_ui": "D013018",
+   "descriptor_name": "Sound Spectrography",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": false
+  },
+  {
+   "descriptor_ui": "D013018",
+   "descriptor_name": "Sound Spectrography",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": false
+  },
+  {
+   "descriptor_ui": "D013997",
+   "descriptor_name": "Time Factors",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": false
+  },
+  {
+   "descriptor_ui": "D013997",
+   "descriptor_name": "Time Factors",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": false
+  },
+  {
+   "descriptor_ui": "D013997",
+   "descriptor_name": "Time Factors",
+   "qualifier_ui": null,
+   "qualifier_name": null,
+   "is_major_topic": false
+  }
+ ],
+ "locations_count": 2,
+ "locations": [
+  {
+   "id": "doi:10.1121/1.4874355",
+   "doi": "https://doi.org/10.1121/1.4874355",
+   "is_oa": true,
+   "landing_page_url": "https://doi.org/10.1121/1.4874355",
+   "pdf_url": "https://pubs.aip.org/asa/jasa/article-pdf/135/6/EL265/13862923/el265_1_online.pdf",
+   "source": {
+    "id": "https://openalex.org/S11296630",
+    "display_name": "The Journal of the Acoustical Society of America",
+    "issn_l": "0001-4966",
+    "issn": [
+     "0001-4966",
+     "1520-8524",
+     "1520-9024"
+    ],
+    "is_oa": false,
+    "is_in_doaj": false,
+    "is_core": true,
+    "listed_in": [
+     "anvur-class-a",
+     "anvur-scientific",
+     "ccf-b",
+     "cwts-core",
+     "dongbi-b",
+     "erih-plus",
+     "jufo-3",
+     "ki-jl-1",
+     "medline",
+     "norway-2",
+     "poland-100",
+     "russia-white-list-2",
+     "vabb-shw"
+    ],
+    "host_organization": "https://openalex.org/P4310320226",
+    "host_organization_name": "Acoustical Society of America",
+    "host_organization_lineage": [
+     "https://openalex.org/P4310320226"
+    ],
+    "host_organization_lineage_names": [
+     "Acoustical Society of America"
+    ],
+    "type": "journal"
+   },
+   "license": null,
+   "license_id": null,
+   "version": "publishedVersion",
+   "is_accepted": true,
+   "is_published": true,
+   "raw_source_name": "The Journal of the Acoustical Society of America",
+   "raw_type": "journal-article"
+  },
+  {
+   "id": "pmid:24907832",
+   "doi": null,
+   "is_oa": false,
+   "landing_page_url": "https://pubmed.ncbi.nlm.nih.gov/24907832",
+   "pdf_url": null,
+   "source": {
+    "id": "https://openalex.org/S4306525036",
+    "display_name": "PubMed",
+    "issn_l": null,
+    "issn": null,
+    "is_oa": false,
+    "is_in_doaj": false,
+    "is_core": false,
+    "listed_in": [],
+    "host_organization": "https://openalex.org/I1299303238",
+    "host_organization_name": "National Institutes of Health",
+    "host_organization_lineage": [
+     "https://openalex.org/I1299303238"
+    ],
+    "host_organization_lineage_names": [],
+    "type": "repository"
+   },
+   "license": null,
+   "license_id": null,
+   "version": "publishedVersion",
+   "is_accepted": true,
+   "is_published": true,
+   "raw_source_name": "The Journal of the Acoustical Society of America",
+   "raw_type": "Journal Article"
+  }
+ ],
+ "best_oa_location": {
+  "id": "doi:10.1121/1.4874355",
+  "doi": "https://doi.org/10.1121/1.4874355",
+  "is_oa": true,
+  "landing_page_url": "https://doi.org/10.1121/1.4874355",
+  "pdf_url": "https://pubs.aip.org/asa/jasa/article-pdf/135/6/EL265/13862923/el265_1_online.pdf",
+  "source": {
+   "id": "https://openalex.org/S11296630",
+   "display_name": "The Journal of the Acoustical Society of America",
+   "issn_l": "0001-4966",
+   "issn": [
+    "0001-4966",
+    "1520-8524",
+    "1520-9024"
+   ],
+   "is_oa": false,
+   "is_in_doaj": false,
+   "is_core": true,
+   "listed_in": [
+    "anvur-class-a",
+    "anvur-scientific",
+    "ccf-b",
+    "cwts-core",
+    "dongbi-b",
+    "erih-plus",
+    "jufo-3",
+    "ki-jl-1",
+    "medline",
+    "norway-2",
+    "poland-100",
+    "russia-white-list-2",
+    "vabb-shw"
+   ],
+   "host_organization": "https://openalex.org/P4310320226",
+   "host_organization_name": "Acoustical Society of America",
+   "host_organization_lineage": [
+    "https://openalex.org/P4310320226"
+   ],
+   "host_organization_lineage_names": [
+    "Acoustical Society of America"
+   ],
+   "type": "journal"
+  },
+  "license": null,
+  "license_id": null,
+  "version": "publishedVersion",
+  "is_accepted": true,
+  "is_published": true,
+  "raw_source_name": "The Journal of the Acoustical Society of America",
+  "raw_type": "journal-article"
+ },
+ "sustainable_development_goals": [],
+ "sustainable_development_goals_aurora": [
+  {
+   "score": 0.5,
+   "id": "https://metadata.un.org/sdg/7",
+   "display_name": "Affordable and clean energy"
+  }
+ ],
+ "study_designs": [],
+ "awards": [],
+ "funders": [],
+ "has_content": {
+  "grobid_xml": true,
+  "pdf": true
+ },
+ "content_urls": {
+  "pdf": "https://content.openalex.org/works/W1973369616.pdf",
+  "grobid_xml": "https://content.openalex.org/works/W1973369616.grobid-xml"
+ },
+ "referenced_works_count": 4,
+ "referenced_works": [
+  "https://openalex.org/W1969787735",
+  "https://openalex.org/W1988054152",
+  "https://openalex.org/W2012018942",
+  "https://openalex.org/W2059944892"
+ ],
+ "related_works": [
+  "https://openalex.org/W2809745188",
+  "https://openalex.org/W2349772854",
+  "https://openalex.org/W2494818933",
+  "https://openalex.org/W3152157429",
+  "https://openalex.org/W2364547139",
+  "https://openalex.org/W2475648064",
+  "https://openalex.org/W2139934687",
+  "https://openalex.org/W2357558268",
+  "https://openalex.org/W3211508905",
+  "https://openalex.org/W2394476589"
+ ],
+ "abstract_inverted_index": {
+  "Cracking": [
+   0
+  ],
+  "sounds": [
+   1,
+   21,
+   46,
+   57
+  ],
+  "emitted": [
+   2,
+   58
+  ],
+  "by": [
+   3
+  ],
+  "coffee": [
+   4
+  ],
+  "beans": [
+   5
+  ],
+  "during": [
+   6
+  ],
+  "the": [
+   7,
+   16,
+   20,
+   23,
+   40,
+   43,
+   75,
+   81,
+   88,
+   91
+  ],
+  "roasting": [
+   8,
+   44
+  ],
+  "process": [
+   9
+  ],
+  "were": [
+   10,
+   33
+  ],
+  "recorded": [
+   11
+  ],
+  "and": [
+   12
+  ],
+  "analyzed": [
+   13
+  ],
+  "to": [
+   14
+  ],
+  "investigate": [
+   15
+  ],
+  "potential": [
+   17
+  ],
+  "of": [
+   18,
+   42,
+   77
+  ],
+  "using": [
+   19
+  ],
+  "as": [
+   22,
+   48,
+   61
+  ],
+  "basis": [
+   24
+  ],
+  "for": [
+   25
+  ],
+  "an": [
+   26
+  ],
+  "automated": [
+   27
+  ],
+  "roast": [
+   28
+  ],
+  "monitoring": [
+   29
+  ],
+  "technique.": [
+   30
+  ],
+  "Three": [
+   31
+  ],
+  "parameters": [
+   32
+  ],
+  "found": [
+   34
+  ],
+  "that": [
+   35
+  ],
+  "could": [
+   36
+  ],
+  "be": [
+   37
+  ],
+  "exploited.": [
+   38
+  ],
+  "Near": [
+   39
+  ],
+  "end": [
+   41
+  ],
+  "process,": [
+   45
+  ],
+  "known": [
+   47,
+   60
+  ],
+  "\"first": [
+   49
+  ],
+  "crack\"": [
+   50
+  ],
+  "exhibit": [
+   51
+  ],
+  "a": [
+   52
+  ],
+  "higher": [
+   53,
+   86
+  ],
+  "acoustic": [
+   54
+  ],
+  "amplitude": [
+   55
+  ],
+  "than": [
+   56,
+   71,
+   87
+  ],
+  "later,": [
+   59
+  ],
+  "\"second": [
+   62
+  ],
+  "crack.\"": [
+   63
+  ],
+  "First": [
+   64
+  ],
+  "crack": [
+   65,
+   83,
+   93
+  ],
+  "emits": [
+   66
+  ],
+  "more": [
+   67
+  ],
+  "low": [
+   68
+  ],
+  "frequency": [
+   69
+  ],
+  "energy": [
+   70
+  ],
+  "second": [
+   72,
+   82
+  ],
+  "crack.": [
+   73
+  ],
+  "Finally,": [
+   74
+  ],
+  "rate": [
+   76,
+   89
+  ],
+  "cracks": [
+   78
+  ],
+  "appearing": [
+   79
+  ],
+  "in": [
+   80,
+   90
+  ],
+  "chorus": [
+   84
+  ],
+  "is": [
+   85
+  ],
+  "first": [
+   92
+  ],
+  "chorus.": [
+   94
+  ]
+ },
+ "counts_by_year": [
+  {
+   "year": 2026,
+   "cited_by_count": 2
+  },
+  {
+   "year": 2025,
+   "cited_by_count": 2
+  },
+  {
+   "year": 2024,
+   "cited_by_count": 5
+  },
+  {
+   "year": 2023,
+   "cited_by_count": 2
+  },
+  {
+   "year": 2022,
+   "cited_by_count": 1
+  },
+  {
+   "year": 2021,
+   "cited_by_count": 2
+  },
+  {
+   "year": 2020,
+   "cited_by_count": 1
+  },
+  {
+   "year": 2019,
+   "cited_by_count": 5
+  },
+  {
+   "year": 2018,
+   "cited_by_count": 3
+  },
+  {
+   "year": 2017,
+   "cited_by_count": 2
+  },
+  {
+   "year": 2016,
+   "cited_by_count": 2
+  },
+  {
+   "year": 2014,
+   "cited_by_count": 1
+  }
+ ],
+ "updated_date": "2026-10-12T09:40:04.860316",
+ "created_date": "2025-10-10T00:00:00"
+}

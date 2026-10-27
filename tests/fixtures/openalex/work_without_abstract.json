@@ -1,0 +1,725 @@
+{
+ "id": "https://openalex.org/W2087007270",
+ "doi": "https://doi.org/10.1016/j.jfoodeng.2012.04.009",
+ "title": "A numerical approach for the analysis of the coffee roasting process",
+ "display_name": "A numerical approach for the analysis of the coffee roasting process",
+ "relevance_score": 206.74579,
+ "publication_year": 2012,
+ "publication_date": "2012-05-02",
+ "ids": {
+  "openalex": "https://openalex.org/W2087007270",
+  "doi": "https://doi.org/10.1016/j.jfoodeng.2012.04.009",
+  "mag": "2087007270"
+ },
+ "language": "en",
+ "primary_location": {
+  "id": "doi:10.1016/j.jfoodeng.2012.04.009",
+  "doi": "https://doi.org/10.1016/j.jfoodeng.2012.04.009",
+  "is_oa": false,
+  "landing_page_url": "https://doi.org/10.1016/j.jfoodeng.2012.04.009",
+  "pdf_url": null,
+  "source": {
+   "id": "https://openalex.org/S137362610",
+   "display_name": "Journal of Food Engineering",
+   "issn_l": "0260-8774",
+   "issn": [
+    "0260-8774",
+    "1873-5770"
+   ],
+   "is_oa": false,
+   "is_in_doaj": false,
+   "is_core": true,
+   "listed_in": [
+    "anvur-scientific",
+    "cwts-core",
+    "dongbi-b",
+    "jufo-1",
+    "ki-jl-1",
+    "norway-1",
+    "poland-140",
+    "russia-white-list-1",
+    "vabb-shw"
+   ],
+   "host_organization": "https://openalex.org/P4310320990",
+   "host_organization_name": "Elsevier BV",
+   "host_organization_lineage": [
+    "https://openalex.org/P4310320990"
+   ],
+   "host_organization_lineage_names": [
+    "Elsevier BV"
+   ],
+   "type": "journal"
+  },
+  "license": null,
+  "license_id": null,
+  "version": "publishedVersion",
+  "is_accepted": true,
+  "is_published": true,
+  "raw_source_name": "Journal of Food Engineering",
+  "raw_type": "journal-article"
+ },
+ "volume": null,
+ "type": "article",
+ "indexed_in": [
+  "crossref"
+ ],
+ "open_access": {
+  "is_oa": true,
+  "oa_status": "green",
+  "oa_url": "http://hdl.handle.net/11380/735451",
+  "any_repository_has_fulltext": true
+ },
+ "authorships": [
+  {
+   "author_position": "first",
+   "author": {
+    "id": "https://openalex.org/A5086199728",
+    "display_name": "Davide Bottazzi",
+    "orcid": null,
+    "observed_orcids": []
+   },
+   "institutions": [
+    {
+     "id": "https://openalex.org/I122346577",
+     "display_name": "University of Modena and Reggio Emilia",
+     "ror": "https://ror.org/02d4c4y02",
+     "country_code": "IT",
+     "type": "education",
+     "lineage": [
+      "https://openalex.org/I122346577"
+     ]
+    }
+   ],
+   "countries": [
+    "IT"
+   ],
+   "is_corresponding": true,
+   "raw_author_name": "D. Bottazzi",
+   "raw_affiliation_strings": [
+    "DISMI, University of Modena and Reggio Emilia Via Amendola 2, Padiglione Morselli, 42122 Reggio Emilia, Italy",
+    "DISMI, University of Modena and Reggio Emilia, via Amendola 2, Padiglione Morselli, 42122 Reggio Emilia, Italy#TAB#"
+   ],
+   "raw_orcid": null,
+   "affiliations": [
+    {
+     "raw_affiliation_string": "DISMI, University of Modena and Reggio Emilia Via Amendola 2, Padiglione Morselli, 42122 Reggio Emilia, Italy",
+     "institution_ids": [
+      "https://openalex.org/I122346577"
+     ]
+    },
+    {
+     "raw_affiliation_string": "DISMI, University of Modena and Reggio Emilia, via Amendola 2, Padiglione Morselli, 42122 Reggio Emilia, Italy#TAB#",
+     "institution_ids": [
+      "https://openalex.org/I122346577"
+     ]
+    }
+   ]
+  },
+  {
+   "author_position": "middle",
+   "author": {
+    "id": "https://openalex.org/A5042190275",
+    "display_name": "Sabrina G. Farina",
+    "orcid": null,
+    "observed_orcids": []
+   },
+   "institutions": [],
+   "countries": [],
+   "is_corresponding": false,
+   "raw_author_name": "S. Farina",
+   "raw_affiliation_strings": [
+    "Petroncini Impianti S.p.A., Via del Fantino 2/A, 44047 S. Agostino, Ferrara, Italy"
+   ],
+   "raw_orcid": null,
+   "affiliations": [
+    {
+     "raw_affiliation_string": "Petroncini Impianti S.p.A., Via del Fantino 2/A, 44047 S. Agostino, Ferrara, Italy",
+     "institution_ids": []
+    }
+   ]
+  },
+  {
+   "author_position": "middle",
+   "author": {
+    "id": "https://openalex.org/A5102996670",
+    "display_name": "Massimo Milani",
+    "orcid": "https://orcid.org/0000-0001-6257-6919",
+    "observed_orcids": [
+     "https://orcid.org/0000-0001-6257-6919"
+    ]
+   },
+   "institutions": [
+    {
+     "id": "https://openalex.org/I122346577",
+     "display_name": "University of Modena and Reggio Emilia",
+     "ror": "https://ror.org/02d4c4y02",
+     "country_code": "IT",
+     "type": "education",
+     "lineage": [
+      "https://openalex.org/I122346577"
+     ]
+    }
+   ],
+   "countries": [
+    "IT"
+   ],
+   "is_corresponding": false,
+   "raw_author_name": "M. Milani",
+   "raw_affiliation_strings": [
+    "DISMI, University of Modena and Reggio Emilia Via Amendola 2, Padiglione Morselli, 42122 Reggio Emilia, Italy",
+    "DISMI, University of Modena and Reggio Emilia, via Amendola 2, Padiglione Morselli, 42122 Reggio Emilia, Italy#TAB#"
+   ],
+   "raw_orcid": null,
+   "affiliations": [
+    {
+     "raw_affiliation_string": "DISMI, University of Modena and Reggio Emilia Via Amendola 2, Padiglione Morselli, 42122 Reggio Emilia, Italy",
+     "institution_ids": [
+      "https://openalex.org/I122346577"
+     ]
+    },
+    {
+     "raw_affiliation_string": "DISMI, University of Modena and Reggio Emilia, via Amendola 2, Padiglione Morselli, 42122 Reggio Emilia, Italy#TAB#",
+     "institution_ids": [
+      "https://openalex.org/I122346577"
+     ]
+    }
+   ]
+  },
+  {
+   "author_position": "last",
+   "author": {
+    "id": "https://openalex.org/A5056343037",
+    "display_name": "Luca Montorsi",
+    "orcid": "https://orcid.org/0000-0002-4910-5693",
+    "observed_orcids": [
+     "https://orcid.org/0000-0002-4910-5693"
+    ]
+   },
+   "institutions": [
+    {
+     "id": "https://openalex.org/I122346577",
+     "display_name": "University of Modena and Reggio Emilia",
+     "ror": "https://ror.org/02d4c4y02",
+     "country_code": "IT",
+     "type": "education",
+     "lineage": [
+      "https://openalex.org/I122346577"
+     ]
+    }
+   ],
+   "countries": [
+    "IT"
+   ],
+   "is_corresponding": false,
+   "raw_author_name": "L. Montorsi",
+   "raw_affiliation_strings": [
+    "DISMI, University of Modena and Reggio Emilia Via Amendola 2, Padiglione Morselli, 42122 Reggio Emilia, Italy",
+    "DISMI, University of Modena and Reggio Emilia, via Amendola 2, Padiglione Morselli, 42122 Reggio Emilia, Italy#TAB#"
+   ],
+   "raw_orcid": null,
+   "affiliations": [
+    {
+     "raw_affiliation_string": "DISMI, University of Modena and Reggio Emilia Via Amendola 2, Padiglione Morselli, 42122 Reggio Emilia, Italy",
+     "institution_ids": [
+      "https://openalex.org/I122346577"
+     ]
+    },
+    {
+     "raw_affiliation_string": "DISMI, University of Modena and Reggio Emilia, via Amendola 2, Padiglione Morselli, 42122 Reggio Emilia, Italy#TAB#",
+     "institution_ids": [
+      "https://openalex.org/I122346577"
+     ]
+    }
+   ]
+  }
+ ],
+ "institutions": [],
+ "countries_distinct_count": 1,
+ "institutions_distinct_count": 1,
+ "corresponding_author_ids": [
+  "https://openalex.org/A5086199728"
+ ],
+ "corresponding_institution_ids": [
+  "https://openalex.org/I122346577"
+ ],
+ "apc_list": {
+  "value": 4350,
+  "currency": "USD",
+  "value_usd": 4350
+ },
+ "apc_paid": null,
+ "fwci": 0.4136,
+ "has_fulltext": false,
+ "cited_by_count": 56,
+ "citation_normalized_percentile": {
+  "value": 0.6488959,
+  "is_in_top_1_percent": false,
+  "is_in_top_10_percent": false
+ },
+ "cited_by_percentile_year": {
+  "min": 93,
+  "max": 99
+ },
+ "biblio": {
+  "volume": "112",
+  "issue": "3",
+  "first_page": "243",
+  "last_page": "252"
+ },
+ "is_retracted": false,
+ "is_paratext": false,
+ "is_xpac": false,
+ "primary_topic": {
+  "id": "https://openalex.org/T11264",
+  "display_name": "Coffee research and impacts",
+  "score": 0.24320000410079956,
+  "subfield": {
+   "id": "https://openalex.org/subfields/2736",
+   "display_name": "Pharmacology"
+  },
+  "field": {
+   "id": "https://openalex.org/fields/27",
+   "display_name": "Medicine"
+  },
+  "domain": {
+   "id": "https://openalex.org/domains/4",
+   "display_name": "Health Sciences"
+  }
+ },
+ "topics": [
+  {
+   "id": "https://openalex.org/T11264",
+   "display_name": "Coffee research and impacts",
+   "score": 0.24320000410079956,
+   "subfield": {
+    "id": "https://openalex.org/subfields/2736",
+    "display_name": "Pharmacology"
+   },
+   "field": {
+    "id": "https://openalex.org/fields/27",
+    "display_name": "Medicine"
+   },
+   "domain": {
+    "id": "https://openalex.org/domains/4",
+    "display_name": "Health Sciences"
+   }
+  },
+  {
+   "id": "https://openalex.org/T10615",
+   "display_name": "Granular flow and fluidized beds",
+   "score": 0.16200000047683716,
+   "subfield": {
+    "id": "https://openalex.org/subfields/2206",
+    "display_name": "Computational Mechanics"
+   },
+   "field": {
+    "id": "https://openalex.org/fields/22",
+    "display_name": "Engineering"
+   },
+   "domain": {
+    "id": "https://openalex.org/domains/3",
+    "display_name": "Physical Sciences"
+   }
+  },
+  {
+   "id": "https://openalex.org/T10650",
+   "display_name": "Food Drying and Modeling",
+   "score": 0.14069999754428864,
+   "subfield": {
+    "id": "https://openalex.org/subfields/1106",
+    "display_name": "Food Science"
+   },
+   "field": {
+    "id": "https://openalex.org/fields/11",
+    "display_name": "Agricultural and Biological Sciences"
+   },
+   "domain": {
+    "id": "https://openalex.org/domains/1",
+    "display_name": "Life Sciences"
+   }
+  }
+ ],
+ "keywords": [
+  {
+   "id": "https://openalex.org/keywords/coffee-roasting",
+   "display_name": "coffee roasting",
+   "score": 0.9990000128746033
+  },
+  {
+   "id": "https://openalex.org/keywords/heat-and-mass-transfer",
+   "display_name": "heat and mass transfer",
+   "score": 0.781000018119812
+  },
+  {
+   "id": "https://openalex.org/keywords/hot-air-flow",
+   "display_name": "hot air flow",
+   "score": 0.8650000095367432
+  },
+  {
+   "id": "https://openalex.org/keywords/coffee-beans",
+   "display_name": "coffee beans",
+   "score": 0.6639999747276306
+  },
+  {
+   "id": "https://openalex.org/keywords/moisture-evaporation",
+   "display_name": "moisture evaporation",
+   "score": 0.9660000205039978
+  },
+  {
+   "id": "https://openalex.org/keywords/temperature-profiles",
+   "display_name": "temperature profiles",
+   "score": 0.7160000205039978
+  },
+  {
+   "id": "https://openalex.org/keywords/fuel-consumption",
+   "display_name": "fuel consumption",
+   "score": 0.8389999866485596
+  },
+  {
+   "id": "https://openalex.org/keywords/numerical-simulation",
+   "display_name": "numerical simulation",
+   "score": 0.4440000057220459
+  }
+ ],
+ "concepts": [
+  {
+   "id": "https://openalex.org/C140327455",
+   "wikidata": "https://www.wikidata.org/wiki/Q1228460",
+   "display_name": "Roasting",
+   "level": 2,
+   "score": 0.9897857308387756
+  },
+  {
+   "id": "https://openalex.org/C175845324",
+   "wikidata": "https://www.wikidata.org/wiki/Q2738285",
+   "display_name": "Drum",
+   "level": 2,
+   "score": 0.6738369464874268
+  },
+  {
+   "id": "https://openalex.org/C2779801959",
+   "wikidata": "https://www.wikidata.org/wiki/Q153697",
+   "display_name": "Coffee bean",
+   "level": 2,
+   "score": 0.5881226062774658
+  },
+  {
+   "id": "https://openalex.org/C98045186",
+   "wikidata": "https://www.wikidata.org/wiki/Q205663",
+   "display_name": "Process (computing)",
+   "level": 2,
+   "score": 0.5380856990814209
+  },
+  {
+   "id": "https://openalex.org/C21880701",
+   "wikidata": "https://www.wikidata.org/wiki/Q2144042",
+   "display_name": "Process engineering",
+   "level": 1,
+   "score": 0.440936803817749
+  },
+  {
+   "id": "https://openalex.org/C61441594",
+   "wikidata": "https://www.wikidata.org/wiki/Q132814",
+   "display_name": "Evaporation",
+   "level": 2,
+   "score": 0.4283917248249054
+  },
+  {
+   "id": "https://openalex.org/C39432304",
+   "wikidata": "https://www.wikidata.org/wiki/Q188847",
+   "display_name": "Environmental science",
+   "level": 0,
+   "score": 0.34895187616348267
+  },
+  {
+   "id": "https://openalex.org/C127413603",
+   "wikidata": "https://www.wikidata.org/wiki/Q11023",
+   "display_name": "Engineering",
+   "level": 0,
+   "score": 0.3049679100513458
+  },
+  {
+   "id": "https://openalex.org/C185592680",
+   "wikidata": "https://www.wikidata.org/wiki/Q2329",
+   "display_name": "Chemistry",
+   "level": 0,
+   "score": 0.25873643159866333
+  },
+  {
+   "id": "https://openalex.org/C78519656",
+   "wikidata": "https://www.wikidata.org/wiki/Q101333",
+   "display_name": "Mechanical engineering",
+   "level": 1,
+   "score": 0.21878379583358765
+  },
+  {
+   "id": "https://openalex.org/C192562407",
+   "wikidata": "https://www.wikidata.org/wiki/Q228736",
+   "display_name": "Materials science",
+   "level": 0,
+   "score": 0.21789056062698364
+  },
+  {
+   "id": "https://openalex.org/C41008148",
+   "wikidata": "https://www.wikidata.org/wiki/Q21198",
+   "display_name": "Computer science",
+   "level": 0,
+   "score": 0.156607985496521
+  },
+  {
+   "id": "https://openalex.org/C191897082",
+   "wikidata": "https://www.wikidata.org/wiki/Q11467",
+   "display_name": "Metallurgy",
+   "level": 1,
+   "score": 0.14188402891159058
+  },
+  {
+   "id": "https://openalex.org/C31903555",
+   "wikidata": "https://www.wikidata.org/wiki/Q1637030",
+   "display_name": "Food science",
+   "level": 1,
+   "score": 0.12059304118156433
+  },
+  {
+   "id": "https://openalex.org/C97355855",
+   "wikidata": "https://www.wikidata.org/wiki/Q11473",
+   "display_name": "Thermodynamics",
+   "level": 1,
+   "score": 0.08820006251335144
+  },
+  {
+   "id": "https://openalex.org/C111919701",
+   "wikidata": "https://www.wikidata.org/wiki/Q9135",
+   "display_name": "Operating system",
+   "level": 1,
+   "score": 0.0
+  },
+  {
+   "id": "https://openalex.org/C121332964",
+   "wikidata": "https://www.wikidata.org/wiki/Q413",
+   "display_name": "Physics",
+   "level": 0,
+   "score": 0.0
+  }
+ ],
+ "mesh": [],
+ "locations_count": 2,
+ "locations": [
+  {
+   "id": "doi:10.1016/j.jfoodeng.2012.04.009",
+   "doi": "https://doi.org/10.1016/j.jfoodeng.2012.04.009",
+   "is_oa": false,
+   "landing_page_url": "https://doi.org/10.1016/j.jfoodeng.2012.04.009",
+   "pdf_url": null,
+   "source": {
+    "id": "https://openalex.org/S137362610",
+    "display_name": "Journal of Food Engineering",
+    "issn_l": "0260-8774",
+    "issn": [
+     "0260-8774",
+     "1873-5770"
+    ],
+    "is_oa": false,
+    "is_in_doaj": false,
+    "is_core": true,
+    "listed_in": [
+     "anvur-scientific",
+     "cwts-core",
+     "dongbi-b",
+     "jufo-1",
+     "ki-jl-1",
+     "norway-1",
+     "poland-140",
+     "russia-white-list-1",
+     "vabb-shw"
+    ],
+    "host_organization": "https://openalex.org/P4310320990",
+    "host_organization_name": "Elsevier BV",
+    "host_organization_lineage": [
+     "https://openalex.org/P4310320990"
+    ],
+    "host_organization_lineage_names": [
+     "Elsevier BV"
+    ],
+    "type": "journal"
+   },
+   "license": null,
+   "license_id": null,
+   "version": "publishedVersion",
+   "is_accepted": true,
+   "is_published": true,
+   "raw_source_name": "Journal of Food Engineering",
+   "raw_type": "journal-article"
+  },
+  {
+   "id": "pmh:oai:iris.unimore.it:11380/735451",
+   "doi": null,
+   "is_oa": true,
+   "landing_page_url": "http://hdl.handle.net/11380/735451",
+   "pdf_url": null,
+   "source": {
+    "id": "https://openalex.org/S4306400718",
+    "display_name": "IRIS UNIMORE (University of Modena and Reggio Emilia)",
+    "issn_l": null,
+    "issn": null,
+    "is_oa": false,
+    "is_in_doaj": false,
+    "is_core": false,
+    "listed_in": [],
+    "host_organization": "https://openalex.org/I122346577",
+    "host_organization_name": "University of Modena and Reggio Emilia",
+    "host_organization_lineage": [
+     "https://openalex.org/I122346577"
+    ],
+    "host_organization_lineage_names": [],
+    "type": "repository"
+   },
+   "license": "cc-by",
+   "license_id": "https://openalex.org/licenses/cc-by",
+   "version": "submittedVersion",
+   "is_accepted": false,
+   "is_published": false,
+   "raw_source_name": null,
+   "raw_type": "info:eu-repo/semantics/article"
+  }
+ ],
+ "best_oa_location": {
+  "id": "pmh:oai:iris.unimore.it:11380/735451",
+  "doi": null,
+  "is_oa": true,
+  "landing_page_url": "http://hdl.handle.net/11380/735451",
+  "pdf_url": null,
+  "source": {
+   "id": "https://openalex.org/S4306400718",
+   "display_name": "IRIS UNIMORE (University of Modena and Reggio Emilia)",
+   "issn_l": null,
+   "issn": null,
+   "is_oa": false,
+   "is_in_doaj": false,
+   "is_core": false,
+   "listed_in": [],
+   "host_organization": "https://openalex.org/I122346577",
+   "host_organization_name": "University of Modena and Reggio Emilia",
+   "host_organization_lineage": [
+    "https://openalex.org/I122346577"
+   ],
+   "host_organization_lineage_names": [],
+   "type": "repository"
+  },
+  "license": "cc-by",
+  "license_id": "https://openalex.org/licenses/cc-by",
+  "version": "submittedVersion",
+  "is_accepted": false,
+  "is_published": false,
+  "raw_source_name": null,
+  "raw_type": "info:eu-repo/semantics/article"
+ },
+ "sustainable_development_goals": [],
+ "sustainable_development_goals_aurora": [
+  {
+   "id": "https://metadata.un.org/sdg/7",
+   "score": 0.6499999761581421,
+   "display_name": "Affordable and clean energy"
+  }
+ ],
+ "study_designs": [],
+ "awards": [],
+ "funders": [],
+ "has_content": {
+  "pdf": false,
+  "grobid_xml": false
+ },
+ "content_urls": null,
+ "referenced_works_count": 24,
+ "referenced_works": [
+  "https://openalex.org/W421783903",
+  "https://openalex.org/W1501132267",
+  "https://openalex.org/W1546421042",
+  "https://openalex.org/W1897159782",
+  "https://openalex.org/W1965023570",
+  "https://openalex.org/W1988054152",
+  "https://openalex.org/W1994226817",
+  "https://openalex.org/W1996018972",
+  "https://openalex.org/W2011039321",
+  "https://openalex.org/W2029133682",
+  "https://openalex.org/W2030797739",
+  "https://openalex.org/W2037546790",
+  "https://openalex.org/W2039056395",
+  "https://openalex.org/W2056501252",
+  "https://openalex.org/W2064672656",
+  "https://openalex.org/W2076728648",
+  "https://openalex.org/W2080144919",
+  "https://openalex.org/W2086910139",
+  "https://openalex.org/W2128069241",
+  "https://openalex.org/W2257822573",
+  "https://openalex.org/W2398996345",
+  "https://openalex.org/W2759137245",
+  "https://openalex.org/W2786764553",
+  "https://openalex.org/W2999588648"
+ ],
+ "related_works": [
+  "https://openalex.org/W2807665981",
+  "https://openalex.org/W4390456449",
+  "https://openalex.org/W4386445362",
+  "https://openalex.org/W2774989475",
+  "https://openalex.org/W2087007270",
+  "https://openalex.org/W2564723120",
+  "https://openalex.org/W3113109885",
+  "https://openalex.org/W2597622172",
+  "https://openalex.org/W4377238782",
+  "https://openalex.org/W1820729299"
+ ],
+ "abstract_inverted_index": null,
+ "counts_by_year": [
+  {
+   "year": 2026,
+   "cited_by_count": 4
+  },
+  {
+   "year": 2025,
+   "cited_by_count": 4
+  },
+  {
+   "year": 2024,
+   "cited_by_count": 4
+  },
+  {
+   "year": 2023,
+   "cited_by_count": 7
+  },
+  {
+   "year": 2022,
+   "cited_by_count": 6
+  },
+  {
+   "year": 2021,
+   "cited_by_count": 2
+  },
+  {
+   "year": 2020,
+   "cited_by_count": 2
+  },
+  {
+   "year": 2019,
+   "cited_by_count": 4
+  },
+  {
+   "year": 2018,
+   "cited_by_count": 9
+  },
+  {
+   "year": 2017,
+   "cited_by_count": 4
+  },
+  {
+   "year": 2016,
+   "cited_by_count": 8
+  },
+  {
+   "year": 2014,
+   "cited_by_count": 2
+  }
+ ],
+ "updated_date": "2026-10-16T09:59:22.235173",
+ "created_date": "2025-10-10T00:00:00"
+}

@@ -1,0 +1,78 @@
+"""The funnel's cheap stages: similarity to the focus, model triage, and the pick of works to card."""
+
+import json
+
+import numpy as np
+
+import helpers.llm
+
+# Fixed prefix first, variable part last: providers cache on the prefix, and a screen makes hundreds of these calls.
+TRIAGE_PROMPT = """You screen coffee-research papers for a researcher. Judge the paper below against the researcher's focus.
+
+Reply with exactly one JSON object and nothing else, with these keys:
+- "relevance": 1 = background only, 2 = worth reading, 3 = act on it, judged against the focus
+- "reason": under 20 words explaining the score
+- "is_study": true when the text reports a study, review or meta-analysis; false for an editorial, news item or marketing
+
+Researcher's focus:
+{focus}
+
+Title: {title}
+
+Abstract:
+{abstract}
+"""
+
+
+def _text(work: dict) -> str:
+    # A work without an abstract should not reach here, but the title alone beats failing the batch.
+    abstract = work.get("abstract")
+    return f"{work['title']}\n{abstract}" if abstract else work["title"]
+
+
+def similarity_to_focus(embedder, works: list[dict], *, focus: str) -> dict[str, float]:
+    # Separate calls keep the focus out of the per-work embedding cache and out of the works' batch.
+    focus_vec = np.asarray(embedder.embed([focus]))[0]
+    vecs = np.asarray(embedder.embed([_text(w) for w in works]))
+    # Embedder output is unit-normalised, so the dot product is the cosine; clamp away float noise and negatives.
+    sims = np.clip(vecs @ focus_vec, 0.0, 1.0)
+    return {w["id"]: float(s) for w, s in zip(works, sims)}
+
+
+def triage_work(
+    cfg,
+    work: dict,
+    *,
+    focus: str,
+    model: str | None = None,
+    stats: helpers.llm.CallStats | None = None,
+    chat=helpers.llm.chat,
+) -> dict | None:
+    prompt = TRIAGE_PROMPT.format(focus=focus, title=work["title"], abstract=work.get("abstract") or "")
+    # Only forward what was set, so an injected chat need not accept either.
+    kwargs = {k: v for k, v in (("model", model), ("stats", stats)) if v is not None}
+    reply = chat(cfg, prompt, **kwargs)
+    start, end = reply.find("{"), reply.rfind("}")
+    if start == -1 or end < start:
+        return None
+    try:
+        data = json.loads(reply[start : end + 1])
+        if not isinstance(data, dict) or "relevance" not in data:
+            return None
+        return {
+            "relevance": int(data["relevance"]),
+            "reason": str(data.get("reason", "")),
+            "is_study": bool(data.get("is_study", False)),
+        }
+    except (ValueError, TypeError):
+        return None
+
+
+def select_for_cards(works: list[dict], *, n: int = 10) -> list[dict]:
+    eligible = [
+        w for w in works
+        if not w.get("is_retracted") and w.get("tier") != "metadata" and w.get("triage") and w["triage"].get("is_study")
+    ]
+    # sorted() is stable, so equal scores keep input order and the pick is deterministic.
+    eligible.sort(key=lambda w: (-w["triage"]["relevance"], -(w.get("similarity") or 0.0)))
+    return eligible[:n]

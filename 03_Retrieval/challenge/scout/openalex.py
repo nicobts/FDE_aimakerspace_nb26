@@ -1,5 +1,6 @@
 """OpenAlex client: search works and normalise them to the dicts the scout stores."""
 
+import http.client
 import json
 import time
 import urllib.error
@@ -7,7 +8,11 @@ import urllib.request
 from urllib.parse import quote
 
 API = "https://api.openalex.org/works"
-PAGE_SIZE = 200
+# 200-work pages are about 4 MB and were cut in transit; 100 keeps bodies near 1 MB with select=.
+PAGE_SIZE = 100
+# Only the top-level fields normalise_work reads; the full records are mostly unused bulk.
+SELECT = ("id,doi,title,publication_year,publication_date,type,primary_location,cited_by_count,"
+          "is_retracted,authorships,open_access,best_oa_location,abstract_inverted_index,language")
 BACKOFF_SECONDS = (1, 2, 4)
 
 
@@ -55,6 +60,10 @@ def normalise_work(raw):
     }
 
 
+# A body cut in transit surfaces as a decode error or a short read, so those retry like a dropped connection.
+_TRANSIENT = (urllib.error.URLError, TimeoutError, http.client.IncompleteRead, ConnectionResetError, json.JSONDecodeError)
+
+
 def fetch_json(url, *, timeout=30.0, retries=3, sleep=time.sleep):
     request = urllib.request.Request(url, headers={"User-Agent": "fde-scout/0.1"})
     for attempt in range(retries + 1):
@@ -66,7 +75,10 @@ def fetch_json(url, *, timeout=30.0, retries=3, sleep=time.sleep):
             transient = err.code == 429 or err.code >= 500
             if not transient or attempt == retries:
                 raise
-            sleep(BACKOFF_SECONDS[min(attempt, len(BACKOFF_SECONDS) - 1)])
+        except _TRANSIENT:
+            if attempt == retries:
+                raise
+        sleep(BACKOFF_SECONDS[min(attempt, len(BACKOFF_SECONDS) - 1)])
 
 
 def search_works(*, query, from_date, to_date=None, work_type="article",
@@ -79,7 +91,7 @@ def search_works(*, query, from_date, to_date=None, work_type="article",
         filters.append(f"to_publication_date:{to_date}")
     filters.append(f"type:{work_type}")
     per_page = min(PAGE_SIZE, max_works)
-    base = f"{API}?search={quote(query, safe='')}&filter={','.join(filters)}&per-page={per_page}"
+    base = f"{API}?search={quote(query, safe='')}&filter={','.join(filters)}&per-page={per_page}&select={SELECT}"
     if mailto:
         base += f"&mailto={quote(mailto, safe='')}"
     if api_key:

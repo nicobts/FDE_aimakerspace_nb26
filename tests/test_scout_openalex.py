@@ -24,24 +24,25 @@ def test_normalise_work_without_abstract():
     assert openalex.normalise_work(raw)["abstract"] is None
 
 def test_search_works_follows_pages_and_stops_at_max():
-    pages = {"1": {"meta": {"count": 400}, "results": [{"id": f"https://openalex.org/W{i}"} for i in range(200)]},
-             "2": {"meta": {"count": 400}, "results": [{"id": f"https://openalex.org/W{i}"} for i in range(200, 400)]}}
+    pages = {"1": {"meta": {"count": 400}, "results": [{"id": f"https://openalex.org/W{i}"} for i in range(100)]},
+             "2": {"meta": {"count": 400}, "results": [{"id": f"https://openalex.org/W{i}"} for i in range(100, 200)]},
+             "3": {"meta": {"count": 400}, "results": [{"id": f"https://openalex.org/W{i}"} for i in range(200, 300)]}}
     seen = []
     def fetch(url, **_):
         seen.append(url)
         return pages[url.split("&page=")[1].split("&")[0]]
     works = openalex.search_works(query="coffee", from_date="2024-01-01", max_works=250, fetch=fetch)
-    assert len(works) == 250 and works[0]["id"] == "W0" and len(seen) == 2
-    assert "per-page=200" in seen[0]
+    assert len(works) == 250 and works[0]["id"] == "W0" and len(seen) == 3
+    assert "per-page=100" in seen[0] and "select=id,doi" in seen[0]
     assert "mailto" not in seen[0] and "from_publication_date:2024-01-01" in seen[0] and "type:article" in seen[0]
 
 def test_search_works_stops_at_last_page_by_count():
     seen = []
     def fetch(url, **_):
         seen.append(url)
-        return {"meta": {"count": 200}, "results": [{"id": f"https://openalex.org/W{i}"} for i in range(200)]}
+        return {"meta": {"count": 200}, "results": [{"id": f"https://openalex.org/W{i}"} for i in range(100)]}
     assert len(openalex.search_works(query="coffee", from_date="2024-01-01", max_works=300, fetch=fetch)) == 200
-    assert len(seen) == 1
+    assert len(seen) == 2
 
 def test_search_works_sends_api_key_only_when_given():
     seen = []
@@ -112,3 +113,22 @@ def test_fetch_json_gives_up_after_retries_plus_one_attempts(monkeypatch):
     with pytest.raises(urllib.error.HTTPError):
         openalex.fetch_json("http://x", retries=3, sleep=sleeps.append)
     assert len(calls) == 4 and sleeps == [1, 2, 4]
+
+
+class _RawResponse(_Response):
+    def __init__(self, raw):
+        self._body = raw
+
+
+def test_fetch_json_retries_dropped_connection(monkeypatch):
+    calls = _script_urlopen(monkeypatch, [urllib.error.URLError("reset"), _Response({"ok": 1})])
+    sleeps = []
+    assert openalex.fetch_json("http://x", sleep=sleeps.append) == {"ok": 1}
+    assert len(calls) == 2 and sleeps == [1]
+
+
+def test_fetch_json_retries_body_cut_in_transit(monkeypatch):
+    calls = _script_urlopen(monkeypatch, [_RawResponse(b'{"results": [{"id": "W'), _Response({"ok": 1})])
+    sleeps = []
+    assert openalex.fetch_json("http://x", sleep=sleeps.append) == {"ok": 1}
+    assert len(calls) == 2 and sleeps == [1]

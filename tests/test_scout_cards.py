@@ -34,3 +34,25 @@ def test_card_work_from_fulltext_keeps_warnings_as_returned():
 
     out = cards.card_work(None, work, focus="x", languages=["en"], text="full text here", chat=chat)
     assert "full text here" in seen["prompt"] and "abstract_only" not in out.trust_warnings
+
+
+def test_card_work_forwards_model_and_stats_only_when_set():
+    work = {"id": "W1", "title": "t", "source": "J", "abstract": "abs", "tier": "abstract"}
+    calls = []
+
+    def chat(cfg, prompt, **kw):
+        calls.append(kw)
+        return GOOD
+
+    stats = object()
+    cards.card_work(None, work, focus=None, languages=["en"], model="m", stats=stats, chat=chat)
+    cards.card_work(None, work, focus=None, languages=["en"], chat=chat)
+    assert calls[0] == {"model": "m", "stats": stats}
+    assert calls[1] == {}
+
+
+def test_card_work_decline_gets_no_abstract_only_warning():
+    work = {"id": "W1", "title": "t", "source": "J", "abstract": "abs", "tier": "abstract"}
+    declined = '{"needs_human": true, "needs_human_reason": "not a study"}'
+    out = cards.card_work(None, work, focus=None, languages=["en"], chat=lambda cfg, prompt, **kw: declined)
+    assert out.needs_human is True and out.trust_warnings == []

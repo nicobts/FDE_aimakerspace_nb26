@@ -92,3 +92,13 @@ def test_set_triage_round_trips_and_none_clears(tmp_path):
     s.set_triage("W1", triage=None, similarity=None)
     w = s.works(ids=["W1"])[0]
     assert w["triage"] is None and w["similarity"] is None
+
+
+def test_last_run_returns_the_newer_run_of_its_own_kind(tmp_path):
+    s = Store(tmp_path / "s.sqlite")
+    s.add_run(kind="seed", params={}, counts={"new": 1}, tokens=0, cost_usd=0.0, ran_at="2026-10-27")
+    s.add_run(kind="seed", params={}, counts={"new": 2}, tokens=0, cost_usd=0.0, ran_at="2026-11-30")
+    s.add_run(kind="refresh", params={}, counts={"new": 9}, tokens=0, cost_usd=0.0, ran_at="2026-12-01")
+    last = s.last_run(kind="seed")
+    assert last["counts"] == {"new": 2} and last["ran_at"] == "2026-11-30"
+    assert s.last_run(kind="refresh")["counts"] == {"new": 9}

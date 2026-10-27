@@ -42,3 +42,6 @@ use_case/reference/
 
 # Personal study notes -- explanations kept for re-reading, never published
 understand_explain/
+
+# Scratch space for files that stay on this machine only
+local/

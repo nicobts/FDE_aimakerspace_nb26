@@ -76,11 +76,17 @@ def triage_work(
     return {"relevance": int(relevance), "reason": str(data.get("reason", "")), "is_study": is_study}
 
 
+def is_eligible(work: dict) -> bool:
+    return bool(
+        not work.get("is_retracted") and work.get("tier") != "metadata"
+        and work.get("triage") and work["triage"].get("is_study")
+    )
+
+
+def rank_key(work: dict) -> tuple:
+    return (-work["triage"]["relevance"], -(work.get("similarity") or 0.0))
+
+
 def select_for_cards(works: list[dict], *, n: int = 10) -> list[dict]:
-    eligible = [
-        w for w in works
-        if not w.get("is_retracted") and w.get("tier") != "metadata" and w.get("triage") and w["triage"].get("is_study")
-    ]
     # sorted() is stable, so equal scores keep input order and the pick is deterministic.
-    eligible.sort(key=lambda w: (-w["triage"]["relevance"], -(w.get("similarity") or 0.0)))
-    return eligible[:n]
+    return sorted((w for w in works if is_eligible(w)), key=rank_key)[:n]

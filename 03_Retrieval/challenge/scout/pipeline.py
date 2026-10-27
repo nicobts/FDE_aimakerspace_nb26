@@ -9,7 +9,7 @@ import helpers.llm
 
 from .areas import AREAS
 from .cards import card_work
-from .funnel import select_for_cards, similarity_to_focus, triage_work
+from .funnel import is_eligible, rank_key, select_for_cards, similarity_to_focus, triage_work
 from .openalex import search_works
 from .tiers import assign_tier
 
@@ -89,8 +89,10 @@ def screen(store, cfg, embedder, *, area, focus, n=10, floor=0.25, triage_model=
         store.set_triage(work["id"], triage=result, similarity=sims[work["id"]])
         rows.append({**work, "similarity": sims[work["id"]], "triage": result})
     selected = select_for_cards(rows, n=n)
-    chosen = {w["id"] for w in selected}
-    ordered = selected + [r for r in rows if r["id"] not in chosen]
+    # Every candidate is shown in the order the pick uses; rows the pick cannot take (unparsed triage,
+    # not a study, retracted) follow, most similar first, so the printed top 20 is not arbitrary.
+    ordered = sorted((r for r in rows if is_eligible(r)), key=rank_key)
+    ordered += sorted((r for r in rows if not is_eligible(r)), key=lambda r: -r["similarity"])
 
     schema_version = tomllib.loads(_CONTRACT.read_text(encoding="utf-8"))["project"]["version"]
     model = card_model or (cfg.llm_model if cfg else "injected")

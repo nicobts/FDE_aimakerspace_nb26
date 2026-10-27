@@ -37,3 +37,58 @@ def test_runs_and_fulltext(tmp_path):
     s.upsert_works([work(1)], area="roasting", first_seen="2026-10-27")
     s.set_fulltext("W1", markdown="# paper", source_url="https://x/y.pdf")
     assert s.fulltext("W1") == "# paper"
+
+
+def test_area_filter_matches_every_area_of_a_multi_area_work(tmp_path):
+    s = Store(tmp_path / "s.sqlite")
+    s.upsert_works([work(1), work(2)], area="roasting", first_seen="2026-10-27")
+    s.upsert_works([work(2)], area="health", first_seen="2026-11-30")
+    assert [w["id"] for w in s.works(area="roasting")] == ["W1", "W2"]
+    assert [w["id"] for w in s.works(area="health")] == ["W2"]
+
+
+def test_second_upsert_leaves_tier_triage_and_similarity_alone(tmp_path):
+    s = Store(tmp_path / "s.sqlite")
+    s.upsert_works([work(1, title="original")], area="roasting", first_seen="2026-10-27")
+    s.set_tier("W1", tier="abstract")
+    s.set_triage("W1", triage={"relevant": True}, similarity=0.8)
+    s.upsert_works([work(1, title="changed")], area="health", first_seen="2026-11-30")
+    w = s.works(ids=["W1"])[0]
+    assert (w["tier"], w["triage"], w["similarity"]) == ("abstract", {"relevant": True}, 0.8)
+    assert w["title"] == "original" and w["first_seen"] == "2026-10-27"
+
+
+def test_since_seen_is_inclusive(tmp_path):
+    s = Store(tmp_path / "s.sqlite")
+    s.upsert_works([work(1)], area="roasting", first_seen="2026-10-27")
+    s.upsert_works([work(2)], area="roasting", first_seen="2026-11-30")
+    assert [w["id"] for w in s.works(since_seen="2026-11-30")] == ["W2"]
+    assert [w["id"] for w in s.works(since_seen="2026-10-27")] == ["W1", "W2"]
+
+
+def test_null_publication_date_is_excluded_by_since_published_only(tmp_path):
+    s = Store(tmp_path / "s.sqlite")
+    s.upsert_works([work(1, publication_date=None), work(2)], area="roasting", first_seen="2026-10-27")
+    assert [w["id"] for w in s.works(since_published="2000-01-01")] == ["W2"]
+    assert [w["id"] for w in s.works()] == ["W1", "W2"]
+
+
+def test_works_come_back_in_insertion_order(tmp_path):
+    s = Store(tmp_path / "s.sqlite")
+    s.upsert_works([work(3), work(1)], area="roasting", first_seen="2026-10-27")
+    s.upsert_works([work(2)], area="roasting", first_seen="2026-10-27")
+    assert [w["id"] for w in s.works()] == ["W3", "W1", "W2"]
+    assert [w["id"] for w in s.works(ids=["W2", "W3", "W1"])] == ["W3", "W1", "W2"]
+
+
+def test_set_triage_round_trips_and_none_clears(tmp_path):
+    s = Store(tmp_path / "s.sqlite")
+    s.upsert_works([work(1)], area="roasting", first_seen="2026-10-27")
+    w = s.works(ids=["W1"])[0]
+    assert w["triage"] is None and w["similarity"] is None
+    s.set_triage("W1", triage={"relevant": True, "why": "x"}, similarity=0.42)
+    w = s.works(ids=["W1"])[0]
+    assert w["triage"] == {"relevant": True, "why": "x"} and w["similarity"] == 0.42
+    s.set_triage("W1", triage=None, similarity=None)
+    w = s.works(ids=["W1"])[0]
+    assert w["triage"] is None and w["similarity"] is None

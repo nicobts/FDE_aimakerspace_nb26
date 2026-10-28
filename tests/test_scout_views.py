@@ -93,3 +93,22 @@ def test_empty_chunk_list_saves_an_empty_store_without_embedding(tmp_path):
         def embed(self, texts): raise AssertionError("must not embed")
     store = views.build_vector_store([], E(), path=tmp_path / "index" / "chunks")
     assert len(store) == 0 and (tmp_path / "index" / "chunks.jsonl").exists()
+
+
+def test_untitled_work_never_renders_the_string_none(tmp_path):
+    s = Store(tmp_path / "s.sqlite")
+    s.upsert_works([work(1, title=None, abstract="only abstract")], area="roasting", first_seen="2026-10-27")
+    s.set_tier("W1", tier="abstract")
+    assert views.build_chunks(s)[0]["text"] == "only abstract"
+    views.render_wiki(s, directory=tmp_path / "wiki")
+    assert (tmp_path / "wiki" / "W1.md").read_text(encoding="utf-8").startswith("# (untitled)\n")
+    row = [l for l in (tmp_path / "wiki" / "index_roasting.md").read_text(encoding="utf-8").splitlines() if "W1" in l][0]
+    assert "(untitled)" in row and "None" not in row
+
+
+def test_index_cell_escapes_pipes_and_collapses_line_breaks(tmp_path):
+    s = Store(tmp_path / "s.sqlite")
+    s.upsert_works([work(1, title="a | b\r\nc\n\nd")], area="roasting", first_seen="2026-10-27")
+    views.render_wiki(s, directory=tmp_path / "wiki")
+    row = [l for l in (tmp_path / "wiki" / "index_roasting.md").read_text(encoding="utf-8").split("\n") if "W1" in l][0]
+    assert r"a \| b c d" in row and "\r" not in row

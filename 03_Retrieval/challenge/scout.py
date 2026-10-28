@@ -67,7 +67,7 @@ def _screen(args):
     print(f"{'rel':>3} {'sim':>5} {'year':>4}  {'tier':8} title")
     for row in out["ranked"][:20]:
         rel = row["triage"]["relevance"] if row["triage"] else "-"
-        print(f"{rel:>3} {row['similarity']:5.2f} {row['year'] or '':>4}  {row['tier']:8} {row['title'][:80]}")
+        print(f"{rel:>3} {row['similarity']:5.2f} {row['year'] or '':>4}  {row['tier']:8} {(row['title'] or '(untitled)')[:80]}")
     print(f"carded: {', '.join(out['carded']) or 'none'}")
     print(f"tokens: {out['tokens']}  cost_usd: {out['cost_usd']:.4f}")
 

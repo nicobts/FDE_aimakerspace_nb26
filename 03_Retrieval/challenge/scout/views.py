@@ -17,6 +17,11 @@ def export_jsonl(store, *, path: Path) -> int:
     return len(works)
 
 
+def _title(w):
+    # OpenAlex can return no title; the string "None" must never reach an embedding, heading or table.
+    return w.get("title") or "(untitled)"
+
+
 def _usable(card):
     # A decline carries no summary or trust assessment worth indexing.
     return card if card and not card.get("needs_human") else None
@@ -35,7 +40,8 @@ def build_chunks(store, *, include_fulltext: bool = True, size: int = 900, overl
         pieces = []  # (language, text); the index in this list becomes the chunk number
 
         if w.get("abstract"):
-            pieces.append(("en", f"{w['title']}\n\n{w['abstract']}"))
+            # An untitled work embeds its abstract alone; a placeholder would match queries.
+            pieces.append(("en", f"{w['title']}\n\n{w['abstract']}" if w.get("title") else w["abstract"]))
         card = _usable(w.get("card"))
         if card:
             italian = "\n\n".join(t for t in (card.get("summary_it"), card.get("notes_it")) if t)
@@ -53,7 +59,7 @@ def build_chunks(store, *, include_fulltext: bool = True, size: int = 900, overl
 
 
 def _cell(text):
-    return str(text).replace("|", r"\|").replace("\n", " ")
+    return " ".join(str(text).split()).replace("|", r"\|")
 
 
 def _card_section(card):
@@ -85,7 +91,7 @@ def _page(w, fulltext):
     meta = [("Year", w.get("year")), ("Publication date", w.get("publication_date")), ("Source", w.get("source")),
             ("DOI", w.get("doi")), ("Type", w.get("type")), ("Institutions", insts), ("Areas", ", ".join(w["areas"])),
             ("Tier", w["tier"]), ("First seen", w["first_seen"]), ("OpenAlex id", w["id"]), ("URL", w.get("landing_url"))]
-    lines = [f"# {w['title']}", "", "## Metadata", ""]
+    lines = [f"# {_title(w)}", "", "## Metadata", ""]
     lines += [f"- {label}: {value if value not in (None, '') else 'unknown'}" for label, value in meta]
     lines += ["", "## Abstract", "", w.get("abstract") or "No abstract available.", "", "## Card", ""]
     lines += _card_section(w.get("card"))
@@ -117,7 +123,7 @@ def render_wiki(store, *, directory: Path) -> int:
         rows.sort(key=lambda w: w.get("publication_date") or "", reverse=True)
         rows.sort(key=lambda w: w.get("publication_date") is None)
         table = [f"# {area}", "", "| W-id | year | title | tier |", "| --- | --- | --- | --- |"]
-        table += [f"| [{w['id']}]({w['id']}.md) | {w.get('year') or ''} | {_cell(w['title'])} | {w['tier']} |" for w in rows]
+        table += [f"| [{w['id']}]({w['id']}.md) | {w.get('year') or ''} | {_cell(_title(w))} | {w['tier']} |" for w in rows]
         (directory / f"index_{area}.md").write_text("\n".join(table) + "\n", encoding="utf-8")
     (directory / "index.md").write_text("\n".join(index) + "\n", encoding="utf-8")
     return len(works)

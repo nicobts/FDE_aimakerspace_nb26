@@ -3,6 +3,7 @@
     uv run python 03_Retrieval/challenge/scout.py seed
     uv run python 03_Retrieval/challenge/scout.py update
     uv run python 03_Retrieval/challenge/scout.py screen --area roasting --focus "..."
+    uv run python 03_Retrieval/challenge/scout.py fulltext
     uv run python 03_Retrieval/challenge/scout.py views
 """
 
@@ -10,6 +11,7 @@ import argparse
 import datetime
 import os
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -18,7 +20,7 @@ sys.path.insert(0, str(ROOT / "01_Product_Engineering" / "challenge"))
 sys.path.insert(0, str(Path(__file__).parent))
 
 from helpers import nb  # noqa: E402
-from scout import pipeline, views  # noqa: E402
+from scout import pdf, pipeline, views  # noqa: E402
 from scout.areas import AREAS  # noqa: E402
 from scout.store import Store  # noqa: E402
 
@@ -72,6 +74,18 @@ def _screen(args):
     print(f"tokens: {out['tokens']}  cost_usd: {out['cost_usd']:.4f}")
 
 
+def _fulltext(args):
+    cfg = nb.bootstrap(require=("LLM_MODEL",))
+    store = _store(cfg)
+    directory = Path(args.pdf_dir) if args.pdf_dir else cfg.root / "use_case" / "data" / "pdf"
+    started = time.monotonic()
+    counts = pdf.fulltext_for_carded(store, cfg, directory=directory, limit=args.limit, min_chars=args.min_chars)
+    attempted = counts["converted"] + counts["downgraded"]
+    print(f"converted={counts['converted']} downgraded={counts['downgraded']}")
+    if attempted:
+        print(f"seconds per paper: {(time.monotonic() - started) / attempted:.1f}")
+
+
 def _views(args):
     cfg = nb.bootstrap()
     store = _store(cfg)
@@ -91,6 +105,8 @@ def _views(args):
 
 
 def main(argv=None):
+    # Titles are multilingual; a Windows console or a redirect defaults to cp1252 and would crash the printout.
+    sys.stdout.reconfigure(errors="replace")
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="command", required=True)
     seed = sub.add_parser("seed", help="fetch the corpus once")
@@ -106,6 +122,10 @@ def main(argv=None):
     screen.add_argument("--focus", required=True)
     screen.add_argument("--n", type=int, default=10)
     screen.add_argument("--floor", type=float, default=0.25)
+    fulltext = sub.add_parser("fulltext", help="convert the carded works' open-access PDFs and card them again")
+    fulltext.add_argument("--limit", type=int, default=10)
+    fulltext.add_argument("--min-chars", type=int, default=2000)
+    fulltext.add_argument("--pdf-dir")
     view = sub.add_parser("views", help="write corpus.jsonl, the wiki and the vector store from the store")
     view.add_argument("--out-dir")
     view.add_argument("--no-fulltext", action="store_true", help="leave full-text chunks out of the vector store")
@@ -113,6 +133,8 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if args.command == "screen":
         _screen(args)
+    elif args.command == "fulltext":
+        _fulltext(args)
     elif args.command == "views":
         _views(args)
     else:

@@ -73,6 +73,15 @@ def _prices():
         return None
 
 
+def schema_version() -> str:
+    return tomllib.loads(_CONTRACT.read_text(encoding="utf-8"))["project"]["version"]
+
+
+def call_cost(prices, *, prompt_tokens, completion_tokens) -> float:
+    """Price a call's tokens; zero when the team has set no prices, which the run row records as cost_known."""
+    return (prices[0] * prompt_tokens + prices[1] * completion_tokens) if prices else 0.0
+
+
 def screen(store, cfg, embedder, *, area, focus, n=10, floor=0.25, triage_model=None, card_model=None,
            languages=("en", "it"), today, chat=helpers.llm.chat) -> dict:
     works = [w for w in store.works(area=area) if w["tier"] in ("abstract", "pdf")]
@@ -94,7 +103,7 @@ def screen(store, cfg, embedder, *, area, focus, n=10, floor=0.25, triage_model=
     ordered = sorted((r for r in rows if is_eligible(r)), key=rank_key)
     ordered += sorted((r for r in rows if not is_eligible(r)), key=lambda r: -r["similarity"])
 
-    schema_version = tomllib.loads(_CONTRACT.read_text(encoding="utf-8"))["project"]["version"]
+    version = schema_version()
     model = card_model or (cfg.llm_model if cfg else "injected")
     prices = _prices()
     carded = []
@@ -102,11 +111,12 @@ def screen(store, cfg, embedder, *, area, focus, n=10, floor=0.25, triage_model=
         before = (stats.prompt_tokens, stats.completion_tokens)
         card = card_work(cfg, work, focus=focus, languages=list(languages), text=None, model=card_model,
                          stats=stats, chat=chat)
-        cost = (prices[0] * (stats.prompt_tokens - before[0]) + prices[1] * (stats.completion_tokens - before[1])) if prices else 0.0
-        store.add_card(work["id"], card=card.model_dump(), schema_version=schema_version, model=model,
+        cost = call_cost(prices, prompt_tokens=stats.prompt_tokens - before[0],
+                         completion_tokens=stats.completion_tokens - before[1])
+        store.add_card(work["id"], card=card.model_dump(), schema_version=version, model=model,
                        tier=work["tier"], cost_usd=cost)
         carded.append(work["id"])
-    cost_usd = (prices[0] * stats.prompt_tokens + prices[1] * stats.completion_tokens) if prices else 0.0
+    cost_usd = call_cost(prices, prompt_tokens=stats.prompt_tokens, completion_tokens=stats.completion_tokens)
     store.add_run(kind="screen", ran_at=today, tokens=stats.total_tokens, cost_usd=cost_usd,
                   params={"area": area, "focus": focus, "n": n, "floor": floor, "triage_model": triage_model,
                           "card_model": card_model, "cost_known": prices is not None},

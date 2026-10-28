@@ -37,6 +37,14 @@ local = [
     "sentence-transformers>=5.0",   # the no-API embedding fallback
 ]
 
+# The scout's full-text tier converts open-access PDFs to Markdown with docling,
+# which pulls torch and downloads layout models on first use. Opt-in, like `local`:
+#
+#     uv sync --group pdf
+pdf = [
+    "docling>=2.142",
+]
+
 # The bonus harness appendix builds the same agent three ways. Only the
 # from-scratch one runs on the root environment; the two framework notebooks want
 # the LangChain stack, which nothing else here uses. Opt-in, exactly like `local`:

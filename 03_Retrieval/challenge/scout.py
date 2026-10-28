@@ -3,6 +3,7 @@
     uv run python 03_Retrieval/challenge/scout.py seed
     uv run python 03_Retrieval/challenge/scout.py update
     uv run python 03_Retrieval/challenge/scout.py screen --area roasting --focus "..."
+    uv run python 03_Retrieval/challenge/scout.py views
 """
 
 import argparse
@@ -17,7 +18,7 @@ sys.path.insert(0, str(ROOT / "01_Product_Engineering" / "challenge"))
 sys.path.insert(0, str(Path(__file__).parent))
 
 from helpers import nb  # noqa: E402
-from scout import pipeline  # noqa: E402
+from scout import pipeline, views  # noqa: E402
 from scout.areas import AREAS  # noqa: E402
 from scout.store import Store  # noqa: E402
 
@@ -71,6 +72,24 @@ def _screen(args):
     print(f"tokens: {out['tokens']}  cost_usd: {out['cost_usd']:.4f}")
 
 
+def _views(args):
+    cfg = nb.bootstrap()
+    store = _store(cfg)
+    out = Path(args.out_dir) if args.out_dir else cfg.root / "use_case" / "data"
+    exported = views.export_jsonl(store, path=out / "corpus.jsonl")
+    pages = views.render_wiki(store, directory=out / "wiki")
+    chunks = views.build_chunks(store, include_fulltext=not args.no_fulltext)
+    by_language = {lang: sum(c["language"] == lang for c in chunks) for lang in ("en", "it")}
+    print(f"works exported: {exported}  wiki pages: {pages}  chunks: en={by_language['en']} it={by_language['it']}")
+    if args.no_vectors:
+        return
+    from helpers.embeddings import Embedder
+
+    embedder = Embedder(cfg, cache_dir=cfg.root / "use_case" / "data" / ".embed_cache")
+    views.build_vector_store(chunks, embedder, path=out / "index" / "chunks")
+    print(f"embedder: {embedder.stats}")
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="command", required=True)
@@ -87,9 +106,15 @@ def main(argv=None):
     screen.add_argument("--focus", required=True)
     screen.add_argument("--n", type=int, default=10)
     screen.add_argument("--floor", type=float, default=0.25)
+    view = sub.add_parser("views", help="write corpus.jsonl, the wiki and the vector store from the store")
+    view.add_argument("--out-dir")
+    view.add_argument("--no-fulltext", action="store_true", help="leave full-text chunks out of the vector store")
+    view.add_argument("--no-vectors", action="store_true", help="skip the embedding step")
     args = parser.parse_args(argv)
     if args.command == "screen":
         _screen(args)
+    elif args.command == "views":
+        _views(args)
     else:
         _fetch(args.command, args)
 

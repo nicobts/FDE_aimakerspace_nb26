@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS works(
     publication_date TEXT, similarity REAL, triage TEXT);
 CREATE TABLE IF NOT EXISTS cards(
     work_id TEXT, version INTEGER, schema_version TEXT, model TEXT, tier TEXT,
-    cost_usd REAL, created_at TEXT, card TEXT, PRIMARY KEY(work_id, version));
+    cost_usd REAL, created_at TEXT, card TEXT, focus TEXT, PRIMARY KEY(work_id, version));
 CREATE TABLE IF NOT EXISTS fulltext(
     work_id TEXT PRIMARY KEY, markdown TEXT, source_url TEXT, created_at TEXT);
 CREATE TABLE IF NOT EXISTS runs(
@@ -30,6 +30,10 @@ class Store:
         path.parent.mkdir(parents=True, exist_ok=True)
         self._db = sqlite3.connect(path)
         self._db.executescript(_SCHEMA)
+        # Databases created before cards recorded their focus lack the column; CREATE IF NOT EXISTS leaves them as they were.
+        if "focus" not in {row[1] for row in self._db.execute("PRAGMA table_info(cards)")}:
+            with self._db:
+                self._db.execute("ALTER TABLE cards ADD COLUMN focus TEXT")
 
     def upsert_works(self, works: list[dict], *, area: str, first_seen: str) -> int:
         ids = [w["id"] for w in works]
@@ -92,23 +96,26 @@ class Store:
             self._db.execute("UPDATE works SET triage=?, similarity=? WHERE id=?",
                              (None if triage is None else json.dumps(triage), similarity, work_id))
 
-    def add_card(self, work_id: str, *, card: dict, schema_version: str, model: str, tier: str, cost_usd: float) -> int:
+    def add_card(self, work_id: str, *, card: dict, schema_version: str, model: str, tier: str, cost_usd: float,
+                 focus: str | None = None) -> int:
         with self._db:
-            # Version and insert share one transaction so concurrent writers cannot take the same number.
+            # sqlite3 opens its transaction at the INSERT, so the SELECT below is not covered by it: two writers
+            # could pick the same number, and the primary key then makes the second INSERT fail instead of overwrite.
             version = self._db.execute("SELECT COALESCE(MAX(version), 0) + 1 FROM cards WHERE work_id=?",
                                        (work_id,)).fetchone()[0]
-            self._db.execute("INSERT INTO cards VALUES(?,?,?,?,?,?,?,?)",
-                             (work_id, version, schema_version, model, tier, cost_usd, _now(), json.dumps(card)))
+            self._db.execute("INSERT INTO cards(work_id, version, schema_version, model, tier, cost_usd, created_at, card, focus) "
+                             "VALUES(?,?,?,?,?,?,?,?,?)",
+                             (work_id, version, schema_version, model, tier, cost_usd, _now(), json.dumps(card), focus))
         return version
 
     def latest_card(self, work_id: str) -> dict | None:
         row = self._db.execute(
-            "SELECT version, card, model, tier, cost_usd, created_at FROM cards WHERE work_id=? "
+            "SELECT version, card, model, tier, cost_usd, created_at, focus FROM cards WHERE work_id=? "
             "ORDER BY version DESC LIMIT 1", (work_id,)).fetchone()
         if row is None:
             return None
         return {"version": row[0], "card": json.loads(row[1]), "model": row[2], "tier": row[3],
-                "cost_usd": row[4], "created_at": row[5]}
+                "cost_usd": row[4], "created_at": row[5], "focus": row[6]}
 
     def set_fulltext(self, work_id: str, *, markdown: str, source_url: str) -> None:
         with self._db:

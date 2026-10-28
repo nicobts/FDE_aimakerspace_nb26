@@ -43,6 +43,7 @@ def _fetch_into(store, *, areas, from_date, per_area, today, search, mailto, api
     return {"fetched": fetched, "new": new, **{t: tiers.count(t) for t in TIERS}, "by_area": by_area}
 
 
+# A seed or update that fails partway writes no run row; rerun it, the upserts are idempotent.
 def seed(store, *, areas, from_date, per_area, today, search=search_works, mailto=None, api_key=None, queries=None) -> dict:
     counts = _fetch_into(store, areas=areas, from_date=from_date, per_area=per_area, today=today,
                          search=search, mailto=mailto, api_key=api_key, queries=queries)
@@ -106,8 +107,13 @@ def screen(store, cfg, embedder, *, area, focus, n=10, floor=0.25, triage_model=
     version = schema_version()
     model = card_model or (cfg.llm_model if cfg else "injected")
     prices = _prices()
-    carded = []
+    carded, kept = [], []
     for work in selected:
+        latest = store.latest_card(work["id"])
+        # A full-text card, or one already made for this focus, is better than a new abstract card on top of it.
+        if latest and (latest["tier"] == "pdf" or latest["focus"] == focus):
+            kept.append(work["id"])
+            continue
         before = (stats.prompt_tokens, stats.completion_tokens)
         card = card_work(cfg, work, focus=focus, languages=list(languages), text=None, model=card_model,
                          stats=stats, chat=chat)
@@ -115,13 +121,13 @@ def screen(store, cfg, embedder, *, area, focus, n=10, floor=0.25, triage_model=
                          completion_tokens=stats.completion_tokens - before[1])
         store.add_card(work["id"], card=card.model_dump(), schema_version=version, model=model,
                        # The text was the abstract whatever the work's tier; the full-text step records "pdf".
-                       tier="abstract", cost_usd=cost)
+                       tier="abstract", cost_usd=cost, focus=focus)
         carded.append(work["id"])
     cost_usd = call_cost(prices, prompt_tokens=stats.prompt_tokens, completion_tokens=stats.completion_tokens)
     store.add_run(kind="screen", ran_at=today, tokens=stats.total_tokens, cost_usd=cost_usd,
                   params={"area": area, "focus": focus, "n": n, "floor": floor, "triage_model": triage_model,
                           "card_model": card_model, "cost_known": prices is not None},
-                  counts={"candidates": len(works), "triaged": len(rows), "carded": len(carded)})
+                  counts={"candidates": len(works), "triaged": len(rows), "carded": len(carded), "kept": len(kept)})
     return {"ranked": [{"id": r["id"], "title": r["title"], "year": r["year"], "source": r["source"], "tier": r["tier"],
                         "similarity": r["similarity"], "triage": r["triage"]} for r in ordered],
-            "carded": carded, "tokens": stats.total_tokens, "cost_usd": cost_usd}
+            "carded": carded, "kept": kept, "tokens": stats.total_tokens, "cost_usd": cost_usd}

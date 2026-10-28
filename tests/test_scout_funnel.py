@@ -57,3 +57,12 @@ def test_similarity_of_no_works_is_empty_without_embedding():
             raise AssertionError("embed must not be called")
 
     assert funnel.similarity_to_focus(Boom(), [], focus="focus") == {}
+
+
+def test_a_missing_title_never_becomes_the_string_none():
+    from scout import funnel
+    assert funnel._text({"title": None, "abstract": "abs"}) == "abs"
+    assert funnel._text({"title": "T", "abstract": None}) == "T"
+    seen = []
+    funnel.triage_work(None, {"title": None, "abstract": "a"}, focus="f", chat=lambda c, p, **k: seen.append(p) or "{}")
+    assert "None" not in seen[0]

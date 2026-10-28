@@ -91,7 +91,7 @@ def _page(w, fulltext):
     meta = [("Year", w.get("year")), ("Publication date", w.get("publication_date")), ("Source", w.get("source")),
             ("DOI", w.get("doi")), ("Type", w.get("type")), ("Institutions", insts), ("Areas", ", ".join(w["areas"])),
             ("Tier", w["tier"]), ("First seen", w["first_seen"]), ("OpenAlex id", w["id"]), ("URL", w.get("landing_url"))]
-    lines = [f"# {_title(w)}", "", "## Metadata", ""]
+    lines = [f"# {' '.join(_title(w).split())}", "", "## Metadata", ""]
     lines += [f"- {label}: {value if value not in (None, '') else 'unknown'}" for label, value in meta]
     lines += ["", "## Abstract", "", w.get("abstract") or "No abstract available.", "", "## Card", ""]
     lines += _card_section(w.get("card"))
@@ -115,6 +115,9 @@ def render_wiki(store, *, directory: Path) -> int:
         (directory / f"{w['id']}.md").write_text(_page(w, store.fulltext(w["id"])), encoding="utf-8")
         for area in w["areas"]:
             by_area.setdefault(area, []).append(w)
+    for old in directory.glob("index_*.md"):
+        if old.stem.removeprefix("index_") not in by_area:
+            old.unlink()
     index = ["# Corpus index", ""]
     for area in sorted(by_area):
         index.append(f"- [{area}](index_{area}.md): {len(by_area[area])} works")

@@ -169,3 +169,27 @@ def test_screen_stores_the_contract_version_on_the_card(tmp_path):
     pipeline.screen(s, None, SimEmbedder([0.9]), area="roasting", focus="f", n=1, floor=0.0, today="2026-10-27", chat=lambda c, p, **k: next(replies))
     expected = tomllib.loads(pipeline._CONTRACT.read_text(encoding="utf-8"))["project"]["version"]
     assert s._db.execute("SELECT schema_version FROM cards WHERE work_id='W1'").fetchone()[0] == expected
+
+
+def test_a_second_screen_keeps_the_full_text_card(tmp_path):
+    from scout import pdf
+    s = Store(tmp_path / "s.sqlite")
+    search, _ = fake_search({"q": ["W1"]})
+    pipeline.seed(s, areas=["roasting"], from_date="2024-01-01", per_area=300, today="2026-10-27", search=search, queries={"roasting": "q"})
+    s.set_tier("W1", tier="pdf")
+    class E:
+        def embed(self, texts):
+            import numpy as np
+            return np.array([[1, 0, 0]] * len(texts), dtype="float32")
+    card = '{"needs_human": false, "category": "roasting", "relevance": 3, "study_type": "x", "sample_size": null, "main_finding": "f", "summary_en": "s", "summary_it": "r", "notes_en": null, "notes_it": null, "affiliation": "unknown", "trust_level": "medium", "trust_warnings": []}'
+    chat = lambda c, p, **k: '{"relevance": 3, "reason": "r", "is_study": true}' if "relevance" in p and "Abstract:" in p and "main_finding" not in p else card
+    def screen():
+        return pipeline.screen(s, None, E(), area="roasting", focus="focus", n=1, floor=0.0, today="2026-10-27", chat=chat)
+    assert screen()["carded"] == ["W1"]
+    def fetch(url, *, dest, **k):
+        dest.parent.mkdir(parents=True, exist_ok=True); dest.write_bytes(b"%PDF-"); return dest
+    assert pdf.fulltext_for_carded(s, None, directory=tmp_path / "pdf", fetch=fetch,
+                                   convert=lambda p: "word " * 1000, chat=chat) == {"converted": 1, "downgraded": 0}
+    again = screen()
+    assert again["carded"] == [] and again["kept"] == ["W1"]
+    assert s.latest_card("W1")["version"] == 2 and s.latest_card("W1")["tier"] == "pdf" and s.fulltext("W1")

@@ -112,3 +112,14 @@ def test_index_cell_escapes_pipes_and_collapses_line_breaks(tmp_path):
     views.render_wiki(s, directory=tmp_path / "wiki")
     row = [l for l in (tmp_path / "wiki" / "index_roasting.md").read_text(encoding="utf-8").split("\n") if "W1" in l][0]
     assert r"a \| b c d" in row and "\r" not in row
+
+
+def test_wiki_heading_collapses_whitespace_and_stale_area_indexes_go(tmp_path):
+    s = Store(tmp_path / "s.sqlite")
+    s.upsert_works([work(1, title="Two\nlines  here")], area="roasting", first_seen="2026-10-27")
+    wiki = tmp_path / "wiki"
+    wiki.mkdir()
+    (wiki / "index_gone.md").write_text("stale", encoding="utf-8")
+    views.render_wiki(s, directory=wiki)
+    assert (wiki / "W1.md").read_text(encoding="utf-8").startswith("# Two lines here\n")
+    assert not (wiki / "index_gone.md").exists() and (wiki / "index_roasting.md").exists()

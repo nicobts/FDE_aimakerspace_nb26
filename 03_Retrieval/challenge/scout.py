@@ -61,7 +61,7 @@ def _fetch(command, args):
 def _screen(args):
     from helpers.embeddings import Embedder
 
-    cfg = nb.bootstrap()
+    cfg = nb.bootstrap(require=("LLM_MODEL",))
     store = _store(cfg)
     embedder = Embedder(cfg, cache_dir=cfg.root / "use_case" / "data" / ".embed_cache")
     out = pipeline.screen(store, cfg, embedder, area=args.area, focus=args.focus, n=args.n, floor=args.floor,
@@ -71,6 +71,8 @@ def _screen(args):
         rel = row["triage"]["relevance"] if row["triage"] else "-"
         print(f"{rel:>3} {row['similarity']:5.2f} {row['year'] or '':>4}  {row['tier']:8} {(row['title'] or '(untitled)')[:80]}")
     print(f"carded: {', '.join(out['carded']) or 'none'}")
+    if out["kept"]:
+        print(f"kept (already carded): {', '.join(out['kept'])}")
     print(f"tokens: {out['tokens']}  cost_usd: {out['cost_usd']:.4f}")
 
 
@@ -106,10 +108,12 @@ def _views(args):
 
 def main(argv=None):
     # Titles are multilingual; a Windows console or a redirect defaults to cp1252 and would crash the printout.
-    sys.stdout.reconfigure(errors="replace")
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(errors="replace")
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="command", required=True)
-    seed = sub.add_parser("seed", help="fetch the corpus once")
+    seed = sub.add_parser("seed", help="fetch the corpus once (a failure partway writes no run row; rerun, upserts are idempotent)")
     seed.add_argument("--from-date", default="2024-01-01")
     seed.add_argument("--per-area", type=int, default=300)
     seed.add_argument("--areas")

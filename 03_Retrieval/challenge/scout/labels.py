@@ -18,7 +18,7 @@ def _nonempty_strings(lineno: int, field: str, value, *, allow_empty: bool):
 def load_labels(path: Path, *, store) -> list[dict]:
     """Parse and validate the retrieval label file; return the labels in file order, each with an `id`."""
     parsed = []  # (lineno, label) kept until the gold ids are checked in one store query
-    for lineno, raw in enumerate(Path(path).read_text(encoding="utf-8").splitlines(), start=1):
+    for lineno, raw in enumerate(Path(path).read_text(encoding="utf-8-sig").splitlines(), start=1):
         line = raw.strip()
         if not line or line.startswith("#"):
             continue

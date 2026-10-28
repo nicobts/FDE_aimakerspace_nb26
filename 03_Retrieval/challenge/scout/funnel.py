@@ -27,7 +27,8 @@ Abstract:
 def _text(work: dict) -> str:
     # A work without an abstract should not reach here, but the title alone beats failing the batch.
     abstract = work.get("abstract")
-    return f"{work['title']}\n{abstract}" if abstract else work["title"]
+    # A missing title must not become the string "None" in the embedding text.
+    return "\n".join(part for part in (work.get("title"), abstract) if part)
 
 
 def similarity_to_focus(embedder, works: list[dict], *, focus: str) -> dict[str, float]:
@@ -51,7 +52,7 @@ def triage_work(
     stats: helpers.llm.CallStats | None = None,
     chat=helpers.llm.chat,
 ) -> dict | None:
-    prompt = TRIAGE_PROMPT.format(focus=focus, title=work["title"], abstract=work.get("abstract") or "")
+    prompt = TRIAGE_PROMPT.format(focus=focus, title=work.get("title") or "(untitled)", abstract=work.get("abstract") or "")
     # Only forward what was set, so an injected chat need not accept either.
     kwargs = {k: v for k, v in (("model", model), ("stats", stats)) if v is not None}
     reply = chat(cfg, prompt, **kwargs)

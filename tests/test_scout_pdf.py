@@ -156,3 +156,18 @@ def test_real_converter_without_docling_raises_before_any_fetch_or_demotion(monk
     with pytest.raises(pdf.DoclingMissing):
         pdf.fulltext_for_carded(s, None, directory=tmp_path / "pdf", fetch=fetch)
     assert {w["tier"] for w in s.works()} == {"pdf"} and s.last_run(kind="fulltext") is None
+
+
+def test_recard_uses_the_cards_own_focus_not_the_last_screens(tmp_path):
+    s = Store(tmp_path / "s.sqlite")
+    s.upsert_works([work(1, pdf_url="https://x/1.pdf")], area="roasting", first_seen="2026-10-27")
+    s.set_tier("W1", tier="pdf")
+    s.add_card("W1", card={"needs_human": False}, schema_version="0.1.0", model="m", tier="abstract", cost_usd=0, focus="acrylamide")
+    s.add_run(kind="screen", params={"focus": "grinding"}, counts={}, tokens=0, cost_usd=0.0, ran_at="2026-10-27")
+    prompts = []
+    def chat(c, p, **k):
+        prompts.append(p)
+        return GOOD
+    pdf.fulltext_for_carded(s, None, directory=tmp_path / "pdf", fetch=_fetch_ok, convert=lambda p: "word " * 1000, chat=chat)
+    assert "acrylamide" in prompts[0] and "grinding" not in prompts[0]
+    assert s.latest_card("W1")["focus"] == "acrylamide"

@@ -102,3 +102,27 @@ def test_last_run_returns_the_newer_run_of_its_own_kind(tmp_path):
     last = s.last_run(kind="seed")
     assert last["counts"] == {"new": 2} and last["ran_at"] == "2026-11-30"
     assert s.last_run(kind="refresh")["counts"] == {"new": 9}
+
+
+def test_card_focus_round_trips_and_defaults_to_none(tmp_path):
+    s = Store(tmp_path / "s.sqlite")
+    s.upsert_works([work(1)], area="roasting", first_seen="2026-10-27")
+    s.add_card("W1", card={}, schema_version="0.1.0", model="m", tier="abstract", cost_usd=0)
+    assert s.latest_card("W1")["focus"] is None
+    s.add_card("W1", card={}, schema_version="0.1.0", model="m", tier="pdf", cost_usd=0, focus="acrylamide")
+    assert s.latest_card("W1")["focus"] == "acrylamide"
+
+
+def test_a_database_without_the_focus_column_is_migrated(tmp_path):
+    import sqlite3
+    path = tmp_path / "old.sqlite"
+    old = sqlite3.connect(path)
+    old.executescript("""
+        CREATE TABLE cards(work_id TEXT, version INTEGER, schema_version TEXT, model TEXT, tier TEXT,
+                           cost_usd REAL, created_at TEXT, card TEXT, PRIMARY KEY(work_id, version));
+        INSERT INTO cards VALUES('W1', 1, '0.1.0', 'm', 'abstract', 0, 'now', '{}');""")
+    old.commit(); old.close()
+    s = Store(path)
+    assert s.latest_card("W1")["focus"] is None
+    assert s.add_card("W1", card={}, schema_version="0.1.0", model="m", tier="pdf", cost_usd=0, focus="f") == 2
+    Store(path)  # reopening a migrated database is a no-op

@@ -1,4 +1,8 @@
-"""The full-text tier: download an open-access PDF, convert it to Markdown, and card the paper again from it."""
+"""The full-text tier: download an open-access PDF, convert it to Markdown, and card the paper again from it.
+
+A publisher that refuses or times out downgrades the work to `abstract` permanently; reset its tier to `pdf`
+by hand to retry.
+"""
 
 import datetime
 import sys
@@ -77,9 +81,9 @@ def fulltext_for_carded(store, cfg, *, directory: Path, limit: int = 10, min_cha
     # An injected converter (tests) does not need docling.
     if convert is convert_pdf:
         _require_docling()
-    # The latest screen's focus keeps the full-text card answering the same question as the abstract card.
+    # Cards made before the focus was recorded fall back to the last screen's focus.
     screen_run = store.last_run(kind="screen")
-    focus = screen_run["params"].get("focus") if screen_run else None
+    fallback_focus = screen_run["params"].get("focus") if screen_run else None
     candidates = [w for w in store.works(tier="pdf")
                   if store.latest_card(w["id"]) and store.fulltext(w["id"]) is None][:limit]
     stats = helpers.llm.CallStats()
@@ -105,13 +109,16 @@ def fulltext_for_carded(store, cfg, *, directory: Path, limit: int = 10, min_cha
                 store.set_tier(work_id, tier="abstract")
                 downgraded += 1
                 continue
+            # The full-text card answers the question its abstract card was made for, not whichever screen ran last.
+            focus = store.latest_card(work_id)["focus"] or fallback_focus
             before = (stats.prompt_tokens, stats.completion_tokens)
             card = card_work(cfg, work, focus=focus, languages=["en", "it"], text=markdown, stats=stats, chat=chat)
             cost = call_cost(prices, prompt_tokens=stats.prompt_tokens - before[0],
                              completion_tokens=stats.completion_tokens - before[1])
             # The text is stored last: the candidate filter skips works that have it, so a failure before
             # this point leaves the work retryable instead of stuck without its full-text card.
-            store.add_card(work_id, card=card.model_dump(), schema_version=version, model=model, tier="pdf", cost_usd=cost)
+            store.add_card(work_id, card=card.model_dump(), schema_version=version, model=model, tier="pdf", cost_usd=cost,
+                           focus=focus)
             store.set_fulltext(work_id, markdown=markdown, source_url=work["pdf_url"])
             converted += 1
         except DoclingMissing:

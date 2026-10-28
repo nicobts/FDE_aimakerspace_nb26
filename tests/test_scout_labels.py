@@ -49,3 +49,9 @@ def test_lookup_with_empty_gold_is_rejected(tmp_path):
     path = write(tmp_path, {**LOOKUP, "gold": []})
     with pytest.raises(ValueError, match=r"line 1.*gold"):
         load_labels(path, store=store(tmp_path))
+
+
+def test_a_byte_order_mark_on_the_first_line_is_ignored(tmp_path):
+    path = write(tmp_path, {"header": {"multi_record": 0}}, LOOKUP)
+    path.write_bytes(b"\xef\xbb\xbf" + path.read_bytes())
+    assert [l["id"] for l in load_labels(path, store=store(tmp_path))] == ["q01"]

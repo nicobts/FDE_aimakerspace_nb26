@@ -50,13 +50,19 @@ def fetch_pdf(url: str, *, dest: Path, timeout: float = 30.0, max_bytes: int = 5
     return dest
 
 
-def convert_pdf(path: Path) -> str:
+def _require_docling():
+    """Import docling lazily (it pulls torch); one place raises DoclingMissing, so the batch can probe it up front."""
     try:
         from docling.document_converter import DocumentConverter, PdfFormatOption
         from docling.datamodel.pipeline_options import PdfPipelineOptions
         from docling.datamodel.base_models import InputFormat
     except ImportError as exc:
         raise DoclingMissing("docling is not installed; run: uv sync --group pdf") from exc
+    return DocumentConverter, PdfFormatOption, PdfPipelineOptions, InputFormat
+
+
+def convert_pdf(path: Path) -> str:
+    DocumentConverter, PdfFormatOption, PdfPipelineOptions, InputFormat = _require_docling()
     # OCR and page images are the slow parts and open-access papers carry a text layer; tables are worth keeping.
     options = PdfPipelineOptions(do_ocr=False, do_table_structure=True, generate_page_images=False)
     converter = DocumentConverter(format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=options)})
@@ -67,6 +73,10 @@ def fulltext_for_carded(store, cfg, *, directory: Path, limit: int = 10, min_cha
                         fetch=fetch_pdf, convert=convert_pdf, chat=helpers.llm.chat,
                         today: str | None = None) -> dict:
     today = today or datetime.date.today().isoformat()
+    # Probed before any fetch so a missing install cannot demote works whose download fails first.
+    # An injected converter (tests) does not need docling.
+    if convert is convert_pdf:
+        _require_docling()
     # The latest screen's focus keeps the full-text card answering the same question as the abstract card.
     screen_run = store.last_run(kind="screen")
     focus = screen_run["params"].get("focus") if screen_run else None

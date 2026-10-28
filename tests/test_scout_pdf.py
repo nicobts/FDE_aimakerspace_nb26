@@ -87,7 +87,7 @@ def test_convert_pdf_explains_missing_docling(monkeypatch, tmp_path):
     # A None entry in sys.modules makes `import docling...` raise ImportError.
     for name in ("docling", "docling.document_converter", "docling.datamodel.pipeline_options"):
         monkeypatch.setitem(sys.modules, name, None)
-    with pytest.raises(RuntimeError, match="uv sync --group pdf"):
+    with pytest.raises(pdf.DoclingMissing, match="uv sync --group pdf"):
         pdf.convert_pdf(tmp_path / "x.pdf")
 
 
@@ -144,3 +144,15 @@ def test_a_failing_recard_leaves_the_work_retryable_and_still_records_the_run(tm
     assert "model down" in capsys.readouterr().err
     assert s.works(ids=["W1"])[0]["tier"] == "pdf" and s.fulltext("W1") is None and s.latest_card("W1")["version"] == 1
     assert s.fulltext("W2") and s.last_run(kind="fulltext")["counts"] == counts
+
+
+def test_real_converter_without_docling_raises_before_any_fetch_or_demotion(monkeypatch, tmp_path):
+    import sys, pytest
+    for name in ("docling", "docling.document_converter", "docling.datamodel.pipeline_options"):
+        monkeypatch.setitem(sys.modules, name, None)
+    s = _carded_store(tmp_path, 2)
+    def fetch(*a, **k):
+        raise AssertionError("must not fetch")
+    with pytest.raises(pdf.DoclingMissing):
+        pdf.fulltext_for_carded(s, None, directory=tmp_path / "pdf", fetch=fetch)
+    assert {w["tier"] for w in s.works()} == {"pdf"} and s.last_run(kind="fulltext") is None

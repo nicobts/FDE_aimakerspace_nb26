@@ -44,6 +44,8 @@ def test_screen_cards_top_n_and_keeps_unparsed_triage(tmp_path):
     s = Store(tmp_path / "s.sqlite")
     search, _ = fake_search({"q": ["W1", "W2", "W3"]})
     pipeline.seed(s, areas=["roasting"], from_date="2024-01-01", per_area=300, today="2026-10-27", search=search, queries={"roasting": "q"})
+    # A pdf-tier work, so the card tier below cannot pass by echoing the work's tier.
+    s.set_tier("W1", tier="pdf")
     class E:
         def embed(self, texts):
             import numpy as np
@@ -51,7 +53,7 @@ def test_screen_cards_top_n_and_keeps_unparsed_triage(tmp_path):
     replies = iter(['{"relevance": 3, "reason": "r", "is_study": true}', 'garbage', '{"relevance": 1, "reason": "r", "is_study": true}',
                     '{"needs_human": false, "category": "roasting", "relevance": 3, "study_type": "x", "sample_size": null, "main_finding": "f", "summary_en": "s", "summary_it": "r", "notes_en": null, "notes_it": null, "affiliation": "unknown", "trust_level": "medium", "trust_warnings": []}'])
     out = pipeline.screen(s, None, E(), area="roasting", focus="focus", n=1, floor=0.0, today="2026-10-27", chat=lambda c, p, **k: next(replies))
-    assert out["carded"] == ["W1"] and s.latest_card("W1")["version"] == 1 and s.latest_card("W1")["tier"] == "abstract"
+    assert out["carded"] == ["W1"] and s.latest_card("W1")["version"] == 1 and s.latest_card("W1")["tier"] == "abstract" and s.works(ids=["W1"])[0]["tier"] == "pdf"
     assert [r["id"] for r in out["ranked"]][:1] == ["W1"] and any(r["triage"] is None for r in out["ranked"])
 
 

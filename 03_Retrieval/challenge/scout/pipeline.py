@@ -114,7 +114,8 @@ def screen(store, cfg, embedder, *, area, focus, n=10, floor=0.25, triage_model=
         cost = call_cost(prices, prompt_tokens=stats.prompt_tokens - before[0],
                          completion_tokens=stats.completion_tokens - before[1])
         store.add_card(work["id"], card=card.model_dump(), schema_version=version, model=model,
-                       tier=work["tier"], cost_usd=cost)
+                       # The text was the abstract whatever the work's tier; the full-text step records "pdf".
+                       tier="abstract", cost_usd=cost)
         carded.append(work["id"])
     cost_usd = call_cost(prices, prompt_tokens=stats.prompt_tokens, completion_tokens=stats.completion_tokens)
     store.add_run(kind="screen", ran_at=today, tokens=stats.total_tokens, cost_usd=cost_usd,

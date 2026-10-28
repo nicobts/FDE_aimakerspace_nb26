@@ -8,7 +8,9 @@ from scout.store import Store  # noqa: E402
 
 class Resp:
     def __init__(self, ctype, body): self.headers = {"Content-Type": ctype}; self._b = body
-    def read(self): return self._b
+    def read(self, n=-1):
+        out, self._b = (self._b, b"") if n < 0 else (self._b[:n], self._b[n:])
+        return out
     def __enter__(self): return self
     def __exit__(self, *a): return False
 
@@ -87,3 +89,58 @@ def test_convert_pdf_explains_missing_docling(monkeypatch, tmp_path):
         monkeypatch.setitem(sys.modules, name, None)
     with pytest.raises(RuntimeError, match="uv sync --group pdf"):
         pdf.convert_pdf(tmp_path / "x.pdf")
+
+
+def test_fetch_pdf_refuses_non_http_schemes_without_opening_them(tmp_path):
+    def opener(req, timeout):
+        raise AssertionError("must not open")
+    for url in ("file:///etc/passwd", "ftp://x/y.pdf"):
+        assert pdf.fetch_pdf(url, dest=tmp_path / "y.pdf", opener=opener) is None
+
+
+def test_fetch_pdf_stops_reading_past_the_size_cap(tmp_path):
+    body = b"%PDF-" + b"0" * 5000
+    assert pdf.fetch_pdf("https://x/y", dest=tmp_path / "y.pdf", max_bytes=1000,
+                         opener=lambda req, timeout: Resp("application/pdf", body)) is None
+    assert not (tmp_path / "y.pdf").exists()
+    assert pdf.fetch_pdf("https://x/y", dest=tmp_path / "y.pdf", max_bytes=10_000,
+                         opener=lambda req, timeout: Resp("application/pdf", body)) == tmp_path / "y.pdf"
+
+
+def _carded_store(tmp_path, n=1):
+    s = Store(tmp_path / "s.sqlite")
+    s.upsert_works([work(i, pdf_url=f"https://x/{i}.pdf") for i in range(1, n + 1)], area="roasting", first_seen="2026-10-27")
+    for i in range(1, n + 1):
+        s.set_tier(f"W{i}", tier="pdf")
+        s.add_card(f"W{i}", card={"needs_human": False}, schema_version="0.1.0", model="m", tier="abstract", cost_usd=0)
+    return s
+
+
+def _fetch_ok(url, *, dest, **k):
+    dest.parent.mkdir(parents=True, exist_ok=True); dest.write_bytes(b"%PDF-"); return dest
+
+
+def test_missing_docling_raises_and_demotes_nothing(tmp_path):
+    s = _carded_store(tmp_path, 2)
+    def convert(path):
+        raise pdf.DoclingMissing("docling is not installed; run: uv sync --group pdf")
+    import pytest
+    with pytest.raises(RuntimeError, match="uv sync --group pdf"):
+        pdf.fulltext_for_carded(s, None, directory=tmp_path / "pdf", fetch=_fetch_ok, convert=convert)
+    assert {w["tier"] for w in s.works()} == {"pdf"}
+
+
+def test_a_failing_recard_leaves_the_work_retryable_and_still_records_the_run(tmp_path, capsys):
+    s = _carded_store(tmp_path, 2)
+    calls = []
+    def chat(c, p, **k):
+        calls.append(1)
+        if len(calls) == 1:
+            raise RuntimeError("model down")
+        return GOOD
+    counts = pdf.fulltext_for_carded(s, None, directory=tmp_path / "pdf", fetch=_fetch_ok,
+                                     convert=lambda p: "word " * 1000, chat=chat)
+    assert counts == {"converted": 1, "downgraded": 0}
+    assert "model down" in capsys.readouterr().err
+    assert s.works(ids=["W1"])[0]["tier"] == "pdf" and s.fulltext("W1") is None and s.latest_card("W1")["version"] == 1
+    assert s.fulltext("W2") and s.last_run(kind="fulltext")["counts"] == counts

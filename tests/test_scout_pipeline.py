@@ -51,7 +51,7 @@ def test_screen_cards_top_n_and_keeps_unparsed_triage(tmp_path):
     replies = iter(['{"relevance": 3, "reason": "r", "is_study": true}', 'garbage', '{"relevance": 1, "reason": "r", "is_study": true}',
                     '{"needs_human": false, "category": "roasting", "relevance": 3, "study_type": "x", "sample_size": null, "main_finding": "f", "summary_en": "s", "summary_it": "r", "notes_en": null, "notes_it": null, "affiliation": "unknown", "trust_level": "medium", "trust_warnings": []}'])
     out = pipeline.screen(s, None, E(), area="roasting", focus="focus", n=1, floor=0.0, today="2026-10-27", chat=lambda c, p, **k: next(replies))
-    assert out["carded"] == ["W1"] and s.latest_card("W1")["version"] == 1
+    assert out["carded"] == ["W1"] and s.latest_card("W1")["version"] == 1 and s.latest_card("W1")["tier"] == "abstract"
     assert [r["id"] for r in out["ranked"]][:1] == ["W1"] and any(r["triage"] is None for r in out["ranked"])
 
 

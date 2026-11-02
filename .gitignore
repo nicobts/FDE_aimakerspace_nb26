@@ -45,3 +45,6 @@ understand_explain/
 
 # Scratch space for files that stay on this machine only
 local/
+
+# DeepEval writes its run cache here (04_Evals S7); regenerable
+.deepeval/

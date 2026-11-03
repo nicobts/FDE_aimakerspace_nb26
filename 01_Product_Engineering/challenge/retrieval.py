@@ -16,7 +16,7 @@ Rankers (all return [(chunk position, score)], best first):
 import json
 import os
 import re
-from functools import cache
+from functools import cache, lru_cache
 from pathlib import Path
 
 import numpy as np
@@ -73,7 +73,9 @@ def bm25_rank(query: str, n: int) -> list[tuple[int, float]]:
 EMBED_TOKENS = {"query": 0}  # measured query-side tokens, reported by the comparison
 
 
-@cache  # the endpoint ranks and then gates on the same question; embed it once
+# The endpoint ranks and then gates on the same question, so embed it once. Bounded, because every
+# distinct question a user sends would otherwise keep a 16 KB vector for the life of the server.
+@lru_cache(maxsize=256)
 def embed_query(query: str) -> np.ndarray:
     kwargs = {"model": os.environ["EMBED_MODEL"]}
     if os.getenv("EMBED_API_BASE"):

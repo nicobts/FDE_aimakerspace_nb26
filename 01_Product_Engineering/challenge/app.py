@@ -20,6 +20,7 @@ app = Server()
 
 FRONTEND = Path(__file__).parent / "frontend" / "index.html"
 _PYPROJECT = Path(__file__).parent / "pyproject.toml"
+MAX_QUESTION_CHARS = 2000
 VERSION = tomllib.loads(_PYPROJECT.read_text(encoding="utf-8"))["project"]["version"]
 
 
@@ -73,7 +74,13 @@ def ask_research_corpus(question: str, k: int = 5) -> str:
     Use summarize_research_paper instead to card one document you already have.
     """
     from qa import answer_question
+    from schema import CorpusAnswer
 
+    # A research question fits in a few sentences; a longer input is a pasted document or abuse,
+    # and every character is paid for in the embedding call.
+    if len(question) > MAX_QUESTION_CHARS:
+        return CorpusAnswer(needs_human=True, needs_human_reason=f"question longer than {MAX_QUESTION_CHARS} characters; "
+                            "ask a shorter question, or use summarize_research_paper for a whole document").model_dump_json(indent=2)
     return answer_question(question, k=max(1, min(k, 8))).model_dump_json(indent=2)
 
 

@@ -4,8 +4,8 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "03_Retrieval" / "challenge"))
 from scout import areas, tiers  # noqa: E402
 
-def test_eight_areas_with_schema_categories():
-    assert set(areas.AREAS) == {"roasting","processing","sustainability","agronomy","extraction","health","packaging","sensory"}
+def test_ten_areas_with_schema_categories():
+    assert set(areas.AREAS) == {"roasting","processing","sustainability","agronomy","extraction","health","packaging","sensory","digital","innovation"}
     assert all(a["category"] in {"agronomy","processing","roasting","health","sustainability","other"} for a in areas.AREAS.values())
     assert all(a["query"].strip() for a in areas.AREAS.values())
 

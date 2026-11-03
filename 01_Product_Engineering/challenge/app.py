@@ -12,24 +12,30 @@ from pathlib import Path
 from fastapi.responses import HTMLResponse
 from gradio import Server
 
+import guardrails
 from card import build_card_prompt, parse_card
+from guardrails import BUDGET, check_lengths
 from llm import stream_reply
-from schema import Request
+from schema import CorpusAnswer, Request, Response
 
 app = Server()
 
 FRONTEND = Path(__file__).parent / "frontend" / "index.html"
 _PYPROJECT = Path(__file__).parent / "pyproject.toml"
-MAX_QUESTION_CHARS = 2000
 VERSION = tomllib.loads(_PYPROJECT.read_text(encoding="utf-8"))["project"]["version"]
 
 
 # --- The API -----------------------------------------------------------------
 # The `-> str` return annotation is REQUIRED. Without it Gradio infers zero
 # output components and silently returns nothing. Ask us how we know.
+#
+# Both endpoints share one concurrency slot ("llm"), so at most LLM_CONCURRENCY model calls run at
+# once and the rest queue; time_limit ends a request Gradio has been running too long.
+LIMITS = {"concurrency_id": "llm", "concurrency_limit": guardrails.LLM_CONCURRENCY,
+          "time_limit": guardrails.LLM_TIMEOUT + 30}
 
 
-@app.api(name="summarize_research_paper")
+@app.api(name="summarize_research_paper", **LIMITS)
 def summarize_research_paper(
     document_text: str,
     title: str | None = None,
@@ -44,7 +50,19 @@ def summarize_research_paper(
     the warning signs found. Returns needs_human=true with a reason, and no
     card, when the text is not a study, is too short to judge, or is not about
     coffee. Use it for one document at a time; it does not search for papers.
+    The text is limited to 80,000 characters (a long paper), and title, source and
+    focus to 500 each; longer input is declined with the reason.
     """
+    # Checked before any model call, so a refused request costs nothing.
+    refused = check_lengths({
+        "document_text": (document_text, guardrails.MAX_DOCUMENT_CHARS),
+        "title": (title, guardrails.MAX_FIELD_CHARS),
+        "source": (source, guardrails.MAX_FIELD_CHARS),
+        "focus": (focus, guardrails.MAX_FIELD_CHARS),
+    }) or BUDGET.take()
+    if refused:
+        yield Response(needs_human=True, needs_human_reason=f"Not sent to the model: {refused}.").model_dump_json(indent=2)
+        return
     request = Request(
         document_text=document_text,
         title=title,
@@ -59,7 +77,7 @@ def summarize_research_paper(
     yield parse_card(raw, request).model_dump_json(indent=2)
 
 
-@app.api(name="ask_research_corpus")
+@app.api(name="ask_research_corpus", **LIMITS)
 def ask_research_corpus(question: str, k: int = 5) -> str:
     """Answer a question about published coffee research from the team's paper corpus, with sources.
 
@@ -74,13 +92,15 @@ def ask_research_corpus(question: str, k: int = 5) -> str:
     Use summarize_research_paper instead to card one document you already have.
     """
     from qa import answer_question
-    from schema import CorpusAnswer
 
     # A research question fits in a few sentences; a longer input is a pasted document or abuse,
     # and every character is paid for in the embedding call.
-    if len(question) > MAX_QUESTION_CHARS:
-        return CorpusAnswer(needs_human=True, needs_human_reason=f"question longer than {MAX_QUESTION_CHARS} characters; "
-                            "ask a shorter question, or use summarize_research_paper for a whole document").model_dump_json(indent=2)
+    refused = check_lengths({"question": (question, guardrails.MAX_QUESTION_CHARS)})
+    if refused:
+        refused += "; ask a shorter question, or use summarize_research_paper for a whole document"
+    refused = refused or BUDGET.take()
+    if refused:
+        return CorpusAnswer(needs_human=True, needs_human_reason=f"Not sent to the model: {refused}.").model_dump_json(indent=2)
     return answer_question(question, k=max(1, min(k, 8))).model_dump_json(indent=2)
 
 

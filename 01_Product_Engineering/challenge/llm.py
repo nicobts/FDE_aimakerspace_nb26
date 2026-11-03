@@ -13,6 +13,8 @@ import os
 
 from litellm import completion
 
+from guardrails import LLM_MAX_TOKENS, LLM_TIMEOUT
+
 # LiteLLM picks the provider from the model string:
 #   "gpt-4.1-mini"                    -> OpenAI
 #   "azure/my-deployment"             -> Azure OpenAI
@@ -40,11 +42,16 @@ def stream_reply(message: str, history: list[dict] | None = None):
     messages.extend(history or [])
     messages.append({"role": "user", "content": message})
 
-    kwargs = {"model": MODEL, "messages": messages, "stream": True}
+    # max_tokens stops a runaway reply from billing to the provider's maximum; timeout stops a stalled
+    # stream from holding a worker forever. Both come from guardrails so one place sets the limits.
+    kwargs = {"model": MODEL, "messages": messages, "stream": True,
+              "max_tokens": LLM_MAX_TOKENS, "timeout": LLM_TIMEOUT}
     if API_BASE:
         kwargs["api_base"] = API_BASE
     if EXTRA_HEADERS:
         kwargs["extra_headers"] = EXTRA_HEADERS
+    # Provider-specific knobs stay in config, e.g. {"num_ctx": 32768} so Ollama does not cut a long paper.
+    kwargs.update(json.loads(os.getenv("LLM_OPTIONS") or "{}"))
 
     reply = ""
     for chunk in completion(**kwargs):

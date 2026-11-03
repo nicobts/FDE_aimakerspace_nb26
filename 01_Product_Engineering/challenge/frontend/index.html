@@ -334,20 +334,20 @@
         <div class="panel">
           <form id="card-form">
             <label for="text" data-i18n="textLabel"></label>
-            <textarea id="text" required data-i18n-placeholder="textPlaceholder"></textarea>
+            <textarea id="text" required maxlength="80000" data-i18n-placeholder="textPlaceholder"></textarea>
             <div class="count" id="count"></div>
             <div class="two">
               <div>
                 <label for="title"><span data-i18n="titleLabel"></span> <span class="optional" data-i18n="optional"></span></label>
-                <input type="text" id="title" />
+                <input type="text" id="title" maxlength="500" />
               </div>
               <div>
                 <label for="source"><span data-i18n="sourceLabel"></span> <span class="optional" data-i18n="optional"></span></label>
-                <input type="text" id="source" data-i18n-placeholder="sourcePlaceholder" />
+                <input type="text" id="source" maxlength="500" data-i18n-placeholder="sourcePlaceholder" />
               </div>
             </div>
             <label for="focus"><span data-i18n="focusLabel"></span> <span class="optional" data-i18n="optional"></span></label>
-            <input type="text" id="focus" data-i18n-placeholder="focusPlaceholder" />
+            <input type="text" id="focus" maxlength="500" data-i18n-placeholder="focusPlaceholder" />
             <div class="label" data-i18n="languagesLabel"></div>
             <div class="checks" id="out-langs">
               <label><input type="checkbox" value="en" checked /> English</label>

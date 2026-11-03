@@ -734,3 +734,101 @@ challenge, which carries the full detail.
 
 Everything after this week assumes your app has a number, an interval, and a
 saved run to be measured against.
+
+---
+
+## My submission
+
+The system under test is the Week 3 endpoint `ask_research_corpus` (hybrid retrieval, local
+`qwen3.5:9b`). Everything runs from `python use_case/evals/run.py`.
+
+| Deliverable | Answer | Where |
+| --- | --- | --- |
+| Failure taxonomy (Step 1) | 108 real traces read, 48 failures, 8 lines ranked; the shipped endpoint failed 4 of its 18 | [`failures.md`](../../use_case/evals/failures.md) |
+| Hand scores (Step 1) | 20 real endpoint outputs, 7 likely failures; **not scored yet**, so agreement is not checked | [`human_scores.jsonl`](../../use_case/evals/human_scores.jsonl) |
+| Test set | 18 QA goldens, references written from the gold abstracts (`golden.jsonl` keeps Week 1's 5 card goldens, which the Week 2 generator reads); 99 generated failures | [`golden_qa.jsonl`](../../use_case/evals/golden_qa.jsonl), [`synthetic.jsonl`](../../use_case/evals/synthetic.jsonl) |
+| Model-free scorers, echo and oracle (Step 2) | 5 scorers + the `correct` headline, each naming its `failures.md` line; oracle 1.00 on all | [`harness.py`](../../use_case/evals/harness.py), table below |
+| Judge (Step 3) | Hand rubric on LFM2.5-8B-A1B; **not used**, separation fails | below |
+| Generated failures (Step 4) | 4 real failures of the shipped endpoint vs 99 generated, 9 modes | table below |
+| Scenarios (Step 5) | Skipped: the endpoint answers one question and stops; said so in the decision row | - |
+| Baseline (Step 6) | **correct = 0.72, 95% CI [0.50, 0.89], n = 18**; `compare()` PASS | [`baseline.json`](../../use_case/evals/baseline.json), [`decisions.md`](../../use_case/decisions.md) |
+| Demo rehearsal (Step 7) | _to do with a real person_ | `use_case/stakeholders.md` |
+| Bring it to work (Step 8) | Below | - |
+
+### Echo, oracle and the endpoint (Step 2)
+
+| system | correct | decline_correct | reviewed_facts | all_gold_cited | clean_decline | grounded_sources |
+| --- | --- | --- | --- | --- | --- | --- |
+| echo | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 |
+| oracle | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
+| endpoint | **0.72** | 1.00 | 0.83 | 0.83 | 1.00 | 1.00 |
+
+Failed cases: q03 (misattributed citation, conclusion reversed), q04 and q06 (a gold paper
+missing), q11 and u01 (a reviewed fact missing).
+
+### The judge (Step 3)
+
+| rubric | calibrate() (references vs "The answer is 42.") | echo | oracle | verdict |
+| --- | --- | --- | --- | --- |
+| v1: "states the reference's main finding without contradicting it" | 1.00 vs 0.00, USABLE | **0.94** | 1.00 | fails: accepts a restated question |
+| v2: v1 + "repeating the question is not a finding", with a 0 example | - | 0.44 | 0.78 | fails: separation 0.34, rejects a correct reference 1 time in 5 |
+
+**Not used** - "Separation 0.44 / 0.78, agreement not checked - not used; scored with the function
+scorers only." The lesson is the first row: `calibrate()` passed, and only the echo baseline showed
+the judge was agreeing rather than judging.
+
+### Generated failures (Step 4)
+
+Natural failures of the shipped endpoint: **4 of 18** (Week 3 run). Generated: **99**, by breaking
+the 18 references in named ways. Share caught (scored below 1):
+
+| failure mode | n | correct | decline_correct | reviewed_facts | all_gold_cited | clean_decline | grounded_sources | judge v1 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| false_decline (easy) | 17 | 1.00 | 1.00 | 1.00 | 1.00 | 0.00 | 0.00 | 0.82 |
+| dropped_source (easy) | 17 | 1.00 | 0.00 | 0.00 | 1.00 | 0.00 | 0.00 | 0.00 |
+| fabricated_citation (easy) | 17 | 1.00 | 0.00 | 0.00 | 0.00 | 0.00 | 1.00 | 0.00 |
+| swapped_source (hard: a real id) | 17 | 1.00 | 0.00 | 0.00 | 1.00 | 0.00 | 0.00 | 0.00 |
+| changed_number ×10 (easy) | 9 | **0.00** | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.78 |
+| changed_number ×1.1 (hard) | 9 | 0.33 | 0.00 | 0.33 | 0.00 | 0.00 | 0.00 | 0.44 |
+| reversed_claim (hard) | 11 | **0.00** | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.82 |
+| answers_a_decline (easy) | 1 | 1.00 | 1.00 | 1.00 | 1.00 | 0.00 | 0.00 | 1.00 |
+| figure_in_decline (hard) | 1 | 1.00 | 0.00 | 1.00 | 0.00 | 1.00 | 0.00 | 0.00 |
+
+What it says: the function scorers catch every citation and decline failure, and **none** of the
+reversed claims. The "easy" tenfold number is caught less than the "hard" 10% one, because a
+substring check finds "250" inside "2500". Those two rows are the judge's job, and the judge that
+would cover them did not pass separation, so they are named as uncovered in the decision row.
+
+### Baseline (Step 6)
+
+```
+headline correct = 0.72, 95% CI [0.50, 0.89], n=18
+PASS  week4-baseline → week4-baseline  [all_gold_cited +0.000  clean_decline +0.000  correct +0.000  decline_correct +0.000  grounded_sources +0.000  reviewed_facts +0.000]
+```
+
+Settings: `qwen3.5:9b` via Ollama (`num_ctx` 32768, thinking off), embeddings
+`qwen3-embedding:8b`, hybrid top 5, gate 0.45; 478 s for the 18 endpoint calls (*measured*).
+
+---
+
+## Bring it to work
+
+**The process this harness is for.** The customer's R&D team accepts or discards literature
+summaries on the reader's say-so: nobody records which summaries were wrong, so nobody knows the
+failure rate of the digest, human or model.
+
+**Data.** The fifty traces would be the article cards and answers R&D already reviewed in the
+test phase, judged by the researcher who requested them and, per research area, by the SME of
+that vertical; they contain internal focus questions, so they stay in the customer's GCP project
+and only counts leave it.
+
+**Model or endpoint.** The judge is a different model from the one answering, reached through the
+Bifrost gateway; internal traces only go to a model approved for internal data. Judge calls per
+`run.py`: **0 by default** (the judge is not used); **171** for `--no-endpoint --judge --synthetic`
+(*measured*: 36 to calibrate, 18 each for echo and oracle, 99 for the generated failures); a full
+`--judge` run adds 18 for the endpoint (counted from the code). So the model-free run fits every
+commit and the judge run is nightly.
+
+**Access or approval.** The researchers and SMEs to share their accept/reject decisions as the
+labelled set, and to spend an hour hand-scoring twenty outputs; the customer's IT to approve the
+judge model on the gateway; my CTO and the customer to agree that the baseline gates a deploy.

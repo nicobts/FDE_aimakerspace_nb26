@@ -1,0 +1,318 @@
+{
+  "name": "week4-baseline",
+  "fingerprint": "b459a1f048871586",
+  "n": 18,
+  "means": {
+    "correct": 0.7222222222222222,
+    "decline_correct": 1.0,
+    "reviewed_facts": 0.8333333333333334,
+    "all_gold_cited": 0.8333333333333334,
+    "clean_decline": 1.0,
+    "grounded_sources": 1.0
+  },
+  "errors": 0,
+  "seconds": 477.5549103999997,
+  "meta": {
+    "scorers": [
+      "all_gold_cited",
+      "clean_decline",
+      "correct",
+      "decline_correct",
+      "grounded_sources",
+      "reviewed_facts"
+    ],
+    "model": "ollama_chat/qwen3.5:9b",
+    "technique": "hybrid",
+    "judge": null
+  },
+  "results": [
+    {
+      "index": 0,
+      "input": "Which roast levels develop pleasant aroma notes and which ones develop burnt or sulfurous off-notes, according to work that uses the SCA roast classification?",
+      "expected": "{\"needs_human\": false, \"needs_human_reason\": null, \"answer\": \"In the study that roasted to SCA roast levels, medium roast developed pleasant notes such as sweet, toasted hazelnut and caramel, while the extremely dark roast developed off-notes: burnt, putrid and sulfurous [W4403193476].\", \"sources\": [\"W4403193476\"], \"retrieved\": [\"W4403193476\"]}",
+      "actual": "{\"needs_human\":false,\"needs_human_reason\":null,\"answer\":\"According to research utilizing Specialty Coffee Association (SCA) roasting guidelines, very light (RL85) and light (RL75) roasts display similar aromatic profiles [W4403193476#0]. Medium roast (RL55) is characterized by pleasant notes such as sweet, toasted hazelnut, and caramel [W4403193476#0]. In contrast, extremely dark roast (RL25) is marked by undesirable odors, including burnt notes, putrid, and sulfurous scents [W4403193476#0]. These findings are the first to identify key odorant compounds based specifically on SCA roasting standards [W4403193476#0].\",\"sources\":[\"W4403193476\"],\"retrieved\":[\"W4403193476\",\"W4410550819\",\"W4394579883\",\"W4409303923\",\"W4406900579\"]}",
+      "scores": {
+        "correct": 1.0,
+        "decline_correct": 1.0,
+        "reviewed_facts": 1.0,
+        "all_gold_cited": 1.0,
+        "clean_decline": 1.0,
+        "grounded_sources": 1.0
+      },
+      "error": null,
+      "seconds": 139.53978940000025
+    },
+    {
+      "index": 1,
+      "input": "Why does anaerobic in-cherry fermentation give roasted coffee more fruity notes? Which compounds are responsible?",
+      "expected": "{\"needs_human\": false, \"needs_human_reason\": null, \"answer\": \"Anaerobic in-cherry fermentation changes the green coffee's precursors (reducing sugars, amino acids, organic acids) and raises fermentation-derived fruity esters, mainly ethyl and acetate esters, which carry the fruity notes into the roasted coffee [W7221334596].\", \"sources\": [\"W7221334596\"], \"retrieved\": [\"W7221334596\"]}",
+      "actual": "{\"needs_human\":false,\"needs_human_reason\":null,\"answer\":\"Anaerobic in-cherry fermentation enhances fruitiness by altering the composition of precursor compounds in green beans and directly influencing volatile aroma compounds that survive roasting [W7221334596#0]. This process increases specific fruity esters, particularly ethyl and acetate esters, which are detectable even before roasting [W7221334596#0]. Additionally, fermentation significantly boosts the relative abundance of metabolites involved in amino acid and nucleotide metabolism, including lactic acid and various sugars, acting as key flavor precursors [W7167476529#0]. Fermented coffees often exhibit increased levels of esters, alcohols, and phenols, contributing to floral and fruity sensory attributes [W4405232295#0][W7139112083#0]. These chemical changes, driven by anaerobic conditions within the coffee cherry, are major drivers for boosting perceived fruitiness in the final cup [W7221334596#0][W7167476529#0].\\n\\n**References:**\\n- W7221334596#0\\n- W7139112083#0\\n- W4405232295#0\\n- W7167476529#0\",\"sources\":[\"W7221334596\",\"W7167476529\",\"W4405232295\",\"W7139112083\"],\"retrieved\":[\"W7221334596\",\"W7139112083\",\"W4405232295\",\"W7167476529\",\"W4395450094\"]}",
+      "scores": {
+        "correct": 1.0,
+        "decline_correct": 1.0,
+        "reviewed_facts": 1.0,
+        "all_gold_cited": 1.0,
+        "clean_decline": 1.0,
+        "grounded_sources": 1.0
+      },
+      "error": null,
+      "seconds": 51.58769340000026
+    },
+    {
+      "index": 2,
+      "input": "Prolungare la fermentazione della mucillagine o ritardare la lavorazione dopo la raccolta aumenta l'ocratossina nel caffè?",
+      "expected": "{\"needs_human\": false, \"needs_human_reason\": null, \"answer\": \"No: nello studio l'ocratossina è rimasta simile (circa 2,9-3,5 µg/kg) con fermentazione prolungata fino a 20 ore e ritardi di lavorazione fino a 48 ore; conta di più eliminare i frutti secchi e difettosi prima dell'essiccazione [W7127046736].\", \"sources\": [\"W7127046736\"], \"retrieved\": [\"W7127046736\"]}",
+      "actual": "{\"needs_human\":false,\"needs_human_reason\":null,\"answer\":\"Sì, prolungare i tempi di lavorazione post-raccolta e la fermentazione del mucillagine può aumentare lievemente i livelli di ocratossina A nel caffè. Uno studio [W7214237096#0] ha mostrato che il contenuto massimo osservato (3.51 µg/kg) è stato registrato in condizioni di \\\"fermentazione prolungata\\\" (20 ore a 20°C), superando i valori rilevati nelle condizioni standard o con riserve più brevi. Anche se le differenze non sono state statisticamente significative tra stadi di maturità diversi, il dato massimo indica che ritardi specifici nella gestione possono incrementare la presenza della micotoxina. Tuttavia, altri studi indicano che eliminare i frutti difettosi e asciugare continuamente previene lo sviluppo delle condizioni necessarie per la generazione di micotossine.\",\"sources\":[\"W7214237096\"],\"retrieved\":[\"W7163668116\",\"W7163326530\",\"W7214237096\",\"W7133510554\",\"W7127046736\"]}",
+      "scores": {
+        "correct": 0.0,
+        "decline_correct": 1.0,
+        "reviewed_facts": 1.0,
+        "all_gold_cited": 0.0,
+        "clean_decline": 1.0,
+        "grounded_sources": 1.0
+      },
+      "error": null,
+      "seconds": 25.043795300000056
+    },
+    {
+      "index": 3,
+      "input": "What can be done to reduce ochratoxin A in coffee, from good practice on the farm to biological control during fermentation?",
+      "expected": "{\"needs_human\": false, \"needs_human_reason\": null, \"answer\": \"On the farm, good agricultural and post-harvest practices limit the fungi that produce ochratoxin A; during processing, biocontrol with lactic acid bacteria, yeasts and fungi can adsorb or degrade it [W4401894533], and wild yeasts added during fermentation inhibited the germination of ochratoxin-producing fungi [W4405184446].\", \"sources\": [\"W4401894533\", \"W4405184446\"], \"retrieved\": [\"W4401894533\", \"W4405184446\"]}",
+      "actual": "{\"needs_human\":false,\"needs_human_reason\":null,\"answer\":\"Ochratoxin A (OTA) reduction in coffee involves implementing good management practices on the farm and utilizing biocontrol agents such as lactic acid bacteria, yeasts, and fungi for microbial decontamination during processing [W4401894533#0]. Additionally, sanitizing coffee cherries using disinfectants like Timsen® can reduce microbial loads and improve safety and sensory quality [W4399999136#0]. Using lactic acid bacteria during fermentation can lower pH levels, which helps protect beans from other microorganisms [W4407573834#0]. Furthermore, soaking demucilaginated coffee in organic acids or using specific fermentation times with civet-derived microbial inoculants can also influence chemical properties and reduce caffeine while ensuring safety [W4399726732#0], [W7172438649#0].\\n\\n[NOT IN CORPUS: Specific mechanisms for OTA reduction via organic acid soaking or civet fermentation are not detailed in the provided texts beyond general microbial management.]\",\"sources\":[\"W4401894533\",\"W4399999136\",\"W4407573834\",\"W4399726732\",\"W7172438649\"],\"retrieved\":[\"W4401894533\",\"W4399999136\",\"W4407573834\",\"W4399726732\",\"W7172438649\"]}",
+      "scores": {
+        "correct": 0.0,
+        "decline_correct": 1.0,
+        "reviewed_facts": 1.0,
+        "all_gold_cited": 0.0,
+        "clean_decline": 1.0,
+        "grounded_sources": 1.0
+      },
+      "error": null,
+      "seconds": 24.87681049999992
+    },
+    {
+      "index": 4,
+      "input": "Between Castillo and Caturra, which arabica variety copes better with heat and drought, and do the plants recover after rewatering?",
+      "expected": "{\"needs_human\": false, \"needs_human_reason\": null, \"answer\": \"Castillo coped better with drought than Caturra: it kept leaf water potential and gas exchange longer, while Caturra closed its stomata earlier; both tolerated the heat, and both varieties recovered their physiological values after rewatering [W7164393911].\", \"sources\": [\"W7164393911\"], \"retrieved\": [\"W7164393911\"]}",
+      "actual": "{\"needs_human\":false,\"needs_human_reason\":null,\"answer\":\"Based on the provided passages, both *Coffea arabica* Castillo and Caturra exhibit similar high thermotolerance at the leaf level, sharing comparable T50 values of approximately 52.6 °C and 52.5 °C [W7164393911#0]. While they possess this shared heat resilience, they differ in their drought responses: Caturra shows earlier stomatal closure and reduced photosynthesis under drought, whereas Castillo maintains higher leaf water potential and gas exchange parameters for a longer duration [W7164393911#0]. Consequently, Castillo copes slightly better with the combined stress of heat and drought in this specific comparison. Importantly, after rehydration following a 27-day drought period, both varieties recovered to physiological values comparable to well-watered control plants, indicating no lasting impairment [W7164393911#0].\",\"sources\":[\"W7164393911\"],\"retrieved\":[\"W7164393911\",\"W7169869057\",\"W7132837853\",\"W7171771769\",\"W4392664282\"]}",
+      "scores": {
+        "correct": 1.0,
+        "decline_correct": 1.0,
+        "reviewed_facts": 1.0,
+        "all_gold_cited": 1.0,
+        "clean_decline": 1.0,
+        "grounded_sources": 1.0
+      },
+      "error": null,
+      "seconds": 16.417899600000055
+    },
+    {
+      "index": 5,
+      "input": "Can shade trees or agroforestry protect coffee growing areas from climate change, and does it work equally for arabica and robusta?",
+      "expected": "{\"needs_human\": false, \"needs_human_reason\": null, \"answer\": \"It depends on the species and the region: in Uganda, agroforestry with up to 50% shade could offset suitable-area losses for robusta but not for arabica [W4400295494], while in Rwanda a shade-tree corridor was found feasible to protect coffee areas under climate change [W4412463026].\", \"sources\": [\"W4400295494\", \"W4412463026\"], \"retrieved\": [\"W4400295494\", \"W4412463026\"]}",
+      "actual": "{\"needs_human\":false,\"needs_human_reason\":null,\"answer\":\"Shade trees and agroforestry can partially protect coffee growing areas, but their effectiveness differs significantly between species. In Uganda, modeling suggests that implementing agroforestry with up to 50% shading could partially offset area losses for Robusta coffee due to its suitability being linked to precipitation variables [W4400295494#0]. However, this buffering effect does not work for Arabica coffee, whose suitability is driven by temperature-related variables; climate change reduces its suitable area regardless of agroforestry implementation [W4400295494#0]. Review literature confirms that while shaded systems enhance sustainability and resilience against climatic stress, the specific adaptation benefits are species-dependent. Agroforestry acts as an important climate adaptation strategy for smallholders, yet it cannot avert the potential decrease in valuable Arabica production under projected climate scenarios [W4405416777#0][W4400295494#0]. Therefore, agroforestry works unequally: it helps Robusta more than Arabica.\",\"sources\":[\"W4400295494\",\"W4405416777\"],\"retrieved\":[\"W4400295494\",\"W4405416777\",\"W4412463026\",\"W4415771060\",\"W4406582775\"]}",
+      "scores": {
+        "correct": 0.0,
+        "decline_correct": 1.0,
+        "reviewed_facts": 0.0,
+        "all_gold_cited": 0.0,
+        "clean_decline": 1.0,
+        "grounded_sources": 1.0
+      },
+      "error": null,
+      "seconds": 17.078991700000188
+    },
+    {
+      "index": 6,
+      "input": "How long does roasted coffee keep its quality in different packaging, and what happens to coffee in compostable capsules during storage?",
+      "expected": "{\"needs_human\": false, \"needs_human_reason\": null, \"answer\": \"Roasted coffee in aluminium bags kept its quality for about 250 days at 20 °C, longer when cooler [W4415616418]; in compostable capsules the bioplastic lets moisture in, and under hot, humid storage the critical moisture level that triggers quality decay was reached within three weeks [W4404705896].\", \"sources\": [\"W4415616418\", \"W4404705896\"], \"retrieved\": [\"W4415616418\", \"W4404705896\"]}",
+      "actual": "{\"needs_human\":false,\"needs_human_reason\":null,\"answer\":\"Roasted and ground coffee quality retention varies significantly by packaging type. Studies estimate shelf life under optimal conditions (20°C) ranges from up to 250 days for foil/aluminum bags down to as little as 7.85 days for pressed cardboard boxes [W4415616418#0]. However, regardless of packaging, storing ground roasted coffee in paper sachets results in losing over 80% of volatile compounds within 30 days [W4398232538#0], while other packings lose 35–45% of volatiles in the same period. Regarding compostable capsules, specifically those made of polybutylene succinate (PBS), moisture uptake is a critical issue; quality decay, indicated by pH drop below 5.1, can trigger within one month under high temperature and humidity (45°C, 75% RH) [W4404705896#0]. Therefore, while some multilayer films offer sustainability with minimal quality loss, compostable bioplastics may face food stability issues due to poor moisture barriers compared to conventional options [W4404705896#0], [W4392296744#0].\",\"sources\":[\"W4415616418\",\"W4398232538\",\"W4404705896\",\"W4392296744\"],\"retrieved\":[\"W4404705896\",\"W7163020083\",\"W4392296744\",\"W4415616418\",\"W4398232538\"]}",
+      "scores": {
+        "correct": 1.0,
+        "decline_correct": 1.0,
+        "reviewed_facts": 1.0,
+        "all_gold_cited": 1.0,
+        "clean_decline": 1.0,
+        "grounded_sources": 1.0
+      },
+      "error": null,
+      "seconds": 26.082164599999942
+    },
+    {
+      "index": 7,
+      "input": "How long does a pasteurised cold brew coffee stay stable in the fridge, and does the roast level of the beans matter?",
+      "expected": "{\"needs_human\": false, \"needs_human_reason\": null, \"answer\": \"Pasteurised cold brew made from medium or dark roasted beans stayed microbiologically stable for 150 days at 4 °C, while the one from light roasted beans failed earlier, so the roast level matters [W4406429231].\", \"sources\": [\"W4406429231\"], \"retrieved\": [\"W4406429231\"]}",
+      "actual": "{\"needs_human\":false,\"needs_human_reason\":null,\"answer\":\"A pasteurized cold brew coffee made from medium or dark roasted beans remains microbiologically stable for up to 150 days when stored refrigerated in the dark [W4406429231#0]. However, beverages made from light roasted beans failed stability tests at the beginning of the study under the same conditions [W4406429231#0]. Therefore, the roast level does matter, as light roasts exhibited significantly shorter shelf lives compared to medium and dark roasts in this specific pasteurized product [W4406429231#0]. While general cold brew reviews suggest refrigerated drinks last 5 days without thermal processing, the question specifically addresses a *pasteurized* product, for which the 150-day shelf life applies to medium and dark roasts but not light ones [W4406429231#0].\",\"sources\":[\"W4406429231\"],\"retrieved\":[\"W4406429231\",\"W4405764646\",\"W7220664552\",\"W4392202912\",\"W7160905178\"]}",
+      "scores": {
+        "correct": 1.0,
+        "decline_correct": 1.0,
+        "reviewed_facts": 1.0,
+        "all_gold_cited": 1.0,
+        "clean_decline": 1.0,
+        "grounded_sources": 1.0
+      },
+      "error": null,
+      "seconds": 15.011490299999878
+    },
+    {
+      "index": 8,
+      "input": "Are consumers in Germany willing to pay more for coffee whose sustainability certification is backed by digital traceability?",
+      "expected": "{\"needs_human\": false, \"needs_human_reason\": null, \"answer\": \"Yes: a survey of German consumers found a willingness to pay more for coffee whose sustainability certification is backed by blockchain-based digital traceability, shaped by perceived behavioural control and social norms [W7161753552].\", \"sources\": [\"W7161753552\"], \"retrieved\": [\"W7161753552\"]}",
+      "actual": "{\"needs_human\":false,\"needs_human_reason\":null,\"answer\":\"Yes, German consumers are willing to pay more for coffee with blockchain-enabled sustainability certifications, which offer digital traceability. A study utilizing an extended Theory of Planned Behavior model surveyed 400 German consumers and found that perceived behavioral control (PBC) and social norms significantly influence willingness-to-pay for such certifications [W7161753552#0]. The research highlighted that while there is confusion over various labels, blockchain technology provides a mechanism to validate sustainability claims effectively. The study concluded that understanding factors influencing the evaluation and purchase intentions for coffee with digital traceability is crucial for industry stakeholders in the German market [W7161753552#0].\",\"sources\":[\"W7161753552\"],\"retrieved\":[\"W7161753552\",\"W4394755181\",\"W4411380241\",\"W7117717765\",\"W4414713833\"]}",
+      "scores": {
+        "correct": 1.0,
+        "decline_correct": 1.0,
+        "reviewed_facts": 1.0,
+        "all_gold_cited": 1.0,
+        "clean_decline": 1.0,
+        "grounded_sources": 1.0
+      },
+      "error": null,
+      "seconds": 12.024858799999947
+    },
+    {
+      "index": 9,
+      "input": "What acrylamide levels did our own roasted blends show in last quarter's internal lab tests?",
+      "expected": "{\"needs_human\": true, \"needs_human_reason\": \"The corpus holds published papers only; the company's own blends and internal lab results are not in it, so no figure can be given.\", \"answer\": null, \"sources\": [], \"retrieved\": []}",
+      "actual": "{\"needs_human\":true,\"needs_human_reason\":\"The provided corpus contains only published research papers and does not include data on your company's specific roasted blends, internal lab tests, or products from last quarter. Consequently, I cannot answer questions regarding proprietary internal data.\",\"answer\":null,\"sources\":[],\"retrieved\":[\"W7163668116\",\"W7224061432\",\"W7213653550\",\"W4392387128\",\"W4414022952\"]}",
+      "scores": {
+        "correct": 1.0,
+        "decline_correct": 1.0,
+        "reviewed_facts": 1.0,
+        "all_gold_cited": 1.0,
+        "clean_decline": 1.0,
+        "grounded_sources": 1.0
+      },
+      "error": null,
+      "seconds": 7.770766099999946
+    },
+    {
+      "index": 10,
+      "input": "How much caffeine is in a typical takeaway coffee compared with a homemade one, and can drinking 3-5 cups a day push someone over the safe daily intake?",
+      "expected": "{\"needs_human\": false, \"needs_human_reason\": null, \"answer\": \"Takeaway coffees contained on average about three times more caffeine than homemade ones, with large differences by type (for example americano versus espresso); drinking 3-5 takeaway coffees a day can exceed the 400 mg safe daily intake, while homemade coffees mostly stay below it [W4400906101].\", \"sources\": [\"W4400906101\"], \"retrieved\": [\"W4400906101\"]}",
+      "actual": "{\"needs_human\":false,\"needs_human_reason\":null,\"answer\":\"Takeaway coffees have a mean caffeine content three times higher than homemade coffees [W4400906101#0]. Regarding safety, drinking 4–5 servings of takeaway coffee (or other \\\"on the go\\\" types except espresso) can result in consuming over 400 mg of caffeine daily, which exceeds the recommended safe limit of 400 mg [W4400906101#0]. Consequently, habitual consumption of this many cups from takeaway shops could push individuals over the safe daily intake. However, homemade coffees are noted as safer in this regard because they generally contain lower caffeine levels [W4400906101#0]. It is also important to note that individual genetic factors can affect how long caffeine stays in the blood, influencing personal health risks [W4406105666#0].\",\"sources\":[\"W4400906101\",\"W4406105666\"],\"retrieved\":[\"W4400906101\",\"W4406105666\",\"W4416675056\",\"W7125694412\",\"W4406053791\"]}",
+      "scores": {
+        "correct": 0.0,
+        "decline_correct": 1.0,
+        "reviewed_facts": 0.0,
+        "all_gold_cited": 1.0,
+        "clean_decline": 1.0,
+        "grounded_sources": 1.0
+      },
+      "error": null,
+      "seconds": 14.550043199999891
+    },
+    {
+      "index": 11,
+      "input": "Can a camera on an automatic espresso machine judge the crema and adjust the brewing in real time?",
+      "expected": "{\"needs_human\": false, \"needs_human_reason\": null, \"answer\": \"Yes: a proposed system films the crema, segments it with the GrabCut algorithm and uses clustering on its features to set the brewing conditions for each cup in real time [W4391962816].\", \"sources\": [\"W4391962816\"], \"retrieved\": [\"W4391962816\"]}",
+      "actual": "{\"needs_human\":false,\"needs_human_reason\":null,\"answer\":\"Yes, according to published research, a camera integrated with machine learning can analyze coffee crema in real time and adjust brewing conditions [W4391962816]. The proposed system uses computer vision algorithms, such as GrabCut, to segment the crema region from images. A clustering algorithm then determines optimal brewing parameters based on the extracted crema characteristics. This approach enables real-time monitoring of the extraction process, which can also aid in predicting component replacement needs like water filters, ultimately supporting the development of fully automated AI coffee making systems [W4391962816].\",\"sources\":[\"W4391962816\"],\"retrieved\":[\"W4391962816\",\"W4413937487\",\"W7161155855\",\"W4391157039\",\"W4395051896\"]}",
+      "scores": {
+        "correct": 1.0,
+        "decline_correct": 1.0,
+        "reviewed_facts": 1.0,
+        "all_gold_cited": 1.0,
+        "clean_decline": 1.0,
+        "grounded_sources": 1.0
+      },
+      "error": null,
+      "seconds": 11.852244400000018
+    },
+    {
+      "index": 12,
+      "input": "What have coffee by-products been turned into: can cascara work as an edible food coating, and what nutrients do spent coffee grounds and silverskin contain?",
+      "expected": "{\"needs_human\": false, \"needs_human_reason\": null, \"answer\": \"Cascara has been made into an edible coating that extended the shelf life of roasted hazelnuts [W4402301389]; spent coffee grounds and silverskin contain dietary fibre, proteins, lipids, minerals, caffeine, chlorogenic acids and other polyphenols, which makes them food and nutraceutical ingredients [W4392711737].\", \"sources\": [\"W4402301389\", \"W4392711737\"], \"retrieved\": [\"W4402301389\", \"W4392711737\"]}",
+      "actual": "{\"needs_human\":false,\"needs_human_reason\":null,\"answer\":\"Coffee by-products like cascara have been successfully turned into edible active coatings. Research confirms that cascara extract, rich in polyphenols and polysaccharides, can form films (often with gelatin and glycerol) that preserve foods like hazelnuts and snake fruit by extending shelf life and inhibiting microbial growth [W4402301389#0][W7143393266#0]. Spent coffee grounds (SCG) contain valuable nutrients such as caffeine, chlorogenic acids, polyphenols, dietary fiber, proteins, essential minerals, and are noted for mitigating obesity and benefiting gut health [W4407902465#0]. Similarly, spent coffee ground and silverskin are identified as sources of important dietary fibers and bioactive compounds including carbohydrates, lipids, polyphenols, flavonoids, chlorogenic acids, vitamins, and minerals like potassium and calcium [W4392711737#0][W4402990805#0].\",\"sources\":[\"W4402301389\",\"W7143393266\",\"W4407902465\",\"W4392711737\",\"W4402990805\"],\"retrieved\":[\"W4392711737\",\"W4407902465\",\"W4402301389\",\"W4402990805\",\"W7143393266\"]}",
+      "scores": {
+        "correct": 1.0,
+        "decline_correct": 1.0,
+        "reviewed_facts": 1.0,
+        "all_gold_cited": 1.0,
+        "clean_decline": 1.0,
+        "grounded_sources": 1.0
+      },
+      "error": null,
+      "seconds": 18.265112900000076
+    },
+    {
+      "index": 13,
+      "input": "Per l'estrazione conta di più la durezza dell'acqua (calcio e magnesio) o l'alcalinità (bicarbonato)? Cosa succede al gusto?",
+      "expected": "{\"needs_human\": false, \"needs_human_reason\": null, \"answer\": \"Conta l'alcalinità, non la durezza: il bicarbonato, fino a 300 mg/L nell'esperimento, riduce acidità, note fruttate e complessità e aumenta le note tostate e amare, mentre il calcio da solo non cambia in modo marcato il gusto [W7213286814].\", \"sources\": [\"W7213286814\"], \"retrieved\": [\"W7213286814\"]}",
+      "actual": "{\"needs_human\":false,\"needs_human_reason\":null,\"answer\":\"Per l'estrazione, conta di più l'alcalinità (bicarbonato) rispetto alla durezza (calcio e magnesio). Uno studio indica che la durezza da sola non produce cambiamenti marcati nel sapore, nemmeno con concentrazioni elevate di calcio. Al contrario, l'aumento del bicarbonato riduce significativamente l'acidità percepita, le note fruttate e la complessità, mentre esalta le note torreate e amare [W7213286814#0]. In termini di gusto, mantenere un livello appropriato di alcalinità è essenziale per preservare attributi desiderabili come l'acidità e la complessità; livelli più alti rendono il caffè meno acido e fruttato, ma più piatto o amaro. L'alcalinità risulta quindi il fattore determinante principale nelle variazioni del profilo sensoriale [W7213286814#0].\",\"sources\":[\"W7213286814\"],\"retrieved\":[\"W7167587926\",\"W4407034644\",\"W7213286814\",\"W4414022952\",\"W4391213470\"]}",
+      "scores": {
+        "correct": 0.0,
+        "decline_correct": 1.0,
+        "reviewed_facts": 0.0,
+        "all_gold_cited": 1.0,
+        "clean_decline": 1.0,
+        "grounded_sources": 1.0
+      },
+      "error": null,
+      "seconds": 16.501776000000064
+    },
+    {
+      "index": 14,
+      "input": "Do capsule coffees release PFAS into the cup, and does the brewing method make a difference?",
+      "expected": "{\"needs_human\": false, \"needs_human_reason\": null, \"answer\": \"PFAS were found in brewed capsule coffee: perfluorooctanoic acid and 8:2 fluorotelomer sulfonate were higher when capsules were brewed by machine than by hand through a paper filter, but the hazard quotient and cancer risk stayed below WHO limits [W4408403534].\", \"sources\": [\"W4408403534\"], \"retrieved\": [\"W4408403534\"]}",
+      "actual": "{\"needs_human\":false,\"needs_human_reason\":null,\"answer\":\"Yes, machine-brewed capsule coffees contain higher levels of certain Perfluoroalkyl and Polyfluoroalkyl substances (PFASs) compared to manually brewed capsule coffees filtered through paper. Specifically, perfluorooctanoic acid and 8:2 fluorotelomer sulfonate were found at higher concentrations in machine-brewed capsules than in those using a paper filter [W4408403534#0]. This difference indicates that the brewing method does make a significant impact on PFAS release. However, studies concluded that even with these levels, the hazard quotient and excess cancer risk for all tested samples remain below World Health Organization standards, suggesting they are considered safe [W4408403534#0].\",\"sources\":[\"W4408403534\"],\"retrieved\":[\"W4408403534\",\"W4416201650\",\"W4406015316\",\"W4415213914\",\"W4394575897\"]}",
+      "scores": {
+        "correct": 1.0,
+        "decline_correct": 1.0,
+        "reviewed_facts": 1.0,
+        "all_gold_cited": 1.0,
+        "clean_decline": 1.0,
+        "grounded_sources": 1.0
+      },
+      "error": null,
+      "seconds": 18.149887200000194
+    },
+    {
+      "index": 15,
+      "input": "If we heat or cool the beans just before grinding, what happens to the espresso's caffeine and aroma?",
+      "expected": "{\"needs_human\": false, \"needs_human_reason\": null, \"answer\": \"Heating the beans just before grinding lowered caffeine and chlorogenic acids and shifted the aroma towards ageing, with more hexanal; cooling had similar but smaller effects and reduced caffeine extraction [W7161248227].\", \"sources\": [\"W7161248227\"], \"retrieved\": [\"W7161248227\"]}",
+      "actual": "{\"needs_human\":false,\"needs_human_reason\":null,\"answer\":\"According to research on thermal treatments of coffee beans prior to grinding [W7161248227#0], heating the beans immediately before grinding induces a decrease in both caffeine and chlorogenic acid content. Additionally, it causes a change in the aromatic profile consistent with accelerated aging phenomena, such as an increase in hexanal. Conversely, cooling treatment produces similar but less pronounced effects; it reduces caffeine extraction and decreases the levels of some aromatic compounds. Therefore, both heating and cooling prior to grinding significantly influence the final espresso's content of bioactive compounds like caffeine and its volatile organic compound profile [W7161248227#0].\",\"sources\":[\"W7161248227\"],\"retrieved\":[\"W7161248227\",\"W4408899093\",\"W4391157039\",\"W7203643781\",\"W4411346713\"]}",
+      "scores": {
+        "correct": 1.0,
+        "decline_correct": 1.0,
+        "reviewed_facts": 1.0,
+        "all_gold_cited": 1.0,
+        "clean_decline": 1.0,
+        "grounded_sources": 1.0
+      },
+      "error": null,
+      "seconds": 15.521103900000071
+    },
+    {
+      "index": 16,
+      "input": "Can near-infrared spectroscopy replace GC-MS to check the roast degree on the line, and can it predict the volatile compounds?",
+      "expected": "{\"needs_human\": false, \"needs_human_reason\": null, \"answer\": \"NIR spectroscopy separated light, medium and dark roasts as well as GC-MS did, and a PLS model on NIR spectra predicted over 20 volatile compounds, including furans, ketones, phenols and pyridines, with R² above 0.75, so it can complement GC-MS on the line [W4390748041].\", \"sources\": [\"W4390748041\"], \"retrieved\": [\"W4390748041\"]}",
+      "actual": "{\"needs_human\":false,\"needs_human_reason\":null,\"answer\":\"Yes, near-infrared (NIR) spectroscopy can act as a rapid and practical tool to complement current techniques for monitoring roast degrees and predicting volatiles, though it may not fully replace GC-MS in all analytical contexts. The study [W4390748041#0] demonstrated that NIR successfully differentiated roast degrees similar to GC-MS and predicted over 20 volatile compounds (including furans and ketones) with R² > 0.75, making it suitable for real-time industrial monitoring. However, another study [W7202098052#0] used GC–IMS and HS-SPME–GC–MS to identify specific aroma markers in coffee peels, noting these methods offer complementary detection capabilities rather than a direct replacement. While NIR offers speed and non-destructive analysis [W7155360170#0], the optimal approach often involves using both technologies together to ensure comprehensive quality control [W4390748041#0].\",\"sources\":[\"W4390748041\",\"W7202098052\",\"W7155360170\"],\"retrieved\":[\"W4390748041\",\"W7155360170\",\"W7171349996\",\"W4411451438\",\"W7202098052\"]}",
+      "scores": {
+        "correct": 1.0,
+        "decline_correct": 1.0,
+        "reviewed_facts": 1.0,
+        "all_gold_cited": 1.0,
+        "clean_decline": 1.0,
+        "grounded_sources": 1.0
+      },
+      "error": null,
+      "seconds": 24.050130599999648
+    },
+    {
+      "index": 17,
+      "input": "Does a slow low-temperature roast keep more chlorogenic acids than a fast high-temperature one?",
+      "expected": "{\"needs_human\": false, \"needs_human_reason\": null, \"answer\": \"Yes: low-temperature long-time (LTLT) roasting kept chlorogenic acids at about 9.4-9.6 g/kg, similar to a medium roast, while high-temperature short-time (HTST) roasting caused the largest loss, about 60-75% [W7171390324].\", \"sources\": [\"W7171390324\"], \"retrieved\": [\"W7171390324\"]}",
+      "actual": "{\"needs_human\":false,\"needs_human_reason\":null,\"answer\":\"Yes, studies indicate that roasting conditions significantly affect chlorogenic acid retention. A low-temperature long-time (LTLT) profile preserves chlorogenic acids at levels (~9.4–9.6 g·kg⁻¹ DM) comparable to medium roasts, whereas a high-temperature short-time (HTST) profile results in the highest degradation, causing a 60–75% loss of these compounds [W7171390324#0]. Conversely, HTST conditions showed substantial degradation compared to green coffee (~7–12 g·kg⁻¹ DM in dark/HTST vs. ~25–28 g·kg⁻¹ DM in green), while LTLT maintained better stability [W7171390324#0]. Therefore, a slow low-temperature roast is more effective at keeping chlorogenic acids than a fast high-temperature one.\",\"sources\":[\"W7171390324\"],\"retrieved\":[\"W4411739385\",\"W7171390324\",\"W4396725594\",\"W2889754995\",\"W7161248227\"]}",
+      "scores": {
+        "correct": 1.0,
+        "decline_correct": 1.0,
+        "reviewed_facts": 1.0,
+        "all_gold_cited": 1.0,
+        "clean_decline": 1.0,
+        "grounded_sources": 1.0
+      },
+      "error": null,
+      "seconds": 23.224980700000287
+    }
+  ]
+}

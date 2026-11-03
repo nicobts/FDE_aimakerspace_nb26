@@ -147,4 +147,39 @@ def solve(request: Request) -> Response:
     Declines with needs_human=True instead of guessing when the text is not a
     study, is too short to judge, or is not about coffee.
     """
-    raise NotImplementedError("implement against this signature")
+    # Imported here because card.py imports this module.
+    from card import build_card_prompt, parse_card
+    from llm import stream_reply
+
+    raw = ""
+    for raw in stream_reply(build_card_prompt(request)):
+        pass
+    return parse_card(raw, request)
+
+
+# Added in TC3. The card contract above is one document in, one card out; a
+# researcher's question over the whole corpus needs an answer and the papers it
+# came from, which the card has no room for. See use_case/decisions.md, week 3.
+
+
+class CorpusAnswer(BaseModel):
+    # No default, for the same reason as Response: the decline is always explicit.
+    needs_human: bool = Field(
+        description="True when the corpus does not answer the question and a "
+        "researcher should look elsewhere"
+    )
+    needs_human_reason: str | None = Field(
+        default=None, description="Why it declined; set when needs_human is True"
+    )
+    answer: str | None = Field(
+        default=None,
+        description="The answer, in the question's language, citing works as [W<id>]",
+    )
+    sources: list[str] = Field(
+        default_factory=list,
+        description="OpenAlex ids of the works the answer is grounded in",
+    )
+    retrieved: list[str] = Field(
+        default_factory=list,
+        description="OpenAlex ids of every work the answer model was shown, best first",
+    )

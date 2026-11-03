@@ -224,6 +224,33 @@
         }
       }
 
+      /* --- Views: article card and questions to the corpus --- */
+      .views { display: flex; gap: 0.25rem; margin-top: 1.5rem; border-bottom: 1px solid var(--line); }
+      .views button {
+        padding: 0.55rem 1.1rem;
+        font: inherit;
+        font-weight: 600;
+        color: var(--muted);
+        background: transparent;
+        border: 0;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -1px;
+        cursor: pointer;
+      }
+      .views button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--roast); }
+      .view[hidden] { display: none; }
+      #question { min-height: 6rem; }
+      select { padding: 0.45rem 0.6rem; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 3px; }
+      .examples { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
+      .examples button { text-align: left; font-size: 0.85rem; }
+      .answer-text { margin: 0; font-family: var(--serif); font-size: 1.15rem; line-height: 1.55; white-space: pre-line; }
+      .answer-text a, .src a { color: var(--roast); font-family: var(--sans); font-size: 0.85em; font-weight: 600; }
+      .src-block { margin-top: 1.1rem; padding-top: 0.9rem; border-top: 1px solid var(--line); }
+      .src-block h3 { margin: 0 0 0.4rem; font-size: 0.95rem; color: var(--sage); }
+      .src { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+      .src li { padding: 0.1rem 0.55rem; border: 1px solid var(--line); border-radius: 3px; }
+      .src.other a { color: var(--muted); }
+
       /* --- Footer --- */
       footer { margin-top: auto; border-top: 1px solid var(--line); background: var(--surface); color: var(--muted); font-size: 0.9rem; }
       footer .wrap { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; align-items: center; padding-block: 1rem; }
@@ -290,6 +317,11 @@
     </header>
 
     <main class="wrap">
+      <div class="views" role="tablist" data-i18n-label="views">
+        <button type="button" role="tab" data-view="card" aria-selected="true" data-i18n="viewCard"></button>
+        <button type="button" role="tab" data-view="ask" aria-selected="false" data-i18n="viewAsk"></button>
+      </div>
+      <div class="view" id="view-card">
       <section class="intro">
         <h1 data-i18n="headline"></h1>
         <p class="lede">
@@ -332,6 +364,36 @@
 
         <div class="panel sheet" id="sheet" aria-live="polite"></div>
       </section>
+      </div>
+
+      <div class="view" id="view-ask" hidden>
+        <section class="intro">
+          <h1 data-i18n="askHeadline"></h1>
+          <p class="lede"><span data-i18n="askLede"></span></p>
+        </section>
+        <section class="bench">
+          <div class="panel">
+            <form id="ask-form">
+              <label for="question" data-i18n="questionLabel"></label>
+              <textarea id="question" required data-i18n-placeholder="questionPlaceholder"></textarea>
+              <label for="k" data-i18n="kLabel"></label>
+              <select id="k">
+                <option value="3">3</option>
+                <option value="5" selected>5</option>
+                <option value="8">8</option>
+              </select>
+              <div class="label" data-i18n="examplesLabel"></div>
+              <div class="examples" id="examples"></div>
+              <div class="actions">
+                <button type="submit" class="primary" id="ask" data-i18n="askButton"></button>
+                <button type="button" class="plain" id="ask-clear" data-i18n="clear"></button>
+                <span id="ask-status" role="status"></span>
+              </div>
+            </form>
+          </div>
+          <div class="panel sheet" id="answer" aria-live="polite"></div>
+        </section>
+      </div>
     </main>
 
     <footer>
@@ -418,6 +480,24 @@
           helpPrivacy: "The text you paste is sent to an external AI model. Do not paste confidential documents. The card is a first read, not a replacement for reading the paper.",
           helpClose: "Got it",
           rights: "All rights reserved.",
+          views: "What do you want to do?",
+          viewCard: "Article card",
+          viewAsk: "Ask the papers",
+          askHeadline: "Ask the published research.",
+          askLede: "About 2,400 open-access coffee papers since 2024. You get an answer that names the papers it comes from, or a clear no when they do not answer it.",
+          questionLabel: "Your question, in English or Italian",
+          questionPlaceholder: "For example: how long does cold brew stay stable in the fridge?",
+          kLabel: "Passages the model reads",
+          examplesLabel: "Try one",
+          askButton: "Ask",
+          searching: "Searching the papers…",
+          askElapsed: (s) => `${s} seconds so far. A question usually takes 10 to 25.`,
+          askEmptyTitle: "No answer yet.",
+          askEmptyBody: "Ask a question on the left. Every answer names its papers; click one to open it. Questions about our own products, blends or lab results are never in the published papers, so they are declined.",
+          askDeclineTitle: "Not in the papers. A researcher should look.",
+          sources: "Sources the answer cites",
+          alsoRead: "Also shown to the model",
+          answered: (s) => `Answered in ${s} seconds`,
         },
         it: {
           unit: "Ricerca e Sviluppo",
@@ -481,8 +561,34 @@
           helpPrivacy: "Il testo che incolli viene inviato a un modello di IA esterno. Non incollare documenti riservati. La scheda è una prima lettura, non sostituisce la lettura dell'articolo.",
           helpClose: "Ho capito",
           rights: "Tutti i diritti riservati.",
+          views: "Che cosa vuoi fare?",
+          viewCard: "Scheda articolo",
+          viewAsk: "Chiedi agli articoli",
+          askHeadline: "Chiedi alla ricerca pubblicata.",
+          askLede: "Circa 2.400 articoli open access sul caffè dal 2024. Ottieni una risposta che indica gli articoli da cui viene, o un no chiaro quando non rispondono.",
+          questionLabel: "La tua domanda, in italiano o in inglese",
+          questionPlaceholder: "Per esempio: quanto resta stabile in frigo un cold brew pastorizzato?",
+          kLabel: "Passaggi letti dal modello",
+          examplesLabel: "Prova",
+          askButton: "Chiedi",
+          searching: "Ricerca negli articoli…",
+          askElapsed: (s) => `${s} secondi finora. Una domanda richiede di solito da 10 a 25.`,
+          askEmptyTitle: "Nessuna risposta.",
+          askEmptyBody: "Fai una domanda a sinistra. Ogni risposta indica i suoi articoli; cliccane uno per aprirlo. Le domande sui nostri prodotti, miscele o risultati di laboratorio non sono mai negli articoli pubblicati, quindi vengono rifiutate.",
+          askDeclineTitle: "Non è negli articoli. Deve verificare un ricercatore.",
+          sources: "Fonti citate nella risposta",
+          alsoRead: "Mostrati anche al modello",
+          answered: (s) => `Risposto in ${s} secondi`,
         },
       };
+
+      // Real questions from the labelled set, so a first-time visitor can try the corpus in one click.
+      const EXAMPLE_QUESTIONS = [
+        "How long does a pasteurised cold brew coffee stay stable in the fridge, and does the roast level of the beans matter?",
+        "Prolungare la fermentazione della mucillagine o ritardare la lavorazione dopo la raccolta aumenta l'ocratossina nel caffè?",
+        "Can a camera on an automatic espresso machine judge the crema and adjust the brewing in real time?",
+        "What acrylamide levels did our own roasted blends show in last quarter's internal lab tests?",
+      ];
 
       const CATEGORY = {
         en: {},
@@ -517,6 +623,7 @@
         for (const button of document.querySelectorAll("[data-lang]")) button.setAttribute("aria-pressed", String(button.dataset.lang === lang));
         updateCount();
         renderSheet();
+        renderAnswer();
       }
       for (const button of document.querySelectorAll("[data-lang]")) {
         button.addEventListener("click", () => {
@@ -685,6 +792,118 @@
         sheet.appendChild(body);
       }
 
+      // --- The answer ----------------------------------------------------------
+      const answerSheet = document.getElementById("answer");
+      let lastAnswer = null; // { data, seconds }
+      let askingSince = null;
+      const CITE = /\[(W\d{6,})(?:#\d+)?\]/g;
+      const workUrl = (id) => `https://openalex.org/${id}`;
+
+      function workLink(id) {
+        const a = el("a", id);
+        a.href = workUrl(id);
+        a.target = "_blank";
+        a.rel = "noopener";
+        return a;
+      }
+
+      // Citations become links; everything else stays text, so nothing the model writes is parsed as HTML.
+      function answerParagraph(answer) {
+        const p = el("p", undefined, "answer-text");
+        let last = 0;
+        for (const match of answer.matchAll(CITE)) {
+          p.appendChild(document.createTextNode(answer.slice(last, match.index)));
+          p.appendChild(document.createTextNode("["));
+          p.appendChild(workLink(match[1]));
+          p.appendChild(document.createTextNode("]"));
+          last = match.index + match[0].length;
+        }
+        p.appendChild(document.createTextNode(answer.slice(last)));
+        return p;
+      }
+
+      function sourceBlock(title, ids, className) {
+        const box = el("div", undefined, "src-block");
+        box.appendChild(el("h3", title));
+        const list = el("ul", undefined, `src ${className || ""}`);
+        for (const id of ids) list.appendChild(el("li")).appendChild(workLink(id));
+        box.appendChild(list);
+        return box;
+      }
+
+      function askTick() {
+        const line = document.getElementById("ask-time");
+        if (line && askingSince !== null) line.textContent = t().askElapsed(Math.floor((performance.now() - askingSince) / 1000));
+      }
+
+      function renderAnswer() {
+        answerSheet.replaceChildren();
+        if (askingSince !== null) {
+          const loader = el("div", undefined, "loader");
+          const beans = el("div", undefined, "beans");
+          beans.setAttribute("aria-hidden", "true");
+          for (let i = 0; i < 3; i++) beans.appendChild(beanIcon());
+          loader.appendChild(beans);
+          loader.appendChild(el("div", t().searching, "loader-text"));
+          loader.appendChild(el("div", "", "loader-time")).id = "ask-time";
+          answerSheet.appendChild(loader);
+          askTick();
+          return;
+        }
+        if (!lastAnswer) {
+          const empty = el("div", undefined, "empty");
+          empty.appendChild(el("p", t().askEmptyTitle)).style.fontWeight = "600";
+          empty.appendChild(el("p", t().askEmptyBody));
+          answerSheet.appendChild(empty);
+          return;
+        }
+        const { data, seconds } = lastAnswer;
+        const body = el("div", undefined, "sheet-body");
+        if (data.needs_human) {
+          const box = el("div", undefined, "decline");
+          box.appendChild(el("h2", t().askDeclineTitle));
+          box.appendChild(el("p", data.needs_human_reason || t().noReason));
+          body.appendChild(box);
+        } else {
+          body.appendChild(answerParagraph(data.answer || ""));
+          if ((data.sources || []).length) body.appendChild(sourceBlock(t().sources, data.sources));
+        }
+        // What the model saw but did not cite: the first place to look when an answer is wrong.
+        const other = (data.retrieved || []).filter((id) => !(data.sources || []).includes(id));
+        if (other.length) body.appendChild(sourceBlock(t().alsoRead, other, "other"));
+
+        const foot = el("div", undefined, "sheet-foot");
+        foot.appendChild(el("span", t().answered(seconds), "took"));
+        body.appendChild(foot);
+        const raw = el("details");
+        raw.appendChild(el("summary", t().raw));
+        raw.appendChild(el("pre", JSON.stringify(data, null, 2)));
+        body.appendChild(raw);
+        answerSheet.appendChild(body);
+      }
+
+      // --- Switching views ------------------------------------------------------
+      function showView(name) {
+        for (const button of document.querySelectorAll("[data-view]")) button.setAttribute("aria-selected", String(button.dataset.view === name));
+        document.getElementById("view-card").hidden = name !== "card";
+        document.getElementById("view-ask").hidden = name !== "ask";
+        store.set("view", name);
+      }
+      for (const button of document.querySelectorAll("[data-view]")) button.addEventListener("click", () => showView(button.dataset.view));
+      showView(store.get("view") === "ask" ? "ask" : "card");
+
+      const question = document.getElementById("question");
+      for (const q of EXAMPLE_QUESTIONS) {
+        const b = el("button", q.length > 70 ? q.slice(0, 68) + "…" : q, "plain");
+        b.type = "button";
+        b.title = q;
+        b.addEventListener("click", () => {
+          question.value = q;
+          document.getElementById("ask").focus();
+        });
+        document.getElementById("examples").appendChild(b);
+      }
+
       applyLanguage();
 
       fetch("/health")
@@ -702,6 +921,7 @@
       } catch (err) {
         say(t().noClient, true);
         go.disabled = true;
+        document.getElementById("ask").disabled = true;
         throw err;
       }
 
@@ -789,6 +1009,42 @@
           loadingSince = null;
           renderSheet();
           go.disabled = false;
+        }
+      });
+
+      // --- Ask the papers ------------------------------------------------------
+      const askButton = document.getElementById("ask");
+      const askStatus = document.getElementById("ask-status");
+      document.getElementById("ask-clear").addEventListener("click", () => {
+        document.getElementById("ask-form").reset();
+        lastAnswer = null;
+        askStatus.textContent = "";
+        renderAnswer();
+      });
+      document.getElementById("ask-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        askButton.disabled = true;
+        askStatus.textContent = "";
+        askStatus.className = "";
+        const started = performance.now();
+        askingSince = started;
+        renderAnswer();
+        const clock = setInterval(askTick, 1000);
+        try {
+          // Not streamed: the answer is one call and arrives whole.
+          const result = await client.predict("/ask_research_corpus", {
+            question: question.value,
+            k: Number(document.getElementById("k").value),
+          });
+          lastAnswer = { data: JSON.parse(result.data[0]), seconds: ((performance.now() - started) / 1000).toFixed(1) };
+        } catch (err) {
+          askStatus.textContent = `${t().failed} ${err.message || err}`;
+          askStatus.className = "error";
+        } finally {
+          clearInterval(clock);
+          askingSince = null;
+          renderAnswer();
+          askButton.disabled = false;
         }
       });
     </script>

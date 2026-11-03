@@ -58,6 +58,25 @@ def summarize_research_paper(
     yield parse_card(raw, request).model_dump_json(indent=2)
 
 
+@app.api(name="ask_research_corpus")
+def ask_research_corpus(question: str, k: int = 5) -> str:
+    """Answer a question about published coffee research from the team's paper corpus, with sources.
+
+    The corpus holds about 2,400 open-access papers since 2024 on roasting, processing,
+    agronomy, extraction, packaging, sensory, health, sustainability, IoT/digital and
+    by-product innovation. Ask in English or Italian; the answer comes back in the same
+    language. Returns JSON: answer (citing works as [W<id>]), sources (the OpenAlex ids
+    the answer is grounded in), retrieved (every id the model was shown), and
+    needs_human=true with a reason, and no answer, when the papers do not answer the
+    question. The company's own products, blends and lab data are never in the corpus,
+    so questions about them are declined. k is how many passages the model reads (1-8).
+    Use summarize_research_paper instead to card one document you already have.
+    """
+    from qa import answer_question
+
+    return answer_question(question, k=max(1, min(k, 8))).model_dump_json(indent=2)
+
+
 # --- The frontend ------------------------------------------------------------
 # Defining a route at "/" replaces Gradio's default UI with ours.
 

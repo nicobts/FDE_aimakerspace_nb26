@@ -6,4 +6,6 @@ requires-python = ">=3.12"
 dependencies = [
     "gradio>=6.0",
     "litellm>=1.90",
+    "numpy>=2.0",          # TC3: cosine over the stored embeddings
+    "rank-bm25>=0.2.2",    # TC3: the lexical ranker, same pin as the course week3 group
 ]

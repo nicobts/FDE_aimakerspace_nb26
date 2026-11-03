@@ -77,6 +77,6 @@ would notice.
 
 | Week | Decision | Why, and what you rejected |
 | --- | --- | --- |
-| 3 | Retrieval approach | <!-- TC3 --> |
+| 3 | Retrieval approach, and a second contract next to the card | The card contract (`Request` → `Response`) is unchanged and `solve()` now implements it. Asking a question of the whole corpus is a different In → Out, so it got its own model, `CorpusAnswer` in `schema.py`: In = a question in English or Italian; Out = an answer citing works as [W<id>], the `sources` it is grounded in, every id the model was shown (`retrieved`), or `needs_human = true` with a reason and no answer. Rejected: adding `answer` and `sources` to the card `Response`, which would make one model mean two things and leave most card fields empty on every answer. The technique and what it beat are in `decisions.md`, week 3. |
 | 5 | Agent architecture | <!-- TC5 --> |
 | 8 | Model | <!-- TC8 --> |

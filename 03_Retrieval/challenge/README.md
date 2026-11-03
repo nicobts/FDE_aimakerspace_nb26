@@ -599,3 +599,37 @@ challenge, which carries the full detail.
 
 Everything after this week assumes your app answers from your data and can say
 where the answer came from.
+
+---
+
+## My submission
+
+Where each deliverable lives.
+
+| Deliverable | Answer | Where |
+| --- | --- | --- |
+| Labelled questions (Step 1) | 13 questions over 10 research areas, 1 decline; **4 of 13 need two records (q04, q06, q07, q13), so the top-k floor is 2**. Drafted from the areas R&D confirmed; to be replaced line by line by the team's own list | [`use_case/evals/retrieval.jsonl`](../../use_case/evals/retrieval.jsonl) |
+| Schema (Step 2) | `solve()` implemented on the unchanged card contract; a new `CorpusAnswer` (answer, sources, retrieved, needs_human) for the corpus endpoint, instead of stretching the card `Response` | [`schema.py`](../../01_Product_Engineering/challenge/schema.py), [`use_case/CHARTER.md`](../../use_case/CHARTER.md), [`decisions.md`](../../use_case/decisions.md) |
+| Results table and settings (Step 3) | 4 agent techniques (BM25, wiki, dense, hybrid) and 2 endpoint paths on 13 questions, plus a ranking-only table; hybrid wins at both layers | [`results.md`](results.md), [`compare.py`](compare.py) |
+| Embedding token count (Step 3) | 788,540 tokens for 2,398 chunks (*measured*) | [`results.md`](results.md) |
+| Endpoint with sources (Step 4) | `ask_research_corpus(question, k=5)`: hybrid top 5, decline gate, one answer call, cited ids | [`app.py`](../../01_Product_Engineering/challenge/app.py), [`qa.py`](../../01_Product_Engineering/challenge/qa.py), [`retrieval.py`](../../01_Product_Engineering/challenge/retrieval.py) |
+| Decision row and four non-text answers (Step 5) | Hybrid endpoint shipped; BM25, dense and wiki agents rejected, with switch conditions | [`use_case/decisions.md`](../../use_case/decisions.md) |
+| Still runs in Docker | Image built, corpus mounted read-only, answered, declined and gated inside the container | [`Dockerfile`](../../01_Product_Engineering/challenge/Dockerfile) |
+| Demo to a real user (Step 6) | _Session to do._ Five **assumed** test questions (u01-u05, marked as such) stand in so the harness has them; the researcher's own five go in as r01-r05, and placeholder rows wait in `stakeholders.md` and `decisions.md` | [`retrieval.jsonl`](../../use_case/evals/retrieval.jsonl), `use_case/stakeholders.md` |
+| Bring it to work (Step 7) | _to do_ | Below |
+
+**What the endpoint does on the decline question.** Asked for the acrylamide levels in the
+company's own blends last quarter (q10), it retrieves acrylamide papers (cosine 0.70, above the
+0.45 gate), the model replies that the corpus holds published papers and no company lab data,
+and the endpoint returns `needs_human: true` with that reason, no figures and no sources. A
+clearly off-domain question (a VPN password, cosine 0.32) is declined by the gate before any
+model call.
+
+The corpus itself is not in the repo, by design.
+
+---
+
+## Bring it to work
+
+<!-- Step 7: one line naming the search or chatbot at work, then three swap lines (data, model or
+endpoint, approval) with the measured embedding token count: 788,540 tokens for 2,398 chunks. -->

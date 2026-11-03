@@ -615,8 +615,8 @@ Where each deliverable lives.
 | Endpoint with sources (Step 4) | `ask_research_corpus(question, k=5)`: hybrid top 5, decline gate, one answer call, cited ids | [`app.py`](../../01_Product_Engineering/challenge/app.py), [`qa.py`](../../01_Product_Engineering/challenge/qa.py), [`retrieval.py`](../../01_Product_Engineering/challenge/retrieval.py) |
 | Decision row and four non-text answers (Step 5) | Hybrid endpoint shipped; BM25, dense and wiki agents rejected, with switch conditions | [`use_case/decisions.md`](../../use_case/decisions.md) |
 | Still runs in Docker | Image built, corpus mounted read-only, answered, declined and gated inside the container | [`Dockerfile`](../../01_Product_Engineering/challenge/Dockerfile) |
-| Demo to a real user (Step 6) | _Session to do._ Five **assumed** test questions (u01-u05, marked as such) stand in so the harness has them; the researcher's own five go in as r01-r05, and placeholder rows wait in `stakeholders.md` and `decisions.md` | [`retrieval.jsonl`](../../use_case/evals/retrieval.jsonl), `use_case/stakeholders.md` |
-| Bring it to work (Step 7) | _to do_ | Below |
+| Demo to a real user (Step 6) | _Session held; feedback to be written up._ Five **assumed** test questions (u01-u05, marked as such) stand in so the harness has them; the researcher's own five go in as r01-r05, and placeholder rows wait in `stakeholders.md` and `decisions.md` | [`retrieval.jsonl`](../../use_case/evals/retrieval.jsonl), `use_case/stakeholders.md` |
+| Bring it to work (Step 7) | The search it replaces and three swap lines, with the measured token count | Below |
 
 **What the endpoint does on the decline question.** Asked for the acrylamide levels in the
 company's own blends last quarter (q10), it retrieves acrylamide papers (cosine 0.70, above the
@@ -631,5 +631,24 @@ The corpus itself is not in the repo, by design.
 
 ## Bring it to work
 
-<!-- Step 7: one line naming the search or chatbot at work, then three swap lines (data, model or
-endpoint, approval) with the measured embedding token count: 788,540 tokens for 2,398 chunks. -->
+**The search this is for.** The customer's R&D researchers answer "what does the literature say
+about X" by searching journal sites and their own reading notes by hand, and the answer lives in
+whoever did the search; nothing names the papers it came from or has ever been measured.
+
+**Data.** The published, open-access papers stay as they are; the swap is adding R&D's internal
+reading notes, literature reviews and supplier reports, mostly born-digital text with some scanned
+supplier PDFs, which are internal and owned by the SMEs of each vertical, so they never leave the
+customer's GCP project.
+
+**Model or endpoint.** Both the embedding model (Qwen3-Embedding-8B, or an equivalent the customer
+approves on Vertex AI) and the answer model are reached only through the Bifrost AI gateway on the
+VM behind Identity-Aware Proxy; public papers may go to a hosted model through it, internal notes
+only to a model approved for internal data. Re-indexing the current corpus costs **788,540
+embedding tokens for 2,398 chunks (*measured*)**, so a full re-embed is a small, routine job, not a
+budget line, until internal documents multiply the corpus.
+
+**Access or approval.** The SMEs of each vertical, through R&D, to release their notes and reviews
+as a corpus and to confirm the labels; the customer's IT to approve the gateway route, the
+embedding model and where the index is stored; per-user access levels on the internal documents
+filtered before ranking (Week 9); final go-ahead between my CTO and the customer, as for the
+deployment.

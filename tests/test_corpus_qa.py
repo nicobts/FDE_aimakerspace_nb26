@@ -62,21 +62,21 @@ def test_read_page_accepts_md_suffix_and_rejects_unknown(corpus):
 
 def test_endpoint_declines_below_gate_without_calling_the_model(corpus, monkeypatch):
     fake_query_vector(monkeypatch, [-1, 0])  # cosine <= 0 with every stored vector
-    monkeypatch.setattr(qa, "_complete", lambda messages: pytest.fail("model must not be called"))
+    monkeypatch.setattr(qa, "_complete", lambda messages, **kw: pytest.fail("model must not be called"))
     out = qa.answer_question("How do I reset my VPN password?", k=2)
     assert out.needs_human and out.answer is None and out.sources == []
 
 
 def test_endpoint_turns_model_decline_into_needs_human(corpus, monkeypatch):
     fake_query_vector(monkeypatch, [1, 0])
-    monkeypatch.setattr(qa, "_complete", lambda messages: "NOT IN CORPUS: no internal lab data")
+    monkeypatch.setattr(qa, "_complete", lambda messages, **kw: "NOT IN CORPUS: no internal lab data")
     out = qa.answer_question("acrylamide in our own blends last quarter?", k=2)
     assert out.needs_human and out.needs_human_reason == "no internal lab data" and out.sources == []
 
 
 def test_endpoint_sources_are_only_cited_ids_the_model_was_shown(corpus, monkeypatch):
     fake_query_vector(monkeypatch, [1, 0])
-    monkeypatch.setattr(qa, "_complete", lambda messages: "Roasting forms it [W1000001]; also [W7777777].")
+    monkeypatch.setattr(qa, "_complete", lambda messages, **kw: "Roasting forms it [W1000001]; also [W7777777].")
     out = qa.answer_question("acrylamide roasting", k=2)
     assert not out.needs_human
     assert out.sources == ["W1000001"]

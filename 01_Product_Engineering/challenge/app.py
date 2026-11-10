@@ -104,6 +104,27 @@ def ask_research_corpus(question: str, k: int = 5) -> str:
     return answer_question(question, k=max(1, min(k, 8))).model_dump_json(indent=2)
 
 
+@app.api(name="ask_research_corpus_agent", **LIMITS)
+def ask_research_corpus_agent(question: str, k: int = 5) -> str:
+    """Answer a multi-part question about published coffee research by splitting it into focused sub-questions.
+
+    The second implementation of ask_research_corpus (Week 5): an outer model sends each part of the
+    question through the same search-and-answer pipeline and combines the cited answers. Same corpus,
+    same JSON contract (answer, sources, retrieved, needs_human with a reason), same declines. It
+    costs at least three model calls where ask_research_corpus costs one, so use ask_research_corpus
+    for a single question and this one only when the question has several distinct parts.
+    """
+    from agent import answer_with_subagent
+
+    refused = check_lengths({"question": (question, guardrails.MAX_QUESTION_CHARS)})
+    # One unit of the call budget per request; the fan-out inside it is capped in agent.py
+    # (MAX_ROUNDS outer calls, MAX_SUBQUESTIONS pipeline runs), so a request has a known ceiling.
+    refused = refused or BUDGET.take()
+    if refused:
+        return CorpusAnswer(needs_human=True, needs_human_reason=f"Not sent to the model: {refused}.").model_dump_json(indent=2)
+    return answer_with_subagent(question, k=max(1, min(k, 8))).model_dump_json(indent=2)
+
+
 # --- The frontend ------------------------------------------------------------
 # Defining a route at "/" replaces Gradio's default UI with ours.
 

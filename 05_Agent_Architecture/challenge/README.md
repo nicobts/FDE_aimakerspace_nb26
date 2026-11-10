@@ -638,3 +638,146 @@ challenge, which has the full detail.
 
 Everything after this week assumes you chose your architecture with a
 measurement and can say what would change it.
+
+---
+
+## My submission
+
+<!-- Step 7: one paragraph on what changed after the Session 9 critique, written after the refined
+demo has been shown. It goes here, at the top, so a reader sees the demo absorbed it. -->
+
+The endpoint is `ask_research_corpus` from Week 3: one hybrid search over the paper corpus, then
+one model call that answers with sources. This week it got a second implementation, and both were
+measured with the same counter. Everything runs from
+`uv run --group week3 python 05_Agent_Architecture/challenge/measure.py`.
+
+| Deliverable | Answer | Where |
+| --- | --- | --- |
+| The room's questions (Step 1) | _to write from my Session 9 notes_ | [`use_case/decisions.md`](../../use_case/decisions.md), `## Week 5 — what the room asked` |
+| The second way and why (Step 2) | A **subagent**, selected by ordering question 5; Code Mode is the closest way not built | below |
+| Second implementation (Step 3) | `answer_with_subagent`, served as `ask_research_corpus_agent`; a tool loop built beside it as the reference | [`agent.py`](../../01_Product_Engineering/challenge/agent.py), [`app.py`](../../01_Product_Engineering/challenge/app.py), [`tests/test_agent.py`](../../tests/test_agent.py) |
+| Dispatcher failures as messages (Step 3) | Unknown tool, malformed JSON and wrong arguments all return text to the model | below |
+| Measurement at demo scale (Step 4) | 3 ways × 2 requests × 4 columns; the model emits parallel tool calls | [`results.md`](results.md), below |
+| Measurement at real size (Step 5) | 7.0–9.0 KB per search; pipeline 1,917–2,274 tokens, subagent 5,496–9,481 (*measured*) | [`results.md`](results.md), below |
+| Architecture row (Step 6) | Keep the fixed pipeline; the subagent is the reject I built | [`use_case/decisions.md`](../../use_case/decisions.md), Week 5 row |
+| Still runs in Docker | Image `fde-app:tc5`; `ask_research_corpus_agent` called inside the container | [`Dockerfile`](../../01_Product_Engineering/challenge/Dockerfile) |
+| Refined demo to a stakeholder (Step 7) | _to do with a real person_ | `use_case/stakeholders.md` |
+| Bring it to work (Step 8) | below | - |
+
+### The second way, and why (Step 2)
+
+The six ordering questions, for a capability that searches 2,398 chunks of published coffee
+research and returns the top 5 passages:
+
+| # | Question | For this endpoint |
+| :---: | --- | --- |
+| 1 | Already an HTTP API at work? | No. The ranked-passage search exists only in this repo |
+| 2 | Does anything outside the codebase need to discover it? | No. The app's own page is the only caller today |
+| 3 | Several calls, or calls that return a lot? | Yes on size (7.0–9.0 KB per search, *measured*), no on count (one search per request). Code Mode would be the pick, but it is not built: the answer needs a model to read the passages, so a program cannot return much less than it fetched, and running model-written code needs a sandbox nobody has reviewed |
+| 4 | Does the knowledge change more often than the code? | No. The knowledge is the papers, which are data; the rules in the prompt rarely change |
+| 5 | Does the work read a lot to produce a little? | **Yes.** 7–9 KB of passages in, at most 150 words out. This selects the **subagent** |
+| 6 | Otherwise | A tool |
+
+**Second way: a subagent.** An outer model gets one tool, `ask_research_corpus`, whose body is the
+shipped pipeline. It splits a question into parts, each part runs the pipeline in its own model
+call, and only the cited answer comes back, so the outer model never sees a passage.
+
+**Closest way not picked: Code Mode**, for the two reasons in row 3. A plain **tool loop** (the
+model calls `search_papers` and reads the passages itself) is also built and measured, as the
+reference the subagent has to beat.
+
+### What the model gets back when it gets it wrong (Step 3)
+
+`agent.dispatch` never raises. The three failures, as the model receives them:
+
+```
+unknown tool 'lookup_paper'; available: ask_research_corpus
+bad arguments for ask_research_corpus: missing a required argument: 'question'; it accepts: question
+arguments were not valid JSON: '{"question": "roa'; send a JSON object
+```
+
+A tool that fails inside (the embedding endpoint down) also comes back as text, a loop that never
+answers stops after 4 rounds, and an answer written without any search is declined, not returned.
+
+### Both measured at demo scale (Step 4)
+
+Local `qwen3.5:9b` on Ollama, one run per cell, passages cut to 200 characters (about 1.6 KB per
+search). **1 search** is q08 (cold brew shelf life), **several** is q13 (cascara coating plus
+by-product nutrients, two gold papers).
+
+| request | way | model calls | capability calls | seconds | tokens |
+| --- | --- | ---: | ---: | ---: | ---: |
+| 1 search | pipeline (shipped) | 1 | 1 | 35.1 | 681 |
+| 1 search | tool loop | 2 | 2 | 61.9 | 2,037 |
+| 1 search | **subagent** | 4 | 2 | 106.6 | 2,808 |
+| several | pipeline (shipped) | 1 | 1 | 45.1 | 720 |
+| several | tool loop | 2 | 3 | 77.0 | 2,677 |
+| several | **subagent** | 5 | 3 | 173.6 | 4,223 |
+
+**Parallel tool calls: yes.** `len(msg.tool_calls)` on the first turn was 2 for q08 and 3 for q13,
+in both the tool loop and the subagent, so the loop costs two round trips whatever the number of
+searches. The subagent's extra model calls are not round trips of the loop: they are the inner
+pipeline runs, one per sub-question.
+
+Two things the table shows that the session's did not. The model treated the "one search"
+question as two (how long, and does roast matter), so the split is the model's choice, not mine.
+And with 200-character passages the answers got worse, not just cheaper: the tool loop and the
+subagent declined q08 because the finding was cut off, which is the Week 3 passage-length result
+again.
+
+### Measured again at the real response size (Step 5)
+
+Passages as shipped (up to 2,500 characters), same model, same two requests. All *measured*.
+
+| request | bytes per search response | way | capability calls | model calls | seconds | tokens | gold papers cited |
+| --- | ---: | --- | ---: | ---: | ---: | ---: | :---: |
+| 1 search | 6,973 | pipeline (shipped) | 1 | 1 | 17.4 | **1,917** | 1/1 |
+| 1 search | 7,296 | tool loop | 2 | 2 | 70.7 | 4,498 | 1/1 |
+| 1 search | 7,486 | **subagent** | 2 | 4 | 120.9 | **5,496** | 1/1 |
+| several | 8,960 | pipeline (shipped) | 1 | 1 | 18.2 | **2,274** | 2/2 |
+| several | 8,960 | tool loop | 1 | 2 | 73.7 | 3,182 | 2/2 |
+| several | 8,995 | **subagent** | 3 | 5 | 154.0 | **9,481** | 2/2 |
+
+- The subagent costs **2.9× and 4.2× the tokens** of the pipeline and **7× to 8× the time**, and
+  cites the same gold papers. Its total is roughly one pipeline run per sub-question plus the
+  outer model's two calls: it keeps the passages out of the outer context, it does not make them
+  cheaper to read.
+- From demo to real size the pipeline went from 681 to 1,917 tokens and the subagent from 2,808 to
+  5,496: the gap in tokens grew from about 2,100 to about 3,600 on the same question.
+- The tool loop skipped the search on 1 of its 2 attempts at the multi-part question, although the
+  first turn is sent with `tool_choice="required"`; that attempt was declined by the guard and
+  re-measured. On the attempt that counted it searched once.
+- Seconds are a laptop's: the chat model and the CPU embedding model share one machine, and one
+  run per cell does not show the spread.
+
+**At 10× the volume:** every request is one search and one model call, so the pipeline's cost is
+about 2,100 tokens × the number of questions and nothing else moves; the subagent would multiply
+the same growth by three to four. A 10× larger corpus does not change the response size at all,
+because the endpoint always hands the model the top 5 passages.
+
+### How to reproduce
+
+```bash
+# local model; the shell wins over .env
+export LLM_MODEL=ollama_chat/qwen3.5:9b LLM_API_BASE=http://localhost:11434
+export LLM_OPTIONS='{"num_ctx": 32768, "think": false}'
+export EMBED_MODEL=ollama/qwen3-embedding-cpu EMBED_API_BASE=http://localhost:11434 EMBED_API_KEY=
+uv run --group week3 python 05_Agent_Architecture/challenge/measure.py
+uv run --group week3 python -m pytest tests/test_agent.py tests/test_corpus_qa.py
+```
+
+Finished runs are kept in `use_case/data/runs/tc5_measure.jsonl` (gitignored), so an interrupted
+run resumes; delete the file to measure from scratch.
+
+---
+
+## Bring it to work
+
+<!-- Step 8, mine to write. One line naming the capability at work this is for, then three lines:
+data (what the capability really returns, in bytes, and how many calls a request needs),
+model or endpoint (does it already exist as an HTTP API, and who would hold the credential),
+access or approval (a sandbox, a deployment target, a token). -->
+
+Measured here, to put next to those lines: one search returns **7.0–9.0 KB**, a request needs
+**1 search** in the pipeline and 2–3 in the subagent, and a question costs **1,917–2,274 tokens**
+in the pipeline against **5,496–9,481** in the subagent (*measured*, local `qwen3.5:9b`).

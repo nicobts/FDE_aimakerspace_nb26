@@ -382,6 +382,11 @@
                 <option value="5" selected>5</option>
                 <option value="8">8</option>
               </select>
+              <label for="way" data-i18n="wayLabel"></label>
+              <select id="way">
+                <option value="/ask_research_corpus" selected data-i18n="wayPipeline"></option>
+                <option value="/ask_research_corpus_agent" data-i18n="wayAgent"></option>
+              </select>
               <div class="label" data-i18n="examplesLabel"></div>
               <div class="examples" id="examples"></div>
               <div class="actions">
@@ -488,6 +493,9 @@
           questionLabel: "Your question, in English or Italian",
           questionPlaceholder: "For example: how long does cold brew stay stable in the fridge?",
           kLabel: "Passages the model reads",
+          wayLabel: "How it answers",
+          wayPipeline: "One search, one answer (fast)",
+          wayAgent: "Split into sub-questions (subagent, slower)",
           examplesLabel: "Try one",
           askButton: "Ask",
           searching: "Searching the papers…",
@@ -569,6 +577,9 @@
           questionLabel: "La tua domanda, in italiano o in inglese",
           questionPlaceholder: "Per esempio: quanto resta stabile in frigo un cold brew pastorizzato?",
           kLabel: "Passaggi letti dal modello",
+          wayLabel: "Come risponde",
+          wayPipeline: "Una ricerca, una risposta (veloce)",
+          wayAgent: "Divide in sotto-domande (subagent, più lento)",
           examplesLabel: "Prova",
           askButton: "Chiedi",
           searching: "Ricerca negli articoli…",
@@ -1032,7 +1043,7 @@
         const clock = setInterval(askTick, 1000);
         try {
           // Not streamed: the answer is one call and arrives whole.
-          const result = await client.predict("/ask_research_corpus", {
+          const result = await client.predict(document.getElementById("way").value, {
             question: question.value,
             k: Number(document.getElementById("k").value),
           });

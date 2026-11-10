@@ -695,7 +695,15 @@ call, and only the cited answer comes back, so the outer model never sees a pass
 model delegating to the pipeline, which is exactly the subagent. Building it in-process let me
 measure what that agent will cost before a server exists; Session 10 measured the MCP transport
 itself as the same tool loop plus a process. **Ways named and not built:** MCP (row 2, the next
-step) and Code Mode (row 3). A plain **tool loop** (the
+step) and Code Mode (row 3).
+
+**Where a subagent would earn its place.** Not on this corpus: fetching from OpenAlex, indexing and
+answering with one search and one call is the cheapest way I measured, and it makes no sense to
+switch on a less efficient way to do the same job. I am evaluating a subagent, a tool or MCP to
+extend what the tool can do, for example a subagent that actively checks sources other than
+OpenAlex.
+
+A plain **tool loop** (the
 model calls `search_papers` and reads the passages itself) is also built and measured, as the
 reference the subagent has to beat.
 

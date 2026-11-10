@@ -653,8 +653,8 @@ measured with the same counter. Everything runs from
 
 | Deliverable | Answer | Where |
 | --- | --- | --- |
-| The room's questions (Step 1) | _to write from my Session 9 notes_ | [`use_case/decisions.md`](../../use_case/decisions.md), `## Week 5 — what the room asked` |
-| The second way and why (Step 2) | A **subagent**, selected by ordering question 5; Code Mode is the closest way not built | below |
+| The room's questions (Step 1) | The rubric's 17 questions answered; 3 marked fair, 1 open ("better than what?") | [`use_case/decisions.md`](../../use_case/decisions.md), `## Week 5 — what the room asked` |
+| The second way and why (Step 2) | A **subagent**: it is what an agent on the customer's platform does with this endpoint. MCP and Code Mode are named, not built | below |
 | Second implementation (Step 3) | `answer_with_subagent`, served as `ask_research_corpus_agent`; a tool loop built beside it as the reference | [`agent.py`](../../01_Product_Engineering/challenge/agent.py), [`app.py`](../../01_Product_Engineering/challenge/app.py), [`tests/test_agent.py`](../../tests/test_agent.py) |
 | Dispatcher failures as messages (Step 3) | Unknown tool, malformed JSON and wrong arguments all return text to the model | below |
 | Measurement at demo scale (Step 4) | 3 ways × 2 requests × 4 columns; the model emits parallel tool calls | [`results.md`](results.md), below |
@@ -672,17 +672,21 @@ research and returns the top 5 passages:
 | # | Question | For this endpoint |
 | :---: | --- | --- |
 | 1 | Already an HTTP API at work? | No. The ranked-passage search exists only in this repo |
-| 2 | Does anything outside the codebase need to discover it? | No. The app's own page is the only caller today |
+| 2 | Does anything outside the codebase need to discover it? | **Yes, soon.** The customer's agent-builder platform: agents built there would call this endpoint as a tool. MCP is how it would be exposed, and Gradio can serve it from the same app. Not built this week; it changes how the endpoint is reached, not what runs inside it |
 | 3 | Several calls, or calls that return a lot? | Yes on size (7.0–9.0 KB per search, *measured*), no on count (one search per request). Code Mode would be the pick, but it is not built: the answer needs a model to read the passages, so a program cannot return much less than it fetched, and running model-written code needs a sandbox nobody has reviewed |
 | 4 | Does the knowledge change more often than the code? | No. The knowledge is the papers, which are data; the rules in the prompt rarely change |
-| 5 | Does the work read a lot to produce a little? | **Yes.** 7–9 KB of passages in, at most 150 words out. This selects the **subagent** |
+| 5 | Does the work read a lot to produce a little? | **Yes.** 7–9 KB of passages in, at most 150 words out: the **subagent** |
 | 6 | Otherwise | A tool |
 
 **Second way: a subagent.** An outer model gets one tool, `ask_research_corpus`, whose body is the
 shipped pipeline. It splits a question into parts, each part runs the pipeline in its own model
 call, and only the cited answer comes back, so the outer model never sees a passage.
 
-**Closest way not picked: Code Mode**, for the two reasons in row 3. A plain **tool loop** (the
+**Why the subagent and not MCP first.** An agent on the platform calling this endpoint is an outer
+model delegating to the pipeline, which is exactly the subagent. Building it in-process let me
+measure what that agent will cost before a server exists; Session 10 measured the MCP transport
+itself as the same tool loop plus a process. **Ways named and not built:** MCP (row 2, the next
+step) and Code Mode (row 3). A plain **tool loop** (the
 model calls `search_papers` and reads the passages itself) is also built and measured, as the
 reference the subagent has to beat.
 
@@ -773,10 +777,21 @@ run resumes; delete the file to measure from scratch.
 
 ## Bring it to work
 
-<!-- Step 8, mine to write. One line naming the capability at work this is for, then three lines:
-data (what the capability really returns, in bytes, and how many calls a request needs),
-model or endpoint (does it already exist as an HTTP API, and who would hold the credential),
-access or approval (a sandbox, a deployment target, a token). -->
+**The capability this is for.** The paper-corpus search, `ask_research_corpus`, which agents built
+on the customer's agent-builder platform will call as a tool.
+
+**Data.** One search returns 7.0 to 9.0 KB of passages (*measured*) and a question needs one
+search; an agent that splits a question makes two or three, each a full pipeline run.
+
+**Model or endpoint.** The capability already exists as an HTTP API, the Gradio endpoint in the
+VM's stack. The platform calls it with its own service identity behind Identity-Aware Proxy, and
+the model keys stay in the Bifrost gateway, so neither the agent nor the endpoint holds a provider
+key.
+
+**Access or approval.** The customer's IT to register the endpoint as a tool on the platform and
+approve the route through the gateway; the review the customer requires before real users, which
+is still to be asked; a reviewed sandbox for model-written code before Code Mode can be tried;
+and the final go-ahead between my CTO and the customer.
 
 Measured here, to put next to those lines: one search returns **7.0–9.0 KB**, a request needs
 **1 search** in the pipeline and 2–3 in the subagent, and a question costs **1,917–2,274 tokens**

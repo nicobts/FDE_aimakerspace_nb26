@@ -10,12 +10,16 @@ The search underneath is the same function in all three, passed in as an argumen
 
 import inspect
 import json
+import logging
 
 from litellm import completion
 
+import guardrails
 import qa
 import retrieval
 from schema import CorpusAnswer
+
+log = logging.getLogger(__name__)
 
 # A model that keeps calling tools is stopped here; the request then declines instead of running on.
 MAX_ROUNDS = 4
@@ -75,16 +79,26 @@ def dispatch(tools: dict, name: str, arguments: str) -> str:
         return f"bad arguments for {name}: {error}; it accepts: {', '.join(accepted.parameters)}"
     try:
         return tools[name](**args)
-    except Exception as error:
+    except Exception:
         # The tool itself failed (the embedding endpoint is down, say). Still a message, so the
-        # model can say it could not search instead of the request dying with a traceback.
-        return f"{name} failed: {type(error).__name__}: {error}"[:300]
+        # model can say it could not search instead of the request dying with a traceback. The
+        # detail stays in the server log: an error text can carry hostnames or keys, and whatever
+        # the model reads it may repeat to the user.
+        log.exception("tool %s failed", name)
+        return f"{name} is unavailable right now; answer without it or say you could not search"
 
 
-def run_loop(question: str, *, system: str, schemas: list[dict], tools: dict, meter=None) -> str | None:
-    """Decide, dispatch, answer. Returns the final text, or None when the model never stopped calling tools."""
+def run_loop(question: str, *, system: str, schemas: list[dict], tools: dict, meter=None,
+             budget=None) -> tuple[str | None, str | None]:
+    """Decide, dispatch, answer. Returns (final text, None), or (None, why there is no answer).
+
+    `budget` is called before every model call and returns a refusal reason or None, so the
+    server's call budget counts what this request really spends, not one unit per request.
+    """
     messages = [{"role": "system", "content": system}, {"role": "user", "content": question}]
     for round_number in range(MAX_ROUNDS):
+        if budget and (refused := budget()):
+            return None, refused
         # The first turn must call a tool: a small model otherwise sometimes answers from memory
         # (Week 4 failures.md line 2), and an answer with no search is declined anyway.
         response = completion(**qa.model_kwargs(), messages=messages, tools=schemas,
@@ -93,26 +107,38 @@ def run_loop(question: str, *, system: str, schemas: list[dict], tools: dict, me
             meter.track(response)
         message = response.choices[0].message
         if not message.tool_calls:
-            return (message.content or "").strip()
+            return (message.content or "").strip(), None
         messages.append(message.model_dump())
         for call in message.tool_calls:
             messages.append({"role": "tool", "tool_call_id": call.id,
                              "content": dispatch(tools, call.function.name, call.function.arguments)})
-    return None
+    return None, f"the agent did not reach an answer in {MAX_ROUNDS} rounds"
 
 
-def _finish(reply: str | None, retrieved: list[str]) -> CorpusAnswer:
+def _finish(reply: str | None, why: str | None, *, grounded: list[str], retrieved: list[str]) -> CorpusAnswer:
+    """The agent's final text as the contract. `grounded` holds the ids an answer may cite.
+
+    Stricter than the pipeline: there the model's text is written directly over the passages, here
+    it is free text from a model that chose what to look up, so nothing is assumed on its behalf.
+    """
     if reply is None:
+        return CorpusAnswer(needs_human=True, retrieved=retrieved, needs_human_reason=why)
+    if not grounded:
+        # Written without any search result, or after every sub-question was declined: that is
+        # the model's memory, not the corpus, whatever the text says.
         return CorpusAnswer(needs_human=True, retrieved=retrieved,
-                            needs_human_reason=f"the agent did not reach an answer in {MAX_ROUNDS} rounds")
-    if not retrieved:
-        # An answer written without any search result is the model's memory, not the corpus.
-        return CorpusAnswer(needs_human=True, needs_human_reason="the agent answered without searching the corpus")
-    return qa.to_answer(reply, retrieved)
+                            needs_human_reason="nothing in the corpus answered the question")
+    if reply.upper().startswith(qa.DECLINE):
+        return qa.to_answer(reply, retrieved)
+    cited = [w for w in qa._unique(qa.CITATION.findall(reply)) if w in grounded]
+    if not cited:
+        return CorpusAnswer(needs_human=True, retrieved=retrieved,
+                            needs_human_reason="the answer cites none of the works it was given")
+    return CorpusAnswer(needs_human=False, answer=reply, sources=cited, retrieved=retrieved)
 
 
 def answer_with_tool_loop(question: str, *, k: int = 5, technique: str = qa.TECHNIQUE,
-                          search=retrieval.search, meter=None) -> CorpusAnswer:
+                          search=retrieval.search, meter=None, budget=None) -> CorpusAnswer:
     retrieved: list[str] = []
 
     def search_papers(query: str) -> str:
@@ -123,13 +149,16 @@ def answer_with_tool_loop(question: str, *, k: int = 5, technique: str = qa.TECH
     schemas = [_schema("search_papers",
                        "Search ranked passages from coffee research papers. Each passage starts with its id, [W<id>#<n>].",
                        {"query": {"type": "string"}}, ["query"])]
-    reply = run_loop(question, system=TOOL_LOOP_SYSTEM, schemas=schemas, tools={"search_papers": search_papers}, meter=meter)
-    return _finish(reply, qa._unique(retrieved))
+    reply, why = run_loop(question, system=TOOL_LOOP_SYSTEM, schemas=schemas,
+                          tools={"search_papers": search_papers}, meter=meter, budget=budget)
+    retrieved = qa._unique(retrieved)
+    return _finish(reply, why, grounded=retrieved, retrieved=retrieved)
 
 
 def answer_with_subagent(question: str, *, k: int = 5, technique: str = qa.TECHNIQUE,
-                         search=retrieval.search, meter=None) -> CorpusAnswer:
+                         search=retrieval.search, meter=None, budget=None) -> CorpusAnswer:
     retrieved: list[str] = []
+    grounded: list[str] = []  # only the sources of sub-questions that were answered
     asked = 0
 
     def ask_research_corpus(question: str) -> str:
@@ -137,10 +166,15 @@ def answer_with_subagent(question: str, *, k: int = 5, technique: str = qa.TECHN
         asked += 1
         if asked > MAX_SUBQUESTIONS:
             return f"limit of {MAX_SUBQUESTIONS} calls per request reached; answer from what you already have"
+        # A sub-question is written by a model, so it gets the same limits as one typed by a user.
+        refused = guardrails.check_lengths({"question": (question, guardrails.MAX_QUESTION_CHARS)}) or (budget and budget())
+        if refused:
+            return json.dumps({"declined": refused}, ensure_ascii=False)
         result = qa.answer_question(question, k=k, technique=technique, search=search, meter=meter)
         retrieved.extend(result.retrieved)
         if result.needs_human:
             return json.dumps({"declined": result.needs_human_reason}, ensure_ascii=False)
+        grounded.extend(result.sources)
         # The passages stay in the inner call. The outer model gets the answer and its ids, nothing else.
         return json.dumps({"answer": result.answer, "sources": result.sources}, ensure_ascii=False)
 
@@ -148,9 +182,9 @@ def answer_with_subagent(question: str, *, k: int = 5, technique: str = qa.TECHN
                        "Answer one focused question from the coffee research paper corpus. Returns the answer with "
                        "the works it cites as [W<id>], or a decline with the reason when the papers do not answer it.",
                        {"question": {"type": "string"}}, ["question"])]
-    reply = run_loop(question, system=SUBAGENT_SYSTEM, schemas=schemas,
-                     tools={"ask_research_corpus": ask_research_corpus}, meter=meter)
-    return _finish(reply, qa._unique(retrieved))
+    reply, why = run_loop(question, system=SUBAGENT_SYSTEM, schemas=schemas,
+                          tools={"ask_research_corpus": ask_research_corpus}, meter=meter, budget=budget)
+    return _finish(reply, why, grounded=qa._unique(grounded), retrieved=qa._unique(retrieved))
 
 
 WAYS = {"pipeline": qa.answer_question, "tool loop": answer_with_tool_loop, "subagent": answer_with_subagent}

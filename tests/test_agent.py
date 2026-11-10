@@ -54,7 +54,9 @@ def test_dispatch_turns_every_failure_into_a_message():
     assert "must be a JSON object" in agent.dispatch(tools, "search_papers", "[1]")
     assert "it accepts: query" in agent.dispatch(tools, "search_papers", '{"q": "roast"}')
     assert "it accepts: query" in agent.dispatch(tools, "search_papers", "{}")
-    assert agent.dispatch({"boom": lambda: 1 / 0}, "boom", "{}").startswith("boom failed: ZeroDivisionError")
+    # The detail of an internal failure goes to the log, never to the model.
+    failed = agent.dispatch({"boom": lambda: 1 / 0}, "boom", "{}")
+    assert failed.startswith("boom is unavailable") and "ZeroDivisionError" not in failed
 
 
 def test_tool_loop_reads_passages_and_counts_every_search(monkeypatch, search):
@@ -104,3 +106,38 @@ def test_a_loop_that_never_answers_is_declined(monkeypatch, search):
     script(monkeypatch, *[reply(calls=[("search_papers", '{"query": "x"}')]) for _ in range(agent.MAX_ROUNDS)])
     out = agent.answer_with_tool_loop("x?", search=search)
     assert out.needs_human and "rounds" in out.needs_human_reason
+
+
+def test_subagent_declines_when_every_sub_question_was_declined(monkeypatch, search):
+    # The outer model writes a confident answer anyway; nothing grounded it, so it is not returned.
+    script(monkeypatch,
+           reply(calls=[("ask_research_corpus", '{"question": "our own lab results?"}')]),
+           reply("Your blends showed 207 ug/kg [W1000001]."))
+    monkeypatch.setattr(qa.retrieval, "dense_rank", lambda question, n: [(0, 0.9)])
+    monkeypatch.setattr(qa, "_complete", lambda messages, **kw: "NOT IN CORPUS: no internal lab data")
+    out = agent.answer_with_subagent("our own lab results?", search=search)
+    assert out.needs_human and out.answer is None and out.sources == []
+
+
+def test_an_answer_citing_nothing_it_was_given_is_declined(monkeypatch, search):
+    script(monkeypatch, reply(calls=[("search_papers", '{"query": "acrylamide"}')]), reply("It forms in roasting [W7777777]."))
+    out = agent.answer_with_tool_loop("acrylamide?", search=search)
+    assert out.needs_human and "cites none" in out.needs_human_reason
+
+
+def test_budget_is_charged_per_model_call_and_stops_the_request(monkeypatch, search):
+    script(monkeypatch,
+           reply(calls=[("ask_research_corpus", '{"question": "a"}'), ("ask_research_corpus", '{"question": "b"}')]),
+           reply("x [W1000001]"))
+    monkeypatch.setattr(qa.retrieval, "dense_rank", lambda question, n: [(0, 0.9)])
+    monkeypatch.setattr(qa, "_complete", lambda messages, **kw: "x [W1000001]")
+    taken = []
+
+    def budget():
+        taken.append(1)
+        return "the daily limit is reached" if len(taken) > 2 else None
+
+    out = agent.answer_with_subagent("a and b", search=search, budget=budget)
+    # Outer call, first sub-question, then refused: the second sub-question never ran.
+    assert search.calls == ["a"] and len(taken) >= 3
+    assert out.needs_human and "daily limit" in out.needs_human_reason

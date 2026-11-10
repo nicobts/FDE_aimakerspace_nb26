@@ -117,12 +117,11 @@ def ask_research_corpus_agent(question: str, k: int = 5) -> str:
     from agent import answer_with_subagent
 
     refused = check_lengths({"question": (question, guardrails.MAX_QUESTION_CHARS)})
-    # One unit of the call budget per request; the fan-out inside it is capped in agent.py
-    # (MAX_ROUNDS outer calls, MAX_SUBQUESTIONS pipeline runs), so a request has a known ceiling.
-    refused = refused or BUDGET.take()
     if refused:
         return CorpusAnswer(needs_human=True, needs_human_reason=f"Not sent to the model: {refused}.").model_dump_json(indent=2)
-    return answer_with_subagent(question, k=max(1, min(k, 8))).model_dump_json(indent=2)
+    # One request here is several model calls, so the budget is charged inside, once per call
+    # (at most MAX_ROUNDS outer calls and MAX_SUBQUESTIONS pipeline runs), not once per request.
+    return answer_with_subagent(question, k=max(1, min(k, 8)), budget=BUDGET.take).model_dump_json(indent=2)
 
 
 # --- The frontend ------------------------------------------------------------

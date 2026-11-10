@@ -643,8 +643,17 @@ measurement and can say what would change it.
 
 ## My submission
 
-<!-- Step 7: one paragraph on what changed after the Session 9 critique, written after the refined
-demo has been shown. It goes here, at the top, so a reader sees the demo absorbed it. -->
+**What changed after critique.** The criticism in Session 9 was that the RAG pipeline looks too
+simple. My answer this week is a measurement, not more components: I built the more agentic
+versions (a tool loop and a subagent) and measured them against the simple pipeline at the real
+response size. The pipeline cited the same gold papers for a third to a quarter of the tokens, so
+it stays, and I can now say what I rejected and that I built it. What I take from the critique is
+that I need to study RAG techniques and evals further, and I say that in the demo. Showing it to
+the customer's IT and the data scientist I work with changed the roadmap more than the
+architecture: they want the tool inside Microsoft Copilot over MCP, proper paper cards with title,
+link and abstract where today there are only ids, and a monthly view of hot topics and newest
+papers. They also did not believe the precision yet, which is the right doubt, and their worst
+case is a model outside the EU.
 
 The endpoint is `ask_research_corpus` from Week 3: one hybrid search over the paper corpus, then
 one model call that answers with sources. This week it got a second implementation, and both were
@@ -661,7 +670,7 @@ measured with the same counter. Everything runs from
 | Measurement at real size (Step 5) | 7.0–9.0 KB per search; pipeline 1,917–2,274 tokens, subagent 5,496–9,481 (*measured*) | [`results.md`](results.md), below |
 | Architecture row (Step 6) | Keep the fixed pipeline; the subagent is the reject I built | [`use_case/decisions.md`](../../use_case/decisions.md), Week 5 row |
 | Still runs in Docker | Image `fde-app:tc5`; `ask_research_corpus_agent` called inside the container | [`Dockerfile`](../../01_Product_Engineering/challenge/Dockerfile) |
-| Refined demo to a stakeholder (Step 7) | _to do with a real person_ | `use_case/stakeholders.md` |
+| Refined demo to a stakeholder (Step 7) | Shown to the customer's IT and the data scientist on the integration; they asked for MCP from Microsoft Copilot, doubted the precision, and named a non-EU model as the worst case | [`use_case/stakeholders.md`](../../use_case/stakeholders.md), Week 5 rows in [`decisions.md`](../../use_case/decisions.md) |
 | Bring it to work (Step 8) | below | - |
 
 ### The second way, and why (Step 2)
@@ -672,7 +681,7 @@ research and returns the top 5 passages:
 | # | Question | For this endpoint |
 | :---: | --- | --- |
 | 1 | Already an HTTP API at work? | No. The ranked-passage search exists only in this repo |
-| 2 | Does anything outside the codebase need to discover it? | **Yes, soon.** The customer's agent-builder platform: agents built there would call this endpoint as a tool. MCP is how it would be exposed, and Gradio can serve it from the same app. Not built this week; it changes how the endpoint is reached, not what runs inside it |
+| 2 | Does anything outside the codebase need to discover it? | **Yes, soon.** The customer's agent-builder platform, whose agents would call this endpoint as a tool, and Microsoft Copilot, which the customer's IT asked about in the demo. MCP is how it would be exposed, and Gradio can serve it from the same app. Not built this week; it changes how the endpoint is reached, not what runs inside it |
 | 3 | Several calls, or calls that return a lot? | Yes on size (7.0–9.0 KB per search, *measured*), no on count (one search per request). Code Mode would be the pick, but it is not built: the answer needs a model to read the passages, so a program cannot return much less than it fetched, and running model-written code needs a sandbox nobody has reviewed |
 | 4 | Does the knowledge change more often than the code? | No. The knowledge is the papers, which are data; the rules in the prompt rarely change |
 | 5 | Does the work read a lot to produce a little? | **Yes.** 7–9 KB of passages in, at most 150 words out: the **subagent** |

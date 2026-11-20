@@ -125,6 +125,36 @@ goldens first; a 7–8B model on a laptop GPU does not pass.
 
 ---
 
+## Week 6 — who can write to what it reads
+
+Every place text enters the app and reaches a model, and who can write there. Ranked by the order
+I attacked them in TC6: anything the public can write goes first.
+
+| # | Source | Reaches the model in | Who can write there | Reviewed by anyone in the company before the model reads it? |
+| --- | --- | --- | --- | --- |
+| 1 | **Paper passages in the corpus** (abstracts, cards, full-text pieces from OpenAlex open-access works since 2024) | `ask_research_corpus`, `ask_research_corpus_agent` (top 5 passages, in the user turn) | **The public**: any author of a paper OpenAlex indexes, any journal or preprint server, any publisher hosting an open-access PDF the scout converts | No. The scout indexes automatically; nobody reads a passage before the model does |
+| 2 | **The pasted document** of the card endpoint (up to 80,000 characters) | `summarize_research_paper`, inside `<document>` | **Anyone whose page or PDF a researcher copies from**: the text is from the web, not from the researcher | No: the researcher pastes it to have it read |
+| 3 | **The question** | both corpus endpoints | The five researchers, behind the customer's Identity-Aware Proxy. Next: agents on the customer's agent-builder platform, and Microsoft Copilot over MCP if built (Week 5 demo) | No, and it does not need to be: these are colleagues |
+| 4 | **Sub-answers inside the subagent** | `ask_research_corpus_agent`'s outer model | Model output written from source 1, so the public at one remove | No |
+| 5 | **System prompts, rules, guardrail config** | every call | Me, through the repo; the operator, through `.env` (`SYSTEM_PROMPT`, `LLM_OPTIONS`) | Code review only |
+
+**Who I poisoned first, and why:** source 1. It is writable by the public, nobody reviews it, and
+the question that retrieves it looks completely normal, so no input-side rung sees the attack.
+
+**Level 0 (constrained decoding), as a finding.** On the local model (Ollama) Level 0 exists: Ollama
+constrains generation to a JSON schema (`format`), which would make the card's closed fields
+(`category`, `trust_level`, `relevance`, `needs_human`) unreachable outside their sets. On the hosted
+path (OpenRouter, and the customer's AI gateway, model not yet named) there is no logit access; only
+the provider's structured-output mode, which depends on the model the gateway serves. Today both
+endpoints ask for the schema in the prompt and validate afterwards with pydantic: a reply outside the
+contract becomes a decline. The corpus answer text is free text and has no Level 0.
+
+**Blocked downloads to expect at the customer.** The classifier rung needs `all-MiniLM-L6-v2` (about
+90 MB from Hugging Face). The Docker image now fetches it at build time, so a build where Hugging Face
+is reachable produces an image that runs where it is not.
+
+---
+
 ## Week 9 — the full checklist
 
 <!--

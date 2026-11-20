@@ -84,3 +84,13 @@ def test_card_with_a_note_to_the_summariser_is_downgraded():
     assert card.trust_level == "low" and "instructions_in_text" in card.trust_warnings
     clean = parse_card(inflated, Request(document_text="Six office workers drank coffee for a week.", output_languages=["en"]))
     assert clean.trust_level == "high"
+
+
+def test_approving_one_paper_never_clears_another(rails):
+    # W900000000 is a prefix of W9000000001: a substring match would clear the poisoned paper's flag.
+    ladder.guarded_answer("Does a darker roast lower acrylamide in coffee?", answer, rails)
+    with pytest.raises(SystemExit):
+        ladder.main(["verdict", "0", "approved", "W900000000"])  # not a paper that answer read
+    ladder._append({"kind": "verdict", "ts": "2026-11-20T00:00:00+00:00", "flag": 0, "verdict": "approved",
+                    "paper": "W900000000", "note": ""})
+    assert any(POISON in f for f in ladder.guarded_answer("Does a darker roast lower acrylamide?", answer, rails).flags)

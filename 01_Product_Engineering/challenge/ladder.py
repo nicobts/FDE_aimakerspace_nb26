@@ -17,6 +17,7 @@ import asyncio
 import datetime
 import json
 import os
+import re
 import sys
 import time
 from functools import cache
@@ -172,16 +173,31 @@ def _append(row: dict) -> None:
         print(f"review log not written ({exc}): {json.dumps(row, ensure_ascii=False)}", file=sys.stderr)
 
 
+PAPER_ID = re.compile(r"W\d{6,}")
+_verdicts_cache: tuple[tuple | None, dict] = (None, {})
+
+
 def paper_verdicts() -> dict[str, dict]:
     """The latest reviewer verdict per paper: the memory the customer asked for, so a paper already
-    judged is recognised instead of being flagged and reviewed again."""
-    return {row["paper"]: row for row in _read_log() if row.get("kind") == "verdict" and row.get("paper")}
+    judged is recognised instead of being flagged and reviewed again. Re-read only when the log file
+    changes: every request asks, and the log only grows."""
+    global _verdicts_cache
+    try:
+        stamp = (str(REVIEW_LOG), REVIEW_LOG.stat().st_mtime_ns, REVIEW_LOG.stat().st_size)
+    except OSError:
+        return {}
+    if _verdicts_cache[0] != stamp:
+        _verdicts_cache = (stamp, {row["paper"]: row for row in _read_log() if row.get("kind") == "verdict"
+                                   and PAPER_ID.fullmatch(row.get("paper") or "")})
+    return _verdicts_cache[1]
 
 
 def _remember(result, verdicts: dict[str, dict]) -> list[str]:
     """Apply past verdicts: a paper approved after review loses its passage flag; a paper judged wrong
     or poisoned is flagged on every answer that read it, whatever the checks say today."""
-    flags = [f for f in result.flags if not any(w in f and v["verdict"] == "approved" for w, v in verdicts.items())]
+    approved = {w for w, v in verdicts.items() if v["verdict"] == "approved"}
+    # Exact ids, not substrings: approving W123456 must not clear a flag on W1234567.
+    flags = [f for f in result.flags if not (set(PAPER_ID.findall(f)) & approved)]
     for w in result.retrieved:
         v = verdicts.get(w)
         if v and v["verdict"] != "approved":
@@ -256,6 +272,9 @@ def main(argv=None):
         return
     if not 0 <= args.flag < len(flags):
         raise SystemExit(f"no flag {args.flag}; run `queue`")
+    # A verdict is remembered per paper, so it may only name a paper that flag's answer actually read.
+    if args.paper and (not PAPER_ID.fullmatch(args.paper) or args.paper not in flags[args.flag].get("retrieved", [])):
+        raise SystemExit(f"{args.paper} is not a paper id that flag {args.flag} read")
     _append({"kind": "verdict", "ts": _now(), "flag": args.flag, "verdict": args.verdict,
              "paper": args.paper, "note": args.note})
     print(f"flag {args.flag}: {args.verdict}" + (f", remembered for {args.paper}" if args.paper else ""))

@@ -2,6 +2,7 @@
 
 import json
 
+import guardrails
 from schema import Request, Response
 
 CARD_INSTRUCTIONS = """You turn one scientific publication about coffee into an article card for an R&D researcher.
@@ -56,6 +57,12 @@ def parse_card(raw: str, request: Request) -> Response:
             needs_human_reason="The model's answer did not match the contract; "
             "a researcher should read this document.",
         )
+    # TC6: a pasted document is text from anywhere, and a note in it can order the model to inflate the
+    # card. The check reads the document, not the card, so the model cannot talk its way past it.
+    if not card.needs_human and guardrails.INSTRUCTION_LIKE.search(
+            " ".join(filter(None, (request.document_text, request.title, request.source, request.focus)))):
+        card.trust_level = "low"
+        card.trust_warnings = [*card.trust_warnings, "instructions_in_text"]
     if "en" not in request.output_languages:
         card.summary_en = card.notes_en = None
     if "it" not in request.output_languages:

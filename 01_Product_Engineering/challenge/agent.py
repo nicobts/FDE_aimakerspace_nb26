@@ -172,19 +172,23 @@ def answer_with_subagent(question: str, *, k: int = 5, technique: str = qa.TECHN
             return json.dumps({"declined": refused}, ensure_ascii=False)
         result = qa.answer_question(question, k=k, technique=technique, search=search, meter=meter)
         retrieved.extend(result.retrieved)
+        flags.extend(result.flags)
         if result.needs_human:
             return json.dumps({"declined": result.needs_human_reason}, ensure_ascii=False)
         grounded.extend(result.sources)
         # The passages stay in the inner call. The outer model gets the answer and its ids, nothing else.
         return json.dumps({"answer": result.answer, "sources": result.sources}, ensure_ascii=False)
 
+    flags: list[str] = []  # TC6: a doubtful passage under any sub-answer makes the whole answer doubtful
     schemas = [_schema("ask_research_corpus",
                        "Answer one focused question from the coffee research paper corpus. Returns the answer with "
                        "the works it cites as [W<id>], or a decline with the reason when the papers do not answer it.",
                        {"question": {"type": "string"}}, ["question"])]
     reply, why = run_loop(question, system=SUBAGENT_SYSTEM, schemas=schemas,
                           tools={"ask_research_corpus": ask_research_corpus}, meter=meter, budget=budget)
-    return _finish(reply, why, grounded=qa._unique(grounded), retrieved=qa._unique(retrieved))
+    result = _finish(reply, why, grounded=qa._unique(grounded), retrieved=qa._unique(retrieved))
+    result.flags = qa._unique(flags)
+    return result
 
 
 WAYS = {"pipeline": qa.answer_question, "tool loop": answer_with_tool_loop, "subagent": answer_with_subagent}

@@ -101,7 +101,11 @@ def ask_research_corpus(question: str, k: int = 5) -> str:
     refused = refused or BUDGET.take()
     if refused:
         return CorpusAnswer(needs_human=True, needs_human_reason=f"Not sent to the model: {refused}.").model_dump_json(indent=2)
-    return answer_question(question, k=max(1, min(k, 8))).model_dump_json(indent=2)
+    # TC6: the guardrail ladder (rules, classifier) before the pipeline, the output rule after it.
+    # A rung that raises blocks the request (NeMo fails closed); nothing here catches that.
+    from ladder import guarded_answer
+
+    return guarded_answer(question, lambda q: answer_question(q, k=max(1, min(k, 8)))).model_dump_json(indent=2)
 
 
 @app.api(name="ask_research_corpus_agent", **LIMITS)
@@ -115,13 +119,15 @@ def ask_research_corpus_agent(question: str, k: int = 5) -> str:
     for a single question and this one only when the question has several distinct parts.
     """
     from agent import answer_with_subagent
+    from ladder import guarded_answer
 
     refused = check_lengths({"question": (question, guardrails.MAX_QUESTION_CHARS)})
     if refused:
         return CorpusAnswer(needs_human=True, needs_human_reason=f"Not sent to the model: {refused}.").model_dump_json(indent=2)
     # One request here is several model calls, so the budget is charged inside, once per call
     # (at most MAX_ROUNDS outer calls and MAX_SUBQUESTIONS pipeline runs), not once per request.
-    return answer_with_subagent(question, k=max(1, min(k, 8)), budget=BUDGET.take).model_dump_json(indent=2)
+    return guarded_answer(question, lambda q: answer_with_subagent(q, k=max(1, min(k, 8)), budget=BUDGET.take)
+                          ).model_dump_json(indent=2)
 
 
 # --- The frontend ------------------------------------------------------------

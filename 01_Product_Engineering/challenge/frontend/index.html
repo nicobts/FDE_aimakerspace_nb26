@@ -466,10 +466,12 @@
             single_origin_or_batch: "Single origin or batch",
             no_statistics: "No statistics reported",
             abstract_only: "Abstract only",
+            instructions_in_text: "Contains instructions to AI",
           },
           summaryOf: { en: "English", it: "Italiano" },
           declineTitle: "No card. A researcher should read this.",
           noReason: "No reason was given.",
+          flagged: "Flagged for review: check the paper before relying on this answer",
           took: (s) => `Read in ${s} seconds`,
           copy: "Copy JSON",
           copied: "Copied",
@@ -550,10 +552,12 @@
             single_origin_or_batch: "Una sola origine o lotto",
             no_statistics: "Nessuna analisi statistica",
             abstract_only: "Solo abstract",
+            instructions_in_text: "Contiene istruzioni per l'AI",
           },
           summaryOf: { en: "English", it: "Italiano" },
           declineTitle: "Nessuna scheda. Deve leggerlo un ricercatore.",
           noReason: "Nessun motivo indicato.",
+          flagged: "Segnalata per revisione: controlla il paper prima di usare questa risposta",
           took: (s) => `Letto in ${s} secondi`,
           copy: "Copia JSON",
           copied: "Copiato",
@@ -878,6 +882,13 @@
         } else {
           body.appendChild(answerParagraph(data.answer || ""));
           if ((data.sources || []).length) body.appendChild(sourceBlock(t().sources, data.sources));
+        }
+        // TC6: a flagged answer is still shown, with why it is doubtful; the review happens afterwards.
+        if ((data.flags || []).length) {
+          body.appendChild(el("h3", t().flagged));
+          const list = el("ul", undefined, "warnings");
+          for (const f of data.flags) list.appendChild(el("li", f));
+          body.appendChild(list);
         }
         // What the model saw but did not cite: the first place to look when an answer is wrong.
         const other = (data.retrieved || []).filter((id) => !(data.sources || []).includes(id));

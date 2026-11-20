@@ -11,6 +11,7 @@ agent calling the API already know how to show a decline.
 """
 
 import os
+import re
 import threading
 import time
 from collections import deque
@@ -70,3 +71,22 @@ class CallBudget:
 
 
 BUDGET = CallBudget(per_minute=MAX_CALLS_PER_MINUTE, per_day=MAX_CALLS_PER_DAY)
+
+
+# TC6: a passage is public text (anyone OpenAlex indexes can write it), so the model reading it is the
+# indirect door, and no check on the question can see it. These are the shapes of text addressed to a
+# model rather than a reader: hidden markup, notes to assistants, orders about the answer, and long
+# encoded runs that hide either. They flag the answer for review; they never drop the passage, because
+# the customer asked for an alert on doubtful papers, not a silent filter. Priced on the whole corpus
+# in 06_Guardrails/challenge/ladder_results.json.
+INSTRUCTION_LIKE = re.compile(
+    # "<!-- image -->" is the PDF converter's own placeholder (19 chunks of one paper), not hidden text.
+    r"<!--(?!\s*image\s*-->)|\[\s*(?:editorial\s+)?note\s+(?:to|for)\b|"
+    # Papers about AI say "AI model" and "automated system" all the time; only an assistant is addressed.
+    r"\bnote\s+(?:to|for)\s+(?:AI|LLM|automated)\b|\b(?:AI|LLM|research)\s+assistants?\b|\bsummari[sz]ers?\b|"
+    r"\b(?:ignore|disregard)\s+(?:all\s+|any\s+)?(?:previous|prior|above|earlier)\s+(?:instructions?|text|rules?)\b|"
+    r"\b(?:every|each|your)\s+(?:answer|response|summary|reply)\s+(?:must|should|cites?|includes?)\b|"
+    r"\b(?:set|change)\s+(?:the\s+)?(?:relevance|trust[_ ]level)\s+to\b|"
+    r"[A-Za-z0-9+/]{60,}={0,2}",
+    re.IGNORECASE,
+)

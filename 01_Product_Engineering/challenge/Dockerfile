@@ -19,12 +19,18 @@ COPY pyproject.toml uv.lock ./
 RUN uv export --frozen --no-dev --no-emit-project -o requirements.txt \
  && uv pip install --system --no-cache -r requirements.txt
 
-COPY llm.py app.py schema.py card.py retrieval.py qa.py agent.py guardrails.py ./
+COPY llm.py app.py schema.py card.py retrieval.py qa.py agent.py guardrails.py ladder.py ./
 COPY frontend/ ./frontend/
+# The ladder's NeMo config (TC6). Not guardrails.py: that module is the cost limits from Week 3.
+COPY guardrails/ ./guardrails/
 
 # Don't run as root. Your security review will ask about this.
 RUN useradd --create-home appuser
 USER appuser
+
+# The classifier rung's embedding model (about 90 MB), fetched at build time so the first request
+# does not download it, and so an image built where Hugging Face is reachable runs where it is not.
+RUN python -c "from fastembed import TextEmbedding; TextEmbedding('sentence-transformers/all-MiniLM-L6-v2', cache_dir='/home/appuser/.cache/fastembed')"
 
 EXPOSE 7860
 

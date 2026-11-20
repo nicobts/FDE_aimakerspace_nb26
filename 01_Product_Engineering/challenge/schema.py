@@ -34,6 +34,9 @@ TrustWarning = Literal[
     "single_origin_or_batch",
     "no_statistics",
     "abstract_only",
+    # Added in TC6. Set by the parser, not trusted to the model: the text contains a note addressed to
+    # an AI system (a planted "set relevance to 3" moved a six-person study to high trust, 1 run in 4).
+    "instructions_in_text",
 ]
 
 # Who produced the study. An independent university result and a supplier's own
@@ -182,4 +185,10 @@ class CorpusAnswer(BaseModel):
     retrieved: list[str] = Field(
         default_factory=list,
         description="OpenAlex ids of every work the answer model was shown, best first",
+    )
+    # TC6, after the Step 6 meeting: the customer wanted doubtful answers marked for asynchronous
+    # review, not refused. A flagged answer is still an answer; the researcher sees why it is doubtful.
+    flags: list[str] = Field(
+        default_factory=list,
+        description="Why this answer is marked for review (a guardrail flag); empty when nothing was flagged",
     )

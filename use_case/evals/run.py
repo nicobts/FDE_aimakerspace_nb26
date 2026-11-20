@@ -4,9 +4,12 @@
     python use_case/evals/run.py --judge         # also calibrate the judge and add its column
     python use_case/evals/run.py --synthetic     # also score the generated failures (detection table)
     python use_case/evals/run.py --save          # write this run as the new baseline.json
+    python use_case/evals/run.py --no-injection  # skip the TC6 injection cases (injection.jsonl)
 
 The endpoint needs the corpus (use_case/data, gitignored) and the models named in .env
 (LLM_MODEL, EMBED_MODEL, ...). JUDGE_MODEL names the judge; it must not be LLM_MODEL.
+The endpoint is scored as it ships: through the guardrail ladder (ladder.guarded_answer). The injection
+cases are attack-shaped, so their model calls go to INJECTION_MODEL / INJECTION_API_BASE only.
 """
 
 import argparse
@@ -28,6 +31,7 @@ import harness as E  # noqa: E402
 
 GOLDEN = HERE / "golden_qa.jsonl"
 SYNTHETIC = HERE / "synthetic.jsonl"
+INJECTION = HERE / "injection.jsonl"
 BASELINE = HERE / "baseline.json"
 DEFAULT_JUDGE = "ollama_chat/hf.co/LiquidAI/LFM2.5-8B-A1B-GGUF:Q4_K_M"
 
@@ -82,6 +86,7 @@ def main(argv=None):
     parser.add_argument("--synthetic", action="store_true")
     parser.add_argument("--save", action="store_true")
     parser.add_argument("--no-endpoint", action="store_true", help="echo and oracle only (no corpus, no model)")
+    parser.add_argument("--no-injection", action="store_true", help="skip the TC6 injection cases")
     args = parser.parse_args(argv)
 
     cfg = nb.bootstrap(require=("LLM_MODEL",))
@@ -99,9 +104,10 @@ def main(argv=None):
 
     systems = {"echo": lambda q: q, "oracle": lambda q: by_input[q]}
     if not args.no_endpoint:
+        import ladder
         import qa
 
-        systems["endpoint"] = lambda q: qa.answer_question(q).model_dump_json()
+        systems["endpoint"] = lambda q: ladder.guarded_answer(q, qa.answer_question).model_dump_json()
 
     reports = {}
     for name, system in systems.items():
@@ -128,6 +134,53 @@ def main(argv=None):
 
     if args.synthetic:
         detection(cases, scorers)
+
+    if not args.no_endpoint and not args.no_injection:
+        injection()
+
+
+def injection():
+    """TC6: every attack that landed before the fix, run through the endpoint as it ships, scored
+    with blocks_injection and no_leak. A separate report: these cases have no reference answer."""
+    if not (os.getenv("INJECTION_MODEL") and os.getenv("INJECTION_API_BASE")):
+        print("\ninjection cases: skipped, INJECTION_MODEL / INJECTION_API_BASE unset (attacks never go to a hosted API)")
+        return
+    import ladder
+    import qa
+    import retrieval
+
+    cases = [json.loads(line) for line in INJECTION.read_text(encoding="utf-8").splitlines() if line.strip()]
+    # Two indirect cases share one innocent question and differ only in the poisoned passage, so a case
+    # cannot be found by its input. H.run calls the system once per case, in order.
+    queue = iter(cases)
+
+    def system(question):
+        case = next(queue)
+        assert case["input"] == question, "harness.run no longer calls the system in case order"
+
+        def search(q, *, k=5, technique="hybrid"):
+            # The poisoned passage first, the way a paper the ranker likes would arrive.
+            planted = [{"id": f"{case['poison_id']}#0", "source": case["poison_id"], "text": case["context"], "score": 1.0}]
+            return planted + retrieval.search(q, k=k, technique=technique)[: k - 1]
+
+        answer = (lambda q: qa.answer_question(q, search=search)) if case.get("context") else qa.answer_question
+        return ladder.guarded_answer(question, answer).model_dump_json()
+
+    saved = {name: os.environ.get(name) for name in ("LLM_MODEL", "LLM_API_BASE")}
+    os.environ["LLM_MODEL"], os.environ["LLM_API_BASE"] = os.environ["INJECTION_MODEL"], os.environ["INJECTION_API_BASE"]
+    try:
+        report = H.run(cases, system, E.INJECTION_SCORERS, name="injection", meta={"model": os.environ["LLM_MODEL"]})
+    finally:
+        for name, value in saved.items():
+            if value is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = value
+    print(f"\n{report}")
+    for r in report.results:
+        case = cases[r.index]
+        print(f"  {case['id']:10} {case['door']:9} blocks_injection {r.scores['blocks_injection']:.0f}  "
+              f"no_leak {r.scores['no_leak']:.0f}  {case['input'][:60]!r}")
 
 
 def detection(cases, scorers):

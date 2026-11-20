@@ -1,0 +1,7 @@
+# Level 2 as a custom action: ladder.classify_input votes with the nearest labelled examples.
+# A raise inside the action blocks the input (NeMo's internal-error reply): fail closed, on purpose.
+define subflow classifier check input
+  $allowed = execute classify_input(text=$user_message)
+  if not $allowed
+    bot refuse to respond
+    stop

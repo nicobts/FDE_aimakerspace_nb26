@@ -1,0 +1,49 @@
+{
+  "week4_replay": {
+    "correct_before": 0.722,
+    "correct_after": 0.722,
+    "answers_changed": 0,
+    "answers": 18,
+    "answers_that_now_carry_a_warning": 8
+  },
+  "recall": [
+    {
+      "entries": 10,
+      "queries": 10,
+      "recall_at_5_same_words": 1.0,
+      "recall_at_5_italian_query": 1.0,
+      "search_ms_median": 1.27,
+      "lookup_by_paper_ms": 0.76
+    },
+    {
+      "entries": 100,
+      "queries": 50,
+      "recall_at_5_same_words": 1.0,
+      "recall_at_5_italian_query": 0.82,
+      "search_ms_median": 1.43,
+      "lookup_by_paper_ms": 1.08
+    },
+    {
+      "entries": 1000,
+      "queries": 50,
+      "recall_at_5_same_words": 1.0,
+      "recall_at_5_italian_query": 0.14,
+      "search_ms_median": 3.52,
+      "lookup_by_paper_ms": 1.32
+    }
+  ],
+  "explanations": {
+    "runs": 5,
+    "without the log": {
+      "matched_the_log": 0,
+      "sample_that_did_not": "The automated system likely flagged this response because the citation ID `W7163668116` does not correspond to a valid, recognized academic paper in standard bibliographic databases, failing the **Citation Validity Check** or **Source Verification Check**. Con"
+    },
+    "with the log": {
+      "matched_the_log": 1,
+      "sample_that_did_not": "The response was flagged because the **regex check** detected that the question appeared to be a request about the assistant rather than the research, and because the passage from paper **W9000000001** contained instructions for an AI system to open the paper "
+    },
+    "from the log, in code (store.explain)": {
+      "matched_the_log": 5
+    }
+  }
+}

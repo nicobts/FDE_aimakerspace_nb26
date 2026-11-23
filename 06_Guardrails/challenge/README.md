@@ -760,7 +760,7 @@ Behind the removal, after the Step 6 meeting:
   text addressed to an AI system: hidden comments, notes to assistants, orders about the answer, long
   encoded runs. An answer resting on one is flagged with the paper's id; a card from one gets trust
   `low` and the warning `instructions_in_text`.
-- **A review queue with memory.** Every flag is a line in `review_queue.jsonl` beside the corpus;
+- **A review queue with memory.** Every flag is a row in the review queue beside the corpus (a JSONL file in TC6, SQLite since TC7);
   `python ladder.py queue` lists the open ones, `python ladder.py verdict 3 poisoned W… "note"`
   records a verdict. A paper judged poisoned or wrong is flagged on every later answer that reads
   it; an approved one stops being flagged. The log never holds a withheld answer's text.

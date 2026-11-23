@@ -173,6 +173,8 @@ def answer_with_subagent(question: str, *, k: int = 5, technique: str = qa.TECHN
         result = qa.answer_question(question, k=k, technique=technique, search=search, meter=meter)
         retrieved.extend(result.retrieved)
         flags.extend(result.flags)
+        for paper, hashes in result._suspicious.items():
+            suspicious.setdefault(paper, set()).update(hashes)
         if result.needs_human:
             return json.dumps({"declined": result.needs_human_reason}, ensure_ascii=False)
         grounded.extend(result.sources)
@@ -180,6 +182,7 @@ def answer_with_subagent(question: str, *, k: int = 5, technique: str = qa.TECHN
         return json.dumps({"answer": result.answer, "sources": result.sources}, ensure_ascii=False)
 
     flags: list[str] = []  # TC6: a doubtful passage under any sub-answer makes the whole answer doubtful
+    suspicious: dict[str, set[str]] = {}
     schemas = [_schema("ask_research_corpus",
                        "Answer one focused question from the coffee research paper corpus. Returns the answer with "
                        "the works it cites as [W<id>], or a decline with the reason when the papers do not answer it.",
@@ -188,6 +191,7 @@ def answer_with_subagent(question: str, *, k: int = 5, technique: str = qa.TECHN
                           tools={"ask_research_corpus": ask_research_corpus}, meter=meter, budget=budget)
     result = _finish(reply, why, grounded=qa._unique(grounded), retrieved=qa._unique(retrieved))
     result.flags = qa._unique(flags)
+    result._suspicious = {paper: sorted(hashes) for paper, hashes in suspicious.items()}
     return result
 
 

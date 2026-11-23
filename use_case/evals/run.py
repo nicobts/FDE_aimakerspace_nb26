@@ -5,6 +5,7 @@
     python use_case/evals/run.py --synthetic     # also score the generated failures (detection table)
     python use_case/evals/run.py --save          # write this run as the new baseline.json
     python use_case/evals/run.py --no-injection  # skip the TC6 injection cases (injection.jsonl)
+    python use_case/evals/run.py --no-memory     # skip the TC7 memory tests (memory.jsonl)
 
 The endpoint needs the corpus (use_case/data, gitignored) and the models named in .env
 (LLM_MODEL, EMBED_MODEL, ...). JUDGE_MODEL names the judge; it must not be LLM_MODEL.
@@ -16,6 +17,7 @@ import argparse
 import json
 import os
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -32,6 +34,7 @@ import harness as E  # noqa: E402
 GOLDEN = HERE / "golden_qa.jsonl"
 SYNTHETIC = HERE / "synthetic.jsonl"
 INJECTION = HERE / "injection.jsonl"
+MEMORY = HERE / "memory.jsonl"
 BASELINE = HERE / "baseline.json"
 DEFAULT_JUDGE = "ollama_chat/hf.co/LiquidAI/LFM2.5-8B-A1B-GGUF:Q4_K_M"
 
@@ -87,9 +90,13 @@ def main(argv=None):
     parser.add_argument("--save", action="store_true")
     parser.add_argument("--no-endpoint", action="store_true", help="echo and oracle only (no corpus, no model)")
     parser.add_argument("--no-injection", action="store_true", help="skip the TC6 injection cases")
+    parser.add_argument("--no-memory", action="store_true", help="skip the TC7 memory tests")
     args = parser.parse_args(argv)
 
     cfg = nb.bootstrap(require=("LLM_MODEL",))
+    # An eval must never write into the reviewers' real queue, or its attacks become their work.
+    scratch = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
+    os.environ["MEMORY_DB"] = str(Path(scratch.name) / "eval_memory.sqlite")
     cases = load_cases()
     by_input = {c["input"]: c["output"] for c in cases}
     scorers = dict(E.SCORERS)
@@ -135,8 +142,25 @@ def main(argv=None):
     if args.synthetic:
         detection(cases, scorers)
 
+    if not args.no_memory:
+        memory_tests()
+
     if not args.no_endpoint and not args.no_injection:
         injection()
+
+
+def memory_tests():
+    """TC7: staleness, cost, truthfulness and leakage, each against the real memory and a broken one."""
+    import memory_scenarios
+
+    cases = [json.loads(line) for line in MEMORY.read_text(encoding="utf-8").splitlines() if line.strip()]
+    report = H.run(cases, memory_scenarios.run_scenario, E.MEMORY_SCORERS, name="memory")
+    print(f"\n{report}")
+    for r in report.results:
+        print(f"  {cases[r.index]['id']:14} holds {r.scores['memory_holds']:.0f}  "
+              f"catches a broken memory {r.scores['memory_test_can_fail']:.0f}")
+        if r.scores["memory_holds"] < 1 and r.actual:
+            print("    failed:", [k for k, v in json.loads(r.actual)["checks"].items() if not v])
 
 
 def injection():

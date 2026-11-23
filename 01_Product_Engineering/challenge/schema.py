@@ -6,7 +6,7 @@ fetches, the store keeps the cards, the weekly report rolls them up.
 
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
 
 Language = Literal["en", "it"]
 
@@ -192,3 +192,6 @@ class CorpusAnswer(BaseModel):
         default_factory=list,
         description="Why this answer is marked for review (a guardrail flag); empty when nothing was flagged",
     )
+    # TC7: paper id -> hashes of its suspicious passages, so a reviewer's approval covers that exact text.
+    # Private: it is bookkeeping for the memory, not part of what a caller receives.
+    _suspicious: dict[str, list[str]] = PrivateAttr(default_factory=dict)

@@ -1,0 +1,4 @@
+{"id": "mem-staleness", "input": "staleness"}
+{"id": "mem-cost", "input": "cost"}
+{"id": "mem-truthfulness", "input": "truthfulness"}
+{"id": "mem-leakage", "input": "leakage"}

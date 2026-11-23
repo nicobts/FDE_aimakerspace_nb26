@@ -155,6 +155,19 @@ is reachable produces an image that runs where it is not.
 
 ---
 
+## Week 7 — the memory is one more thing somebody can write to
+
+`memory.sqlite` (beside the corpus by default, `MEMORY_DB` moves it) holds the review queue and the
+reviewers' verdicts. **Who can write there:** the guardrails, from observed events, and anyone with
+shell access to the host, through `python ladder.py verdict`. There is no web endpoint for it. The
+reviewer's name is typed in, not authenticated, so access control is needed before real users.
+**It reaches no model:** verdicts change warnings and the queue, never the prompt, and a reviewer's
+note passes through the output rule. **It holds researchers' questions:** where it lives and how long
+it is kept go to the customer's DPO. In the container it needs a writable path; if it has none,
+answers and flags keep working and nothing is remembered.
+
+---
+
 ## Week 9 — the full checklist
 
 <!--

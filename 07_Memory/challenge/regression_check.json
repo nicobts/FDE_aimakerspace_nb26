@@ -1,0 +1,809 @@
+{
+ "what": "The shipped endpoint run five times on the 18 goldens, empty memory, baseline.json only read",
+ "model": "ollama_chat/qwen3.5:9b",
+ "baseline_means": {
+  "correct": 0.7222222222222222,
+  "decline_correct": 1.0,
+  "reviewed_facts": 0.8333333333333334,
+  "all_gold_cited": 0.8333333333333334,
+  "clean_decline": 1.0,
+  "grounded_sources": 1.0
+ },
+ "runs": [
+  {
+   "run": 1,
+   "crashes": 0,
+   "gate": "PASS",
+   "means": {
+    "correct": 0.7777777777777778,
+    "decline_correct": 1.0,
+    "reviewed_facts": 0.8333333333333334,
+    "all_gold_cited": 0.8888888888888888,
+    "clean_decline": 1.0,
+    "grounded_sources": 1.0
+   },
+   "scores": {
+    "q01": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q02": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q03": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 0.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q04": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 0.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q05": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q06": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 0.0,
+     "all_gold_cited": 0.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q07": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q08": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q09": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q10": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q11": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q12": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q13": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u01": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 0.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u02": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u03": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u04": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u05": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    }
+   }
+  },
+  {
+   "run": 2,
+   "crashes": 0,
+   "gate": "PASS",
+   "means": {
+    "correct": 0.7777777777777778,
+    "decline_correct": 1.0,
+    "reviewed_facts": 0.8333333333333334,
+    "all_gold_cited": 0.9444444444444444,
+    "clean_decline": 1.0,
+    "grounded_sources": 1.0
+   },
+   "scores": {
+    "q01": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q02": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q03": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q04": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 0.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q05": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q06": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q07": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q08": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q09": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q10": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q11": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 0.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q12": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q13": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u01": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 0.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u02": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u03": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u04": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 0.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u05": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    }
+   }
+  },
+  {
+   "run": 3,
+   "crashes": 0,
+   "gate": "PASS",
+   "means": {
+    "correct": 0.7777777777777778,
+    "decline_correct": 1.0,
+    "reviewed_facts": 0.8888888888888888,
+    "all_gold_cited": 0.8333333333333334,
+    "clean_decline": 1.0,
+    "grounded_sources": 1.0
+   },
+   "scores": {
+    "q01": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q02": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q03": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 0.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q04": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 0.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q05": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q06": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 0.0,
+     "all_gold_cited": 0.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q07": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q08": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q09": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q10": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q11": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q12": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q13": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u01": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 0.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u02": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u03": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u04": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u05": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    }
+   }
+  },
+  {
+   "run": 4,
+   "crashes": 0,
+   "gate": "REGRESSION",
+   "means": {
+    "correct": 0.7222222222222222,
+    "decline_correct": 1.0,
+    "reviewed_facts": 0.7777777777777778,
+    "all_gold_cited": 0.8888888888888888,
+    "clean_decline": 1.0,
+    "grounded_sources": 1.0
+   },
+   "scores": {
+    "q01": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q02": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q03": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 0.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q04": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 0.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q05": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q06": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 0.0,
+     "all_gold_cited": 0.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q07": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q08": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q09": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q10": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q11": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 0.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q12": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q13": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u01": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 0.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u02": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u03": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u04": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u05": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    }
+   }
+  },
+  {
+   "run": 5,
+   "crashes": 0,
+   "gate": "REGRESSION",
+   "means": {
+    "correct": 0.6666666666666666,
+    "decline_correct": 0.9444444444444444,
+    "reviewed_facts": 0.7222222222222222,
+    "all_gold_cited": 0.7777777777777778,
+    "clean_decline": 0.9444444444444444,
+    "grounded_sources": 1.0
+   },
+   "scores": {
+    "q01": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q02": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q03": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 0.0,
+     "all_gold_cited": 0.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q04": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 0.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q05": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q06": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 0.0,
+     "all_gold_cited": 0.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q07": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q08": {
+     "correct": 0.0,
+     "decline_correct": 0.0,
+     "reviewed_facts": 0.0,
+     "all_gold_cited": 0.0,
+     "clean_decline": 0.0,
+     "grounded_sources": 1.0
+    },
+    "q09": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q10": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q11": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 0.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q12": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "q13": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u01": {
+     "correct": 0.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 0.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u02": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u03": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u04": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    },
+    "u05": {
+     "correct": 1.0,
+     "decline_correct": 1.0,
+     "reviewed_facts": 1.0,
+     "all_gold_cited": 1.0,
+     "clean_decline": 1.0,
+     "grounded_sources": 1.0
+    }
+   }
+  }
+ ]
+}

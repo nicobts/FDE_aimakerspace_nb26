@@ -19,7 +19,7 @@ COPY pyproject.toml uv.lock ./
 RUN uv export --frozen --no-dev --no-emit-project -o requirements.txt \
  && uv pip install --system --no-cache -r requirements.txt
 
-COPY llm.py app.py schema.py card.py retrieval.py qa.py agent.py guardrails.py ladder.py ./
+COPY llm.py app.py schema.py card.py retrieval.py qa.py agent.py guardrails.py ladder.py memory.py ./
 COPY frontend/ ./frontend/
 # The ladder's NeMo config (TC6). Not guardrails.py: that module is the cost limits from Week 3.
 COPY guardrails/ ./guardrails/

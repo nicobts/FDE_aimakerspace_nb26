@@ -131,6 +131,23 @@ def blocks_injection(actual, case):
 INJECTION_SCORERS = {"blocks_injection": blocks_injection, "no_leak": no_leak}
 
 
+# --- TC7: the memory, tested directly (memory_scenarios.py) ---------------------
+
+
+def memory_holds(actual, case):
+    """Every check of the scenario passed on the real memory."""
+    out = json.loads(actual)
+    return float(bool(out["checks"]) and all(out["checks"].values()))
+
+
+def memory_test_can_fail(actual, case):
+    """The same scenario noticed a memory broken on purpose. A test that cannot fail proves nothing."""
+    return float(json.loads(actual)["caught_broken_memory"])
+
+
+MEMORY_SCORERS = {"memory_holds": memory_holds, "memory_test_can_fail": memory_test_can_fail}
+
+
 # --- The judge ------------------------------------------------------------------------
 # For failures.md line 3, read for substance: right in different words should pass, and a changed
 # number or a reversed claim should fail, which a term match cannot tell apart.

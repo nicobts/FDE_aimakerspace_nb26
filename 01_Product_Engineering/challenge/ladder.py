@@ -5,8 +5,8 @@ numbers come from is the config that ships. `build()` switches on only the rungs
 how each rung is priced alone.
 
 After the Step 6 meeting the question-side rungs flag rather than refuse, the rule on the answer still
-withholds, and every flag goes to a review queue whose verdicts are remembered per paper
-(`python ladder.py queue`, `python ladder.py verdict ...`).
+withholds, and every flag goes to a review queue. What reviewers decide is the app's memory (TC7,
+memory.py): `python ladder.py queue | verdict | explain | search`.
 
 The judge's model comes from GUARDRAIL_MODEL / GUARDRAIL_API_BASE, else INJECTION_MODEL /
 INJECTION_API_BASE: whatever the judge reads is attack-shaped by definition, so it goes to a local
@@ -14,10 +14,9 @@ model or an approved gateway, never the hosted LLM_MODEL.
 """
 
 import asyncio
-import datetime
 import json
 import os
-import re
+import sqlite3
 import sys
 import time
 from functools import cache
@@ -25,6 +24,8 @@ from pathlib import Path
 
 import yaml
 from nemoguardrails import LLMRails, RailsConfig
+
+import memory
 
 CONFIG_DIR = Path(__file__).parent / "guardrails"
 RUNGS = {"rules": "regex check input", "classifier": "classifier check input", "judge": "self check input"}
@@ -37,12 +38,6 @@ BLOCKED = "Blocked by guardrail"
 # read critically and the corpus is public. "block" restores refusal on the question-side rungs; the rule
 # on the answer withholds in both modes, because a leaked code cannot be taken back by a later review.
 INPUT_MODE = os.getenv("GUARDRAIL_INPUT_MODE", "flag")
-# The review queue and the reviewers' verdicts, one JSON line each. Beside the corpus by default, the
-# one mounted volume the container writes to. It holds researchers' questions: retention is the DPO's call.
-REVIEW_LOG = Path(os.getenv("GUARDRAIL_REVIEW_LOG") or Path(os.getenv("CORPUS_DIR") or
-                  Path(__file__).resolve().parents[2] / "use_case" / "data") / "review_queue.jsonl")
-VERDICTS = ("approved", "wrong", "poisoned")
-
 # Level 2's whole training set. Written after the attacks of Step 2, so its coverage on them is
 # in-sample; the blocked-request log is where the next labels come from.
 SAFE = [
@@ -152,132 +147,132 @@ def check_output(question: str, answer: str, rails: LLMRails | None = None) -> s
     return _stopped(response)
 
 
-def _now() -> str:
-    return datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
+def _remembered(result, store) -> tuple[list[str], bool]:
+    """Past verdicts applied to this answer. If the memory cannot be read, every flag stays and goes to
+    review: losing the memory must make the app noisier, never quieter."""
+    try:
+        return store.apply(result.flags, result.retrieved, result._suspicious)
+    except (sqlite3.Error, OSError) as exc:
+        print(f"memory not read ({exc}): flags kept", file=sys.stderr)
+        return result.flags, bool(result.flags)
 
 
-def _read_log() -> list[dict]:
-    if not REVIEW_LOG.exists():
-        return []
-    return [json.loads(line) for line in REVIEW_LOG.read_text(encoding="utf-8").splitlines() if line.strip()]
-
-
-def _append(row: dict) -> None:
-    # A full disk or a read-only mount must not cost the researcher the answer; the line still reaches
+def _queue(store, **row) -> None:
+    # A full disk or a read-only mount must not cost the researcher the answer; the event still reaches
     # the container log, which the customer's logging service collects.
     try:
-        REVIEW_LOG.parent.mkdir(parents=True, exist_ok=True)
-        with REVIEW_LOG.open("a", encoding="utf-8") as fh:
-            fh.write(json.dumps(row, ensure_ascii=False) + "\n")
-    except OSError as exc:
-        print(f"review log not written ({exc}): {json.dumps(row, ensure_ascii=False)}", file=sys.stderr)
+        store.record_flag(**row)
+    except (sqlite3.Error, OSError) as exc:
+        print(f"review item not written ({exc}): {json.dumps(row, ensure_ascii=False)}", file=sys.stderr)
 
 
-PAPER_ID = re.compile(r"W\d{6,}")
-_verdicts_cache: tuple[tuple | None, dict] = (None, {})
-
-
-def paper_verdicts() -> dict[str, dict]:
-    """The latest reviewer verdict per paper: the memory the customer asked for, so a paper already
-    judged is recognised instead of being flagged and reviewed again. Re-read only when the log file
-    changes: every request asks, and the log only grows."""
-    global _verdicts_cache
+def _default_store():
     try:
-        stamp = (str(REVIEW_LOG), REVIEW_LOG.stat().st_mtime_ns, REVIEW_LOG.stat().st_size)
-    except OSError:
-        return {}
-    if _verdicts_cache[0] != stamp:
-        _verdicts_cache = (stamp, {row["paper"]: row for row in _read_log() if row.get("kind") == "verdict"
-                                   and PAPER_ID.fullmatch(row.get("paper") or "")})
-    return _verdicts_cache[1]
+        return memory.default()
+    except (sqlite3.Error, OSError) as exc:
+        print(f"memory unavailable ({exc})", file=sys.stderr)
+        return _NoMemory()
 
 
-def _remember(result, verdicts: dict[str, dict]) -> list[str]:
-    """Apply past verdicts: a paper approved after review loses its passage flag; a paper judged wrong
-    or poisoned is flagged on every answer that read it, whatever the checks say today."""
-    approved = {w for w, v in verdicts.items() if v["verdict"] == "approved"}
-    # Exact ids, not substrings: approving W123456 must not clear a flag on W1234567.
-    flags = [f for f in result.flags if not (set(PAPER_ID.findall(f)) & approved)]
-    for w in result.retrieved:
-        v = verdicts.get(w)
-        if v and v["verdict"] != "approved":
-            flags.append(f"{w} was marked {v['verdict']} by a reviewer on {v['ts'][:10]}"
-                         + (f": {v['note']}" if v.get("note") else ""))
-    return flags
+class _NoMemory:
+    """Used when the database cannot be opened: nothing is remembered and nothing is silenced."""
+
+    @staticmethod
+    def apply(flags, retrieved, suspicious):
+        return flags, bool(flags)
+
+    @staticmethod
+    def record_flag(**row):
+        print(f"review item not written: {json.dumps(row, ensure_ascii=False)}", file=sys.stderr)
 
 
-def guarded_answer(question: str, answer_fn, rails: LLMRails | None = None):
-    """Input rungs, then the pipeline, then the output rule over the whole response (every field: a
-    leak in needs_human_reason or a source id is still a leak). Returns a CorpusAnswer.
+def guarded_answer(question: str, answer_fn, rails: LLMRails | None = None, store=None):
+    """Input rungs, then the pipeline, then the memory, then the output rule over the whole response
+    (every field, reviewer notes included: a leak in a note is still a leak). Returns a CorpusAnswer.
 
-    A question-side rung flags (INPUT_MODE "flag", the default) or refuses ("block"). Every flagged or
-    withheld response goes to the review queue in REVIEW_LOG."""
+    A question-side rung flags (INPUT_MODE "flag", the default) or refuses ("block"). Anything a person
+    still has to look at goes to the review queue."""
     from schema import CorpusAnswer
 
     rails = rails or build()
+    store = store or _default_store()
     flags = []
     rung, _ = check_input(question, rails)
     if rung and INPUT_MODE == "block":
-        result = CorpusAnswer(needs_human=True, needs_human_reason=f"{BLOCKED} ({rung}): this request asks about "
-                              "the assistant itself, not the research. Ask a question about the papers.")
-        _append({"kind": "flag", "ts": _now(), "question": question, "flags": [f"refused by {rung}"], "withheld": True})
+        result = CorpusAnswer(needs_human=True, flags=[f"refused by {rung}"], needs_human_reason=f"{BLOCKED} ({rung}): "
+                              "this request asks about the assistant itself, not the research. Ask a question about the papers.")
+        _queue(store, question=question, flags=result.flags, withheld=True)
         return result
     if rung:
         flags.append(f"question flagged by {rung}: it reads like a request about the assistant, not the research")
     result = answer_fn(question)
+    remembered, needs_review = _remembered(result, store)
+    result.flags = list(dict.fromkeys([*flags, *remembered]))
+    needs_review = needs_review or bool(flags)
     rung_out = check_output(question, json.dumps(result.model_dump(), ensure_ascii=False), rails)
     if rung_out:
-        # The withheld text is not logged either: the log would become the leak.
-        withheld = CorpusAnswer(needs_human=True, retrieved=result.retrieved, flags=[*flags, *result.flags,
-                                f"answer withheld by {rung_out}"],
+        # The withheld text is not stored either: the log would become the leak. Nor are the flags,
+        # because a reviewer's note can be what carried the code.
+        reasons = [*flags, f"answer withheld by {rung_out}"]
+        withheld = CorpusAnswer(needs_human=True, retrieved=result.retrieved, flags=reasons,
                                 needs_human_reason=f"{BLOCKED} ({rung_out}): the answer contained protected "
                                 "content and was withheld.")
-        _append({"kind": "flag", "ts": _now(), "question": question, "flags": withheld.flags,
-                 "retrieved": withheld.retrieved, "withheld": True})
+        _queue(store, question=question, flags=reasons, retrieved=result.retrieved,
+               suspicious=result._suspicious, withheld=True)
         return withheld
-    result.flags = list(dict.fromkeys([*flags, *_remember(result, paper_verdicts())]))
-    if result.flags:
-        _append({"kind": "flag", "ts": _now(), "question": question, "flags": result.flags, "answer": result.answer,
-                 "sources": result.sources, "retrieved": result.retrieved, "withheld": False})
+    if needs_review:
+        _queue(store, question=question, flags=result.flags, answer=result.answer, sources=result.sources,
+               retrieved=result.retrieved, suspicious=result._suspicious)
     return result
 
 
 def main(argv=None):
     """The reviewer's side of the queue:
 
-        python ladder.py queue                               # flags with no verdict yet, numbered
-        python ladder.py verdict 3 poisoned W9000000001 "hidden note to AI assistants"
+        python ladder.py queue
+        python ladder.py verdict 3 poisoned W9000000001 "hidden note to AI assistants" --reviewer "R&D lead"
+        python ladder.py explain 3
+        python ladder.py search "hidden note"
     """
     import argparse
+    import getpass
 
-    parser = argparse.ArgumentParser(description="The guardrail review queue (TC6)")
+    parser = argparse.ArgumentParser(description="The review queue and its memory (TC6, TC7)")
     sub = parser.add_subparsers(dest="cmd", required=True)
     sub.add_parser("queue")
     v = sub.add_parser("verdict")
     v.add_argument("flag", type=int, help="the number `queue` printed")
-    v.add_argument("verdict", choices=VERDICTS)
+    v.add_argument("verdict", choices=memory.VERDICTS)
     v.add_argument("paper", nargs="?", help="the paper the verdict is about; it is remembered for later answers")
     v.add_argument("note", nargs="?", default="")
+    v.add_argument("--reviewer", default=None, help="who decided (a role is enough); defaults to the OS user")
+    e = sub.add_parser("explain")
+    e.add_argument("flag", type=int)
+    f = sub.add_parser("search")
+    f.add_argument("query")
     args = parser.parse_args(argv)
 
-    rows = _read_log()
-    flags = [r for r in rows if r.get("kind") == "flag"]
-    reviewed = {r["flag"] for r in rows if r.get("kind") == "verdict"}
+    store = memory.default()
     if args.cmd == "queue":
-        for n, row in enumerate(flags):
-            if n not in reviewed:
-                print(f"[{n}] {row['ts']}  {row['question'][:80]!r}")
-                for f in row["flags"]:
-                    print(f"      - {f}")
-        return
-    if not 0 <= args.flag < len(flags):
-        raise SystemExit(f"no flag {args.flag}; run `queue`")
-    # A verdict is remembered per paper, so it may only name a paper that flag's answer actually read.
-    if args.paper and (not PAPER_ID.fullmatch(args.paper) or args.paper not in flags[args.flag].get("retrieved", [])):
-        raise SystemExit(f"{args.paper} is not a paper id that flag {args.flag} read")
-    _append({"kind": "verdict", "ts": _now(), "flag": args.flag, "verdict": args.verdict,
-             "paper": args.paper, "note": args.note})
-    print(f"flag {args.flag}: {args.verdict}" + (f", remembered for {args.paper}" if args.paper else ""))
+        for row in store.open_flags():
+            print(f"[{row['id']}] {row['ts']}  seen {row['seen']}x  {row['question'][:80]!r}")
+            for reason in row["flags"]:
+                print(f"      - {reason}")
+    elif args.cmd == "verdict":
+        try:
+            store.record_verdict(flag_id=args.flag, verdict=args.verdict, paper=args.paper, note=args.note,
+                                 reviewer=args.reviewer or getpass.getuser())
+        except ValueError as exc:
+            raise SystemExit(str(exc))
+        print(f"flag {args.flag}: {args.verdict}" + (f", remembered for {args.paper}" if args.paper else ""))
+    elif args.cmd == "explain":
+        try:
+            print(store.explain(args.flag))
+        except ValueError as exc:
+            raise SystemExit(str(exc))
+    else:
+        for row in store.search_notes(args.query):
+            print(f"{row['paper']}  {row['verdict']}  {row['created_at'][:10]}  {row['note']}")
 
 
 if __name__ == "__main__":

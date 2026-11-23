@@ -11,6 +11,7 @@ import re
 from litellm import completion
 
 import guardrails
+import memory
 import retrieval
 from schema import CorpusAnswer
 
@@ -47,6 +48,15 @@ CITATION = re.compile(r"W\d{6,}")
 # indirect door, and no check on the question can see it. The pattern lives in guardrails.py, shared with
 # the card endpoint; it flags the answer for review, never drops the passage.
 INSTRUCTION_LIKE = guardrails.INSTRUCTION_LIKE
+
+
+def suspicious_hashes(hits) -> dict[str, list[str]]:
+    """Paper id -> hashes of its suspicious passages: what a reviewer's approval will cover."""
+    found: dict[str, set[str]] = {}
+    for hit in hits:
+        if INSTRUCTION_LIKE.search(hit.get("text") or ""):
+            found.setdefault(hit["source"], set()).add(memory.text_hash(hit["text"]))
+    return {paper: sorted(hashes) for paper, hashes in found.items()}
 
 
 def suspicious_passages(hits) -> list[str]:
@@ -110,4 +120,5 @@ def answer_question(question: str, *, k: int = 5, technique: str = TECHNIQUE,
     ], meter=meter)
     result = to_answer(reply, retrieved)
     result.flags = suspicious_passages(hits)
+    result._suspicious = suspicious_hashes(hits)
     return result
